@@ -1,0 +1,44 @@
+{
+  "name": "vite",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --mode=mtb",
+    "build": "vite build --mode=mtb",
+    "preview": "vite preview --mode=mtb"
+  },
+  "dependencies": {
+    "@vue/compiler-sfc": "^3.5.13",
+    "@vue/runtime-dom": "^3.5.13",
+    "@vueuse/core": "^10.2.1",
+    "core-js": "^3.8.3",
+    "crypto-js": "^4.2.0",
+    "echarts": "^5.5.0",
+    "fake-progress": "^1.0.4",
+    "js-cookie": "^3.0.5",
+    "jsencrypt": "^3.3.2",
+    "less-loader": "^11.1.3",
+    "md5.js": "^1.3.5",
+    "sass": "^1.63.6",
+    "sass-loader": "^13.3.2",
+    "tdesign-vue-next": "^1.3.10",
+    "vue": "^3.5.12",
+    "vue-router": "^4.4.5"
+  },
+  "devDependencies": {
+    "@types/eslint": "^9.6.1",
+    "@types/validator": "^13.12.2",
+    "@vitejs/plugin-vue": "^5.2.0",
+    "@vitejs/plugin-vue-jsx": "^4.1.0",
+    "typescript": "~5.6.2",
+    "vite": "^5.4.11",
+    "vue-tsc": "^2.1.8"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "name": "equiment-manage-system",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite -—mode=mtb",
+    "build": "vite build -—mode=mtb",
+    "preview": "vite preview -—mode=mtb"
+  },
+  "dependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vue/babel-plugin-transform-vue-jsx": "^1.4.0",
+    "@vue/babel-preset-jsx": "^1.4.0",
+    "@vueuse/core": "^10.2.1",
+    "axios": "^1.4.0",
+    "core-js": "^3.8.3",
+    "crypto-js": "^4.2.0",
+    "echarts": "^5.5.0",
+    "fake-progress": "^1.0.4",
+    "jquery": "^3.7.0",
+    "js-cookie": "^3.0.5",
+    "jsencrypt": "^3.3.2",
+    "less-loader": "^11.1.3",
+    "md5.js": "^1.3.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "sass": "^1.63.6",
+    "sass-loader": "^13.3.2",
+    "scss-loader": "^0.0.1",
+    "tdesign-vue-next": "^1.3.10",
+    "toc-helper": "^2.1.1",
+    "vue": "^3.2.13",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.22.8",
+    "@babel/eslint-parser": "^7.12.16",
+    "@originjs/vite-plugin-commonjs": "^1.0.1",
+    "@vitejs/plugin-vue": "^2.0.1",
+    "@vitejs/plugin-vue-jsx": "^1.3.2",
+    "@vue/cli-plugin-babel": "~5.0.0",
+    "@vue/cli-plugin-eslint": "~5.0.0",
+    "@vue/cli-service": "~5.0.0",
+    "@vue/compiler-sfc": "^3.2.26",
+    "eslint": "^7.32.0",
+    "eslint-plugin-vue": "^8.0.3",
+    "vite": "^2.7.2",
+    "vite-plugin-env-compatible": "^1.1.1",
+    "vite-plugin-html": "3.2.0",
+    "vue-loader": "^17.2.2",
+    "vue-template-compiler": "^2.7.14"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/vue3-essential",
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "parser": "@babel/eslint-parser"
+    },
+    "rules": {}
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ]
+}
