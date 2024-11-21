@@ -1,6 +1,6 @@
 import { NotifyPlugin } from "tdesign-vue-next";
 import { getAPIURL } from "./common";
-
+import { config } from "../config"
 function SpliceParameter(DATA:Object) {
     if (Object.prototype.toString.call(DATA) !== '[object Object]') return false;
     // PASS
@@ -16,7 +16,7 @@ function SpliceParameter(DATA:Object) {
     return ParameterSRT
 }
 
-export function HTTPRequest(option) {
+export function useRequest(option) {
     return new Promise((resolve, reject) => {
         try{
             if(Object.prototype.toString.call(option) !== '[object Object]') resolve(false);
@@ -30,11 +30,10 @@ export function HTTPRequest(option) {
             
             const xhr = new XMLHttpRequest();
             xhr.open(option.methods, option.url, true);
-            if (option.header != {}) {
-                for (const [key, value] of Object.entries(option.header)){
-                    xhr.setRequestHeader(key, value)
-                }
+            for (const [key, value] of Object.entries(option.header)){
+                xhr.setRequestHeader(key, value)
             }
+            
             xhr.timeout = option.timeout;
             xhr.ontimeout = () => {
                 if(option.error && typeof option.error === 'function') {
@@ -101,4 +100,4 @@ export function HTTPRequest(option) {
 }
 
 
-export default HTTPRequest
+export default useRequest

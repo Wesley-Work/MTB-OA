@@ -6,8 +6,8 @@ export default defineComponent({
     name: "Menu",
     props: {
         theme: {
-            type: Boolean,
-            default: false
+            type: String,
+            default: "light"
         },
         visiable: {
             type: Boolean,
@@ -71,7 +71,6 @@ export default defineComponent({
         console.log(visiable.value)
         return () => (
             <t-menu
-              theme={theme ? 'dark' : 'light'}
               value={value}
               height="550px"
               class={ visiable.value ? 'sidemenu sidemenu-show' : 'sidemenu' }
