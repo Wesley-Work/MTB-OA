@@ -1,6 +1,6 @@
 <template>
     <!--顶部菜单-->
-    <t-head-menu v-if="TitleMenu.show" :theme="light" @change="changeHandler" style="
+    <t-head-menu v-if="TitleMenu.show" style="
             transition: all 0.28s cubic-bezier(0.645, 0.045, 0.355, 1);
             position: fixed;
             top: 0px;
@@ -58,7 +58,7 @@
         </template>
     </t-head-menu>
     <!--侧边菜单-->
-    <SideMenus :theme="theme ? 'dark' : 'light'" :value="SideMenu.value" height="550px" :visiable="SideMenu.show" :value-change="SideMenuValueChange"></SideMenus>
+    <SideMenus :theme="theme ? 'dark' : 'light'" :value="SideMenu.value" height="550px" :visiable="SideMenu.show" :value-change="handleChangeComponent"></SideMenus>
     <!--BackTop-->
     <div style="
             box-sizing: border-box;
@@ -79,7 +79,8 @@
             'loading-change-components-in': MainContent.classIn,
             'loading-change-components-out': MainContent.classOut,
         }" :page="SideMenu.value">
-        <router-view></router-view>
+        <PageTooSmall v-if="pagesmall" />
+        <router-view v-else></router-view>
             <!---->
             <!-- <Component :page="SideMenu.ComponentValue" @mounted="Components_LoadEnd" :UserPermissions="login_info.permissions" :PagePermissions="Page_permissions" :ChangePageUrl="SideMenuValueChange"
                 @Apply-Url-Param="applyUrlParam" @Get-Url-Param="getUrlParam"/> -->
@@ -101,100 +102,377 @@
     </div>
 </template>
 
-<script setup lang="jsx">
+<script setup lang="tsx">
 import SideMenus from "../components/hooks/useMenu.tsx"
 import BreadCurmb from "../components/hooks/useBreadcrumb.tsx"
-
-</script>
-
-<script lang="jsx">
-// import * as api from "../components/config/api.js";
-// import * as config from "../components/config.js";
+import { onBeforeMount, onMounted, reactive, ref } from "vue";
 import { themeMode, toggleTheme } from "../components/function/theme.js";
 import { config } from "../components/config";
 import Component from "../components/index.tsx";
 import { PoweroffIcon, UserIcon, ChatBubbleHelpIcon } from "tdesign-icons-vue-next";
 import { NotifyPlugin } from "tdesign-vue-next";
-import { HTTPRequest, VerifyToken, GetAPIUrl, GetSSOUrl } from '../components/function/hooks'
-
-import { getCurrentPage, verifyPath } from '../components/hooks/common'
-
+import { HTTPRequest, VerifyToken } from '../components/function/hooks'
+import { getCurrentPage, verifyPath, getSSOURL } from '../components/hooks/common'
+import { useRequest } from "../components/hooks/useRequest"
+import PageTooSmall from "../components/pages/PageSmall.vue"
 import router from '../routes'
 
 var Version
 
-export default {
-    name: "InDex",
-    components: {
-        Component,
+const TitleMenu = reactive({
+    text: config.systemname,
+    show: true,
+})
+const SideMenu = reactive({
+    value: "Lend",
+    ComponentValue: "Lend",
+    show: false,
+})
+const MainContent = reactive({
+    classIn: false,
+    classOut: false,
+    lastChoose: "Lend",
+    ComponentValue: "Lend",
+    breadcrumb: {
+        show: true,
+        parent: "设备操作",
+        current: "借出",
+        changing1: false,
+        changing2: false,
     },
-    data() {
-        return {
-            TitleMenu: {
-                text: config.systemname,
-                show: true,
+    AccountMenuOptions: [
+        // { content: "个人中心", value: 1, prefixIcon: <UserIcon /> },
+        { content: "遇到问题", value: 2, prefixIcon: <ChatBubbleHelpIcon /> },
+        { content: "退出登录", value: 3, prefixIcon: <PoweroffIcon /> },
+    ],
+})
+const login_info = reactive({
+    name: "-",
+    code: "-",
+    class: "-",
+    permissions: [],
+    login_time: "",
+})
+const Page_permissions = ref([])
+const timer = reactive({
+    token:null,
+})
+const theme = ref(false)
+const pagesmall = ref(false)
+
+
+// 获取用户权限
+const LoadUserPermissions = (TOKEN:string=localStorage.getItem("token")) => {
+    try {
+        useRequest({
+            url: "/permissions/userHasPermissions",
+            methods: "POST",
+            header: {
+                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                token: TOKEN,
             },
-            SideMenu: {
-                value: "Lend",
-                ComponentValue: "Lend",
-                show: false,
+            success: function (res) {
+                var RES = JSON.parse(res);
+                if (RES.errcode == 0){
+                    login_info.permissions = RES.data.permissions;
+                }
             },
-            MainContent: {
-                classIn: false,
-                classOut: false,
-                lastChoose: "lend",
-                breadcrumb: {
-                    show: true,
-                    parent: "设备操作",
-                    current: "借出",
-                    changing1: false,
-                    changing2: false,
-                },
-                AccountMenuOptions: [
-                    // { content: "个人中心", value: 1, prefixIcon: <UserIcon /> },
-                    { content: "遇到问题", value: 2, prefixIcon: <ChatBubbleHelpIcon /> },
-                    { content: "退出登录", value: 3, prefixIcon: <PoweroffIcon /> },
-                ],
+            error: function (err) {
+                console.error(err);
             },
-            login_info: {
-                name: "-",
-                code: "-",
-                class: "-",
-                permissions: [],
-                login_time: "",
-            },
-            Page_permissions:[],
-            timer:{
-                token:null,
-            },
-            theme: false,
-            config,
-        };
-    },
-    created() {
-        console.log("System Start Running!");
-    },
-    beforeCreate() {
-        document.body.style.overflow = "hidden";
-    },
-    beforeMount(){
-        // this.getHDVersion() // GET Version
-        const actionType = this.getUrlParam("actionType")
+        });
+    } catch (e) {
+        console.error("Unable to load User permissions",e);
+    }
+}
+
+/**
+ * @checkToken
+ * @检查Token时效
+ */
+const checkToken = () => {
+    var TOKEN = localStorage.getItem("token")
+    // Token检测较为特殊，useRequest可能会影响用户体验，所以不用useRequest
+    const xhr = new XMLHttpRequest();
+    xhr.open("post", config.API_URL.MAIN_URL + "/checkToken", true);
+    xhr.setRequestHeader(
+        "Content-Type",
+        "application/x-www-form-urlencoded; charset=UTF-8"
+    );
+    xhr.setRequestHeader(
+        "token",TOKEN
+    );
+    xhr.onload = () => {
+        var result = JSON.parse(xhr.response.replace(/\r|\n/gi, ""));
+        if (result.errcode != 0 || !result.data.verify) {
+            // pass
+            location.href = config.API_URL.login_url; 
+        }
+    };
+    xhr.onerror = () => {
+        console.log("请求错误", xhr);
+        localStorage.removeItem("token")
+        NotifyPlugin("error", {
+            title: "遇到错误",
+            content: "无法检测Token状态，请尝试重新登录",
+            duration: 0
+        });
+    };
+    xhr.send();
+}
+
+/**
+ * @getUserInfoByToken
+ * @获取用户信息
+ * @param token
+ */
+const getUserInfoByToken = (TOKEN) => {
+    useRequest({
+        url: "/getLoginUserInfo",
+        methods: "POST",
+        header: {
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            token: TOKEN,
+        },
+        success: function (res) {
+            var RES = JSON.parse(res);
+            if (RES.errcode == 0){
+                login_info.code = RES.data.usercode;
+                login_info.name = RES.data.name;
+                login_info.class = RES.data.class;
+                login_info.login_time = RES.data.login_time;
+            }
+        },
+        error: function (err) {
+            console.error(err);
+        },
+    });
+}
+
+/**
+ * @startCheckToken
+ * @开始循环检查Token
+ */
+const startCheckToken = () =>{
+    console.log("[CheckToken] START")
+    timer.token = setInterval(() => {
+        checkToken()
+    },2500);
+}
+
+/**
+ * @cancelCheckToken
+ * @取消循环检查Token
+ */
+const cancelCheckToken = () => {
+    console.log("[CheckToken] CANCEL")
+    clearInterval(timer.token)
+}
+
+/**
+ * @GetPageWidth
+ * @获取页面宽度并检测是否过小
+ */
+const GetPageWidth = (e) => {
+    if (e.currentTarget.parent.innerWidth < config.minWidth) {
+        console.log("尺寸过小！");
+        pagesmall.value = true;
+    } else {
+        pagesmall.value = false;
+    }
+}
+
+/**
+ * @ToggleTheme
+ * @切换样式
+ */
+const ToggleTheme = () => {
+    // document.startViewTransition(() => toggleTheme());
+    toggleTheme()
+    theme.value = ThemeMode();
+}
+
+/**
+ * @ThemeMode
+ * @获取主题模式
+ */
+const ThemeMode = () => {
+    return themeMode();
+}
+
+/**
+ * @ToggleSideMenu
+ * @切换侧边菜单显示
+ */
+const ToggleSideMenu = () => {
+    SideMenu.show = !SideMenu.show;
+}
+
+const handleChangeComponent = (componentName:string,toggleSideMenu:boolean=false,forcePush:boolean=false) => {
+    // 与上次选择一样且不是强制刷新、验证地址失败
+    if ((MainContent.lastChoose === componentName && !forcePush) || !VerifyPath(componentName)) {
+        return false;
+    }
+    MainContent.lastChoose = componentName;
+    SideMenu.value = componentName;
+    SideMenu.ComponentValue = componentName;
+    toggleSideMenu ? null : ToggleSideMenu();
+    // 应用动画
+    MainContent.classOut = true;
+    setTimeout(() => {
+        router.push(`/mtb/${componentName}`)
+        MainContent.ComponentValue = componentName;
+        MainContent.classOut = false;
+        MainContent.classIn = true;
+        setTimeout(() => {
+            MainContent.classIn = false;
+        }, 280);
+    }, 280);
+}
+
+/**
+ * @handleAccountMenu
+ * @处理右上角菜单选择内容
+ * @param {*} e 选择数据项
+ */
+const handleAccountMenu = (e) => {
+    e.value == 1
+        ? handleChangeComponent("PersionCenter", true)
+        : e.value == 2
+            ? null
+            : logout();
+    SideMenu.show = false;
+}
+
+const logout = () => {
+    location.href = getSSOURL() + "?actionType=logout"
+}
+
+const PageReload = () => {
+    location.reload()
+}
+
+/**
+ * @NotClick
+ * @阻止a标签默认点击事件，防止跳转到站外链接
+ */
+const NotClick = () => {
+    if (config.aTag_DontNav) {
+        NotifyPlugin("warning", {
+            title: "操作失败",
+            content: "根据相关规则，不允许跳转站外链接",
+        });
+        return false;
+    }
+}
+
+/**
+ * @VerifyPath
+ * @验证菜单选项地址是否存在
+ * @param {*} path 需要验证的地址
+ */
+const VerifyPath = (path) => {
+    return verifyPath(path)
+}
+
+/**
+ * @breadClick
+ * @面包屑点击提示
+ */
+const breadClick = () => {
+    NotifyPlugin("warning", { title: "操作失败", content: "上级地址无法跳转" });
+}
+
+/**
+ * @getUrlParam
+ * @desc 获取参数
+ * @param id 参数名
+ */
+const getUrlParam = (variable, url = window.location.search.substring(1)) => {
+    var vars = url.split("&");
+    for (var i = 0; i < vars.length; i++) {
+        var pair = vars[i].split("=");
+        if (pair[0] == variable) {
+            return pair[1];
+        }
+    }
+    return undefined;
+}
+
+/**
+ * @applyUrlParam
+ * @desc 获取参数
+ * @param new_param 参数名
+ * @param value 参数值
+ */
+const applyUrlParam = (new_param, value, location = window.location ) => {
+    if (!new_param || !value) {
+        return false;
+    }
+    var regUrl = location.search == "" ? false : true;
+    var regParam = location.search.indexOf(new_param) == -1 ? true : false;
+    var UrlH = location.origin + location.pathname;
+    var UrlS = location.href;
+    if (regUrl) {
+        //有参数了，追加
+        if (regParam) {
+            //没有参数，直接加
+            var newurl = UrlS + "&" + new_param + "=" + value;
+            window.history.pushState(null, null, newurl);
+        } else {
+            //有参数，替换
+            var newurl = this.updateUrlParam(new_param, value);
+            window.history.pushState(null, null, newurl);
+        }
+    } else {
+        //没有参数，直接加
+        var newurl = UrlH + "?" + new_param + "=" + value;
+        window.history.pushState(null, null, newurl);
+    }
+}
+
+/**
+ * @updateUrlParam
+ * @desc 获取参数
+ * @param key 参数名
+ * @param value 参数值
+ */
+const updateUrlParam = (key, value) => {
+    var uri = window.location.href;
+    if (!value) {
+        return uri;
+    }
+    var re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
+    var separator = uri.indexOf("?") !== -1 ? "&" : "?";
+    if (uri.match(re)) {
+        return uri.replace(re, "$1" + key + "=" + value + "$2");
+    } else {
+        return uri + separator + key + "=" + value;
+    }
+}
+
+
+
+
+onBeforeMount(() => {
+    console.log("System Start Running!");
+    document.body.style.overflow = "hidden";
+    const actionType = getUrlParam("actionType")
         if (actionType == "Login_Back") {
             // 登录页面返回
-            var TOKEN = this.getUrlParam("user_token")
+            var TOKEN = getUrlParam("user_token")
             localStorage.setItem("token",TOKEN)
-            localStorage.setItem("permissions",this.getUrlParam("user_permissions"))
+            localStorage.setItem("permissions",getUrlParam("user_permissions"))
             const USER_INFO = {
-                "code": this.getUrlParam("user_code"),
-                "name": this.getUrlParam("user_name"),
-                "class": this.getUrlParam("user_class"),
-                "login_time": this.getUrlParam("login_time"),
+                "code": getUrlParam("user_code"),
+                "name": getUrlParam("user_name"),
+                "class": getUrlParam("user_class"),
+                "login_time": getUrlParam("login_time"),
             }
-            this.$data.code = this.getUrlParam("user_code");
-            this.$data.name = this.getUrlParam("user_name");
-            this.$data.class = this.getUrlParam("user_class");
-            this.$data.login_time = this.getUrlParam("login_time");
+            login_info.code = getUrlParam("user_code");
+            login_info.name = getUrlParam("user_name");
+            login_info.class = getUrlParam("user_class");
+            login_info.login_time = getUrlParam("login_time");
             localStorage.setItem("user_info",JSON.stringify(USER_INFO))
         }
         // 查询Token
@@ -209,14 +487,14 @@ export default {
             setTimeout(async () => {
                 if (await VerifyToken()) {
                     // pass
-                    var param_path = this.getUrlParam("path");
+                    var param_path = getUrlParam("path");
                     if (param_path) {
                         console.log("检测到 Path 参数,跳转至指定页面。");
-                        if (this.VerifyPath(param_path) === true) {
-                            this.SideMenuValueChange(param_path, true);
+                        if (VerifyPath(param_path) === true) {
+                            handleChangeComponent(param_path, true);
                         }
                     }
-                    this.SideMenuValueChange(this.$data.MainContent.lastChoose,true,false,true)
+                    handleChangeComponent(MainContent.lastChoose,true,false,true)
                     localStorage.setItem("token",VERIFY_TOKEN)
                     NotifyPlugin("success", {
                         title: "温馨提示",
@@ -229,7 +507,7 @@ export default {
                         },
                         duration: 5000
                     });
-                    this.getUserInfoByToken(VERIFY_TOKEN)
+                    getUserInfoByToken(VERIFY_TOKEN)
                 }
                 else{
                     // location.href = config.API_URL.login_url; 
@@ -248,459 +526,45 @@ export default {
                 },
                 duration: 5000
             });
-            this.SideMenuValueChange(this.$data.MainContent.lastChoose,true,false,true)
-            var param_path = this.getUrlParam("path");
+            handleChangeComponent(MainContent.lastChoose,true,false)
+            var param_path = getUrlParam("path");
             if (param_path) {
                 console.log("检测到 Path 参数,跳转至指定页面。");
-                if (this.VerifyPath(param_path) === true) {
-                    this.SideMenuValueChange(param_path, true);
+                if (VerifyPath(param_path) === true) {
+                    handleChangeComponent(param_path, true);
                 }
             }
         }
-        this.LoadUserPermissions()
-        this.LoadPagesPermissions()
+        LoadUserPermissions()
         const currentPage = getCurrentPage()
         if (currentPage) {
-            this.$data.SideMenu.ComponentValue = currentPage
-            this.$data.SideMenu.value = currentPage
+            SideMenu.ComponentValue = currentPage
+            SideMenu.value = currentPage
         }
-    },
-    mounted() {
-        document.body.style.overflow = "";
-        // document.getElementById("loading").display = "none"
-        this.$data.theme = this.ThemeMode();
-        window.onload = (e) => {
-            this.GetPageWidth(e);
-        };
-        window.onresize = (e) => {
-            this.GetPageWidth(e);
-        };
-        // if (__DEBUG_DONTCHECKLOGINSTATUS != "yes"){
-        //     // 开始检测
-        //     this.startCheckToken()
-        // }
-        // console.log(config.API_URL);
-    },
-    methods: {
+})
 
-        LoadUserPermissions(UTOKEN=null){
-            var TOKEN = UTOKEN || localStorage.getItem("token")
-            var that = this
-            try {
-                HTTPRequest({
-                    url: config.API_URL.MAIN_URL + "/permissions/userHasPermissions",
-                    methods: "POST",
-                    header: {
-                        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-                        token: TOKEN,
-                    },
-                    success: function (res) {
-                        var RES = JSON.parse(res);
-                        if (RES.errcode == 0){
-                            that.$data.login_info.permissions = RES.data;
-                        }
-                    },
-                    error: function (err) {
-                        console.error(err);
-                    },
-                });
-            } catch (e) {
-                console.log(e);
-            }
-        },
+onMounted(() => {
+    document.body.style.overflow = "";
+    // document.getElementById("loading").display = "none"
+    theme.value = ThemeMode();
+    window.onload = (e) => {
+        GetPageWidth(e);
+    };
+    window.onresize = (e) => {
+        GetPageWidth(e);
+    };
+    // if (__DEBUG_DONTCHECKLOGINSTATUS != "yes"){
+    //     // 开始检测
+    //     this.startCheckToken()
+    // }
+    // console.log(config.API_URL);
+})
 
-        LoadPagesPermissions(){
-            var TOKEN = localStorage.getItem("token")
-            var that = this
-            try {
-                HTTPRequest({
-                    url: config.API_URL.MAIN_URL + "/permissions/pagePermissions",
-                    methods: "POST",
-                    header: {
-                        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-                        token: TOKEN,
-                    },
-                    success: function (res) {
-                        var RES = JSON.parse(res);
-                        console.log(RES);
-                        if (RES.errcode == 0){
-                            that.$data.Page_permissions = RES.data;
-                        }
-                    },
-                    error: function (err) {
-                        console.error(err);
-                    },
-                });
-            } catch (e) {
-                console.log(e);
-            }
-        },
+</script>
 
-        /**
-         * @getHDVersion
-         * @获取版本号
-         */
-         getHDVersion(){
-            var url = "http://localhost:8888/api/LatestVersion";
-            const xhr = new XMLHttpRequest();
-            xhr.open("get", url, true);
-            xhr.setRequestHeader(
-                "Content-Type",
-                "application/x-www-form-urlencoded; charset=UTF-8"
-            );
-            xhr.onload = () => {
-                const result = JSON.parse(xhr.response.replace(/\r|\n/gi, ""));
-                if (result.errcode == 0) {
-                    console.log("Version："+result.data.version);
-                    localStorage.setItem("version",result.data.version)
-                    Version = result.data.version
-                    return result.data.version
-                }
-                else{
-                    console.log("获取版本号失败")
-                }
-            };
-            xhr.onerror = () => {
-                console.log("请求错误", xhr);
-            };
-            xhr.send();
-            
-        },
-
-        /**
-         * @checkToken
-         * @检查Token时效
-         */
-        checkToken(){
-            var TOKEN = localStorage.getItem("token")
-            var that = this
-            const xhr = new XMLHttpRequest();
-            xhr.open("post", config.API_URL.MAIN_URL + "/checkToken", true);
-            xhr.setRequestHeader(
-                "Content-Type",
-                "application/x-www-form-urlencoded; charset=UTF-8"
-            );
-            xhr.setRequestHeader(
-                "token",TOKEN
-            );
-            xhr.onload = () => {
-                // this.$data.loading = false;
-                var result = JSON.parse(xhr.response.replace(/\r|\n/gi, ""));
-                if (result.errcode != 0 || !result.data.verify) {
-                    // pass
-                    location.href = config.API_URL.login_url; 
-                }
-            };
-            xhr.onerror = () => {
-                console.log("请求错误", xhr);
-                localStorage.removeItem("token")
-                NotifyPlugin("error", {
-                    title: "遇到错误",
-                    content: "无法检测Token状态，请尝试重新登录",
-                    duration: 0
-                });
-            };
-            xhr.send();
-        },
-
-        /**
-         * @getUserInfoByToken
-         * @获取用户信息
-         * @param token
-         */
-        getUserInfoByToken(token){
-            const xhr = new XMLHttpRequest();
-            xhr.open("post", config.API_URL.MAIN_URL + "/getLoginUserInfo", true);
-            xhr.setRequestHeader(
-                "Content-Type",
-                "application/x-www-form-urlencoded; charset=UTF-8"
-            );
-            xhr.setRequestHeader(
-                "token",token
-            );
-            xhr.onload = () => {
-                var result = JSON.parse(xhr.response.replace(/\r|\n/gi, ""));
-                this.$data.login_info.code = result.data.usercode;
-                this.$data.login_info.name = result.data.name;
-                this.$data.login_info.class = result.data.class;
-                this.$data.login_info.login_time = result.data.login_time;
-            };
-            xhr.onerror = () => {
-                console.log("请求错误", xhr);
-            };
-            xhr.send();
-        },
-
-        /**
-         * @startCheckToken
-         * @开始循环检查Token
-         */
-        startCheckToken(){
-            console.log("[CheckToken] START")
-            this.$data.timer.token = setInterval(() => {
-                this.checkToken()
-            },2500);
-        },
-
-        /**
-         * @cancelCheckToken
-         * @取消循环检查Token
-         */
-         cancelCheckToken(){
-            console.log("[CheckToken] CANCEL")
-            clearInterval(this.$data.timer.token)
-        },
-
-        debug() {
-            console.log("【debug】");
-        },
-
-        /**
-         * @GetPageWidth
-         * @获取页面宽度并检测是否过小
-         */
-        GetPageWidth(e) {
-            if (e.currentTarget.parent.innerWidth < config.minWidth) {
-                console.log("尺寸过小！");
-                this.$data.SideMenu.ComponentValue = "PageSmall";
-            } else {
-                this.$data.SideMenu.ComponentValue = this.$data.SideMenu.value;
-            }
-        },
-
-        /**
-         * @ToggleTheme
-         * @切换主题
-         */
-        ToggleTheme() {
-            document.startViewTransition(() => toggleTheme());
-            this.$data.theme = this.ThemeMode();
-        },
-        
-        /**
-         * @ThemeMode
-         * @获取主题模式
-         */
-        ThemeMode() {
-            return themeMode();
-        },
-
-        /**
-         * @ToggleSideMenu
-         * @切换侧边菜单显示
-
-         */
-        ToggleSideMenu() {
-            this.$data.SideMenu.show = !this.$data.SideMenu.show;
-        },
-        /**
-         * @SideMenuValueChange
-         * @侧边菜单选项变化处理函数
-         * @param { String } e 选择数据项
-         * @param { Boolean } NotToggle 是否应用动画
-         * @param { Boolean } changeURL 是否变更地址栏后缀参数
-         * @param { Boolean } ForceFlush 是否强制刷新
-         */
-        SideMenuValueChange(e, NotToggle = false, changeURL = true, ForceFlush = false) {
-            console.log(e)
-            if (this.$data.MainContent.lastChoose == e && !ForceFlush) {
-                return false;
-            }
-            if (!this.VerifyPath(e)) {
-                return false;
-            }
-            this.$data.SideMenu.value = e;
-            NotToggle ? "" : this.ToggleSideMenu();
-            //动画
-            this.$data.MainContent.classOut = true;
-            //上次选择
-            this.$data.MainContent.lastChoose = e;
-            //面包屑更新动画
-            // if (
-            //     config.SideMenuValueConfig[e].parent &&
-            //     this.$data.MainContent.breadcrumb.parent != config.SideMenuValueConfig[e].parent
-            // ) {
-            //     this.$data.MainContent.breadcrumb.changing1 = true;
-            // }
-            // this.$data.MainContent.breadcrumb.changing2 = true;
-            setTimeout(() => {
-                //更新保留地址
-                // if (changeURL) {
-                //     this.applyUrlParam("path", e);
-                // }
-                router.push(`/mtb/${e}`)
-                this.$data.SideMenu.ComponentValue = e;
-                //动画
-                this.$data.MainContent.classOut = false;
-                this.$data.MainContent.classIn = true;
-                //更改面包屑
-                // try {
-                //     if (
-                //         this.$data.MainContent.breadcrumb.parent !=
-                //         config.SideMenuValueConfig[e].parent
-                //     ) {
-                //         this.$data.MainContent.breadcrumb.parent =
-                //             config.SideMenuValueConfig[e].parent;
-                //     }
-                // } catch (err) {
-                //     console.log(err);
-                //     this.$data.MainContent.breadcrumb.parent = "错误的配置";
-                // }
-                // try {
-                //     this.$data.MainContent.breadcrumb.current =
-                //         config.SideMenuValueConfig[e].current;
-                // } catch (err) {
-                //     console.log(err);
-                //     this.$data.MainContent.breadcrumb.current = "错误的配置";
-                // }
-                // this.$data.MainContent.breadcrumb.changing1 = false;
-                // this.$data.MainContent.breadcrumb.changing2 = false;
-                //动画
-                setTimeout(() => {
-                    this.$data.MainContent.classIn = false;
-                }, 280);
-            }, 280);
-        },
-
-        /**
-         * @handleAccountMenu
-         * @处理右上角菜单选择内容
-         * @param {*} e 选择数据项
-         */
-        handleAccountMenu(e) {
-            e.value == 1
-                ? this.SideMenuValueChange("PersionCenter", true)
-                : e.value == 2
-                    ? this.HasProblem()
-                    : this.logout();
-            this.$data.SideMenu.show = false;
-        },
-
-        logout() {
-            // localStorage.removeItem("token");
-            // location.reload()
-            location.href = GetSSOUrl(location) + "?actionType=logout"
-        },
-
-        PageReload() {
-            location.reload()
-        },
-
-        /**
-         * @NotClick
-         * @阻止a标签默认点击事件，防止跳转到站外链接
-         */
-        NotClick() {
-            if (config.aTag_DontNav) {
-                NotifyPlugin("warning", {
-                    title: "操作失败",
-                    content: "根据相关规则，不允许跳转站外链接",
-                });
-                return false;
-            }
-        },
-
-        /**
-         * @VerifyPath
-         * @验证菜单选项地址是否存在
-         * @param {*} path 需要验证的地址
-         */
-        VerifyPath(path) {
-            return verifyPath(path)
-            // try {
-            //     var a = config.SideMenuValueConfig[path];
-            //     if (a) {
-            //         return true;
-            //     }
-            //     console.warn("验证地址 " + path + " 不存在！");
-            //     NotifyPlugin("warning", { title: "无法完成的操作", content: "跳转地址错误或不存在，请联系维护人员！" });
-            //     return false;
-            // } catch (err) {
-            //     console.warn("验证地址 " + path + " 不存在！");
-            //     return false;
-            // }
-        },
-
-        /**
-         * @breadClick
-         * @面包屑点击提示
-         */
-        breadClick() {
-            if (this.$data.MainContent.breadcrumb.parent == "通知中心") {
-                this.SideMenuValueChange("MessageList", true);
-            } else {
-                NotifyPlugin("warning", { title: "操作失败", content: "上级地址无法跳转" });
-            }
-        },
-
-        /**
-         * @getUrlParam
-         * @desc 获取参数
-         * @param id 参数名
-         */
-        getUrlParam(variable, url = window.location.search.substring(1)) {
-            var vars = url.split("&");
-            for (var i = 0; i < vars.length; i++) {
-                var pair = vars[i].split("=");
-                if (pair[0] == variable) {
-                    return pair[1];
-                }
-            }
-            return false;
-        },
-
-        /**
-         * @applyUrlParam
-         * @desc 获取参数
-         * @param new_param 参数名
-         * @param value 参数值
-         */
-        applyUrlParam(new_param, value, location = window.location ) {
-            if (!new_param || !value) {
-                return false;
-            }
-            var regUrl = location.search == "" ? false : true;
-            var regParam = location.search.indexOf(new_param) == -1 ? true : false;
-            var UrlH = location.origin + location.pathname;
-            var UrlS = location.href;
-            if (regUrl) {
-                //有参数了，追加
-                if (regParam) {
-                    //没有参数，直接加
-                    var newurl = UrlS + "&" + new_param + "=" + value;
-                    window.history.pushState(null, null, newurl);
-                } else {
-                    //有参数，替换
-                    var newurl = this.updateUrlParam(new_param, value);
-                    window.history.pushState(null, null, newurl);
-                }
-            } else {
-                //没有参数，直接加
-                var newurl = UrlH + "?" + new_param + "=" + value;
-                window.history.pushState(null, null, newurl);
-            }
-        },
-
-        /**
-         * @updateUrlParam
-         * @desc 获取参数
-         * @param key 参数名
-         * @param value 参数值
-         */
-        updateUrlParam(key, value) {
-            var uri = window.location.href;
-            if (!value) {
-                return uri;
-            }
-            var re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
-            var separator = uri.indexOf("?") !== -1 ? "&" : "?";
-            if (uri.match(re)) {
-                return uri.replace(re, "$1" + key + "=" + value + "$2");
-            } else {
-                return uri + separator + key + "=" + value;
-            }
-        },
-    },
+<script lang="tsx">
+export default {
+    name: "InDex",
 };
 </script>
 
