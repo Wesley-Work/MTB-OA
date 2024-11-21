@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <head>
+      <meta charset="utf-8">
+      <title>媒体部管理系统</title>
+    </head>
+    <body>
+        <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+        <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+        <div id="main" style="width: 100%;height: 100%;">
+          <div id="loading" style="width: 100%;height: 100%;position: fixed;z-index: 9999;background: var(--bg);color: var(--text-color);top: 0;left: 0;">
+            <div class="container" l-tag>
+                <div class="cube" l-tag>
+                    <div class="sides" l-tag>
+                        <div class="top" l-tag></div>
+                        <div class="right" l-tag></div>
+                        <div class="bottom" l-tag></div>
+                        <div class="left" l-tag></div>
+                        <div class="front" l-tag></div>
+                        <div class="back" l-tag></div>
+                    </div>
+                </div>
+                <div class="text">加载页面中...</div>
+            </div>
+            <style>
+          
+              /* :root {
+        --loading-block: rgba(0,0,0,0.1);
+        --loading-border: black;
+        --text-color: rgba(0,0,0,0.9);
+        --bg: #eeeeee;
+    } */
+    
+    :root {
+        --loading-block: rgba(255, 255, 255, 0.1);
+        --loading-border: white;
+        --text-color: rgba(255, 255, 255, 0.9);
+        --bg: #151515;
+    }
+      .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: row;
+      }
+    
+      .text {
+        margin-top: 22rem;
+        font-size: 1rem;
+        width: 100%;
+        font-weight: 500;
+        text-align: center;
+      }
+    
+      .cube[l-tag],
+      .cube[l-tag] * {
+        position: absolute;
+        width: 6rem;
+        height: 6rem;
+      }
+      .cube[l-tag] .sides[l-tag] * {
+        box-sizing: border-box;
+        border: 0.12rem solid var(--loading-border);
+        border-radius: 0.25rem;
+        background: var( --loading-block);
+      }
+    
+      @keyframes rotate {
+        0% {
+          transform: rotateX(-37.5deg) rotateY(45deg);
+        }
+        50% {
+          transform: rotateX(-37.5deg) rotateY(405deg);
+        }
+        100% {
+          transform: rotateX(-37.5deg) rotateY(405deg);
+        }
+      }
+    
+      .sides[l-tag] {
+        animation: rotate 3s ease infinite;
+        animation-delay: 0.8s;
+        transform-style: preserve-3d;
+        transform: rotateX(-37.5deg) rotateY(45deg);
+      }
+    
+      .cube[l-tag] .sides[l-tag] .top[l-tag] {
+        animation: top-animation 3s ease infinite;
+        animation-delay: 0ms;
+        transform: rotateX(90deg) translateZ(96px);
+        animation-fill-mode: forwards;
+        transform-origin: 50% 50%;
+      }
+    
+      @keyframes top-animation {
+        0% {
+          opacity: 1;
+          transform: rotateX(90deg) translateZ(100px);
+        }
+        20% {
+          opacity: 1;
+          transform: rotateX(90deg) translateZ(48px);
+        }
+        70% {
+          opacity: 1;
+          transform: rotateX(90deg) translateZ(48px);
+        }
+        90% {
+          opacity: 1;
+          transform: rotateX(90deg) translateZ(100px);
+        }
+        100% {
+          opacity: 1;
+          transform: rotateX(90deg) translateZ(100px);
+        }
+      }
+      .cube[l-tag] .sides[l-tag] .bottom[l-tag] {
+        animation: bottom-animation 3s ease infinite;
+        animation-delay: 0ms;
+        transform: rotateX(-90deg) translateZ(96px);
+        animation-fill-mode: forwards;
+        transform-origin: 50% 50%;
+      }
+    
+      @keyframes bottom-animation {
+        0% {
+          opacity: 1;
+          transform: rotateX(-90deg) translateZ(100px);
+        }
+        20% {
+          opacity: 1;
+          transform: rotateX(-90deg) translateZ(48px);
+        }
+        70% {
+          opacity: 1;
+          transform: rotateX(-90deg) translateZ(48px);
+        }
+        90% {
+          opacity: 1;
+          transform: rotateX(-90deg) translateZ(100px);
+        }
+        100% {
+          opacity: 1;
+          transform: rotateX(-90deg) translateZ(100px);
+        }
+      }
+      .cube[l-tag] .sides[l-tag] .front[l-tag] {
+        animation: front-animation 3s ease infinite;
+        animation-delay: 100ms;
+        transform: rotateY(0deg) translateZ(96px);
+        animation-fill-mode: forwards;
+        transform-origin: 50% 50%;
+      }
+    
+      @keyframes front-animation {
+        0% {
+          opacity: 1;
+          transform: rotateY(0deg) translateZ(96px);
+        }
+        20% {
+          opacity: 1;
+          transform: rotateY(0deg) translateZ(48px);
+        }
+        70% {
+          opacity: 1;
+          transform: rotateY(0deg) translateZ(48px);
+        }
+        90% {
+          opacity: 1;
+          transform: rotateY(0deg) translateZ(96px);
+        }
+        100% {
+          opacity: 1;
+          transform: rotateY(0deg) translateZ(96px);
+        }
+      }
+      .cube[l-tag] .sides[l-tag] .back[l-tag] {
+        animation: back-animation 3s ease infinite;
+        animation-delay: 100ms;
+        transform: rotateY(-180deg) translateZ(96px);
+        animation-fill-mode: forwards;
+        transform-origin: 50% 50%;
+      }
+    
+      @keyframes back-animation {
+        0% {
+          opacity: 1;
+          transform: rotateY(-180deg) translateZ(96px);
+        }
+        20% {
+          opacity: 1;
+          transform: rotateY(-180deg) translateZ(48px);
+        }
+        70% {
+          opacity: 1;
+          transform: rotateY(-180deg) translateZ(48px);
+        }
+        90% {
+          opacity: 1;
+          transform: rotateY(-180deg) translateZ(96px);
+        }
+        100% {
+          opacity: 1;
+          transform: rotateY(-180deg) translateZ(96px);
+        }
+      }
+      .cube[l-tag] .sides[l-tag] .left[l-tag] {
+        animation: left-animation 3s ease infinite;
+        animation-delay: 100ms;
+        transform: rotateY(-90deg) translateZ(96px);
+        animation-fill-mode: forwards;
+        transform-origin: 50% 50%;
+      }
+    
+      @keyframes left-animation {
+        0% {
+          opacity: 1;
+          transform: rotateY(-90deg) translateZ(96px);
+        }
+        20% {
+          opacity: 1;
+          transform: rotateY(-90deg) translateZ(48px);
+        }
+        70% {
+          opacity: 1;
+          transform: rotateY(-90deg) translateZ(48px);
+        }
+        90% {
+          opacity: 1;
+          transform: rotateY(-90deg) translateZ(96px);
+        }
+        100% {
+          opacity: 1;
+          transform: rotateY(-90deg) translateZ(96px);
+        }
+      }
+      .cube[l-tag] .sides[l-tag] .right[l-tag] {
+        animation: right-animation 3s ease infinite;
+        animation-delay: 100ms;
+        transform: rotateY(90deg) translateZ(96px);
+        animation-fill-mode: forwards;
+        transform-origin: 50% 50%;
+      }
+    
+      @keyframes right-animation {
+        0% {
+          opacity: 1;
+          transform: rotateY(90deg) translateZ(96px);
+        }
+        20% {
+          opacity: 1;
+          transform: rotateY(90deg) translateZ(48px);
+        }
+        70% {
+          opacity: 1;
+          transform: rotateY(90deg) translateZ(48px);
+        }
+        90% {
+          opacity: 1;
+          transform: rotateY(90deg) translateZ(96px);
+        }
+        100% {
+          opacity: 1;
+          transform: rotateY(90deg) translateZ(96px);
+        }
+      }
+            </style>
+        </div>
+        </div>
+        
+        <!-- <script async src="/static/js/webVideoCtrl.js"></script>
+        <script async src="/static/js/jsVideoPlugin-1.0.0.min.js"></script>
+        <script src="/static/js/jquery-1.7.1.min.js"></script> -->
+
+    </body>
+</html>
