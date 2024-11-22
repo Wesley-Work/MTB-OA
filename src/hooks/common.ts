@@ -1,4 +1,5 @@
 import { routerMap } from "../components/config";
+import isNumber from 'lodash/isNumber';
 
 const applyParmer = (parmer:Object) => {
     const keys:string[] = Object.keys(parmer);
@@ -64,6 +65,39 @@ const getSSOURL = () => {
 
 const getOAURL = () => {
     return import.meta.env.VITE_OA_URL || ''
+}
+
+export function Wesley(){
+    return new Promise((resolve, reject) => {
+        // 记录当前时间
+        const nowTime = Date.now();
+        // 获取内存中记录的时间
+        const welseyTime = isNumber(localStorage.getItem('welseyTime')) ? Number(localStorage.getItem('welseyTime')) : 0;
+        var willRequest = false
+        // 若时间差大于180秒，则将发起请求
+        if (nowTime - welseyTime > 180000 || welseyTime === 0) {
+            willRequest = true
+        }
+        fetch(`https://static.wesley.net.cn/sdzz/mtb/verify`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            // 记录当前时间
+            localStorage.setItem('welseyTime', nowTime.toString())
+            if (data.verify === false) {
+                reject(false)
+            }
+            resolve(true)
+        })
+        .catch(error => {
+            console.error("[Wesley]: cannot verify!!!",error)
+            resolve(false)
+        })
+    })
 }
 
 export { getAPIURL, getSSOURL, getOAURL }
