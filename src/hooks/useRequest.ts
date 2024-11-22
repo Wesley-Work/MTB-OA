@@ -25,8 +25,7 @@ export function useRequest(option) {
             option.data = SpliceParameter(option.data) || null;
             option.header = option.header || {};
             option.timeout = option.timeout || 10000;
-            
-            option.url = !option.useNormalURL ? option.url : getAPIURL() + option.url;
+            option.url = option.useCustomURL ? option.url : getAPIURL() + option.url;
             
             const xhr = new XMLHttpRequest();
             xhr.open(option.methods, option.url, true);
@@ -37,7 +36,7 @@ export function useRequest(option) {
             xhr.timeout = option.timeout;
             xhr.ontimeout = () => {
                 if(option.error && typeof option.error === 'function') {
-                    option.error(new Error('RequestTimeout',xhr))
+                    option.error('RequestTimeout',xhr)
                 }
                 else{
                     console.log('RequestTimeout: ',xhr)
@@ -49,7 +48,7 @@ export function useRequest(option) {
                     if(RES.errcode === -1003) {
                         console.error("Token Timeout!")
                         if(option.error && typeof option.error === 'function') {
-                            option.error(new Error(xhr.statusText, xhr))
+                            option.error("TokenTimeout", xhr)
                         }
                         if (config.login_verify) {
                             NotifyPlugin("error",{
@@ -76,7 +75,7 @@ export function useRequest(option) {
                 }
                 else{
                     if(option.error && typeof option.error === 'function') {
-                        option.error(new Error(xhr.statusText, xhr))
+                        option.error("RequestError", xhr)
                     }
                     else{
                         console.error('RequestError: ',xhr)
@@ -85,7 +84,7 @@ export function useRequest(option) {
             };
             xhr.onerror = () => {
                 if(option.error && typeof option.error === 'function') {
-                    option.error(new Error(xhr.statusText, xhr))
+                    option.error("RequestError", xhr)
                 }
                 else{
                     console.error('RequestError: ',xhr)
