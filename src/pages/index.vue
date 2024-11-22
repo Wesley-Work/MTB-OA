@@ -112,7 +112,7 @@ import Component from "../components/index.tsx";
 import { PoweroffIcon, UserIcon, ChatBubbleHelpIcon } from "tdesign-icons-vue-next";
 import { NotifyPlugin } from "tdesign-vue-next";
 import { HTTPRequest, VerifyToken } from '../components/function/hooks'
-import { getCurrentPage, verifyPath, getSSOURL } from '../hooks/common'
+import { getCurrentPage, verifyPath, getSSOURL, getAPIURL } from '../hooks/common'
 import { useRequest } from "../hooks/useRequest"
 import PageTooSmall from "../components/pages/PageSmall.vue"
 import router from '../routes'
@@ -194,7 +194,7 @@ const checkToken = () => {
     var TOKEN = localStorage.getItem("token")
     // Token检测较为特殊，useRequest可能会影响用户体验，所以不用useRequest
     const xhr = new XMLHttpRequest();
-    xhr.open("post", config.API_URL.MAIN_URL + "/checkToken", true);
+    xhr.open("post", getAPIURL() + "/checkToken", true);
     xhr.setRequestHeader(
         "Content-Type",
         "application/x-www-form-urlencoded; charset=UTF-8"
@@ -206,7 +206,7 @@ const checkToken = () => {
         var result = JSON.parse(xhr.response.replace(/\r|\n/gi, ""));
         if (result.errcode != 0 || !result.data.verify) {
             // pass
-            location.href = config.API_URL.login_url; 
+            location.href = getSSOURL(); 
         }
     };
     xhr.onerror = () => {
