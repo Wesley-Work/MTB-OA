@@ -310,8 +310,9 @@ const ToggleSideMenu = () => {
 
 const handleChangeComponent = (componentName:string,doNotToggleSideMenu:boolean=false,forcePush:boolean=false) => {
     // 与上次选择一样且不是强制刷新、验证地址失败
-    if ((MainContent.lastChoose === componentName && !forcePush) || !VerifyPath(componentName)) {
-        console.error(`[handleChangeComponent]: 不会切换到页面(组件)[${componentName}]，因为与当前页面相同或页面不存在！`)
+    // (MainContent.lastChoose === componentName && !forcePush) || // 与当前页面相同或
+    if (!VerifyPath(componentName)) {
+        console.error(`[handleChangeComponent]: 不会切换到页面(组件)[${componentName}]，因为页面不存在！`)
         return false;
     }
     MainContent.lastChoose = componentName;

@@ -114,8 +114,8 @@ const formData = reactive({
 const EquipmentInfo = ref("暂无数据");
 const TableData = ref([]);
 const TableColumns = reactive([
-    { colKey: "eqname", title: "设备名称" },
-    { colKey: "eqcode", title: "设备Code", width: "200" },
+    { colKey: "eqname", title: "设备名称", minWidth: "80" },
+    { colKey: "eqcode", title: "设备Code", width: "160" },
     {
         colKey: "status",
         title: "归还状态",
@@ -136,7 +136,7 @@ const TableColumns = reactive([
     { colKey: "user", title: "借出人", width: "140", align: "center" },
     { colKey: "dothisthinguser", title: "操作人", width: "140", align: "center" },
     { colKey: "returntime", title: "归还时间", ellipsis: true, width: "200" },
-    { colKey: "more", title: "备注" },
+    { colKey: "more", title: "备注", minWidth: "80" },
 ]);
 const Requesting = ref(false);
 const props = defineProps({

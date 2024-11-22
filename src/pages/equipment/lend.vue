@@ -59,6 +59,12 @@
                                     v-model="formData.guestname"
                                     style="margin: 0px 10px 0px 12px" />
                             </div>
+                            <t-tag theme="success" variant="light-outline">
+                                <template #icon>
+                                    <t-icon name="error-circle" />
+                                </template>
+                                注意：为访客借出设备，责任人为操作人！ 
+                            </t-tag>
                         </div>
                         <!---->
                         <div style="margin-top: 13px">
@@ -131,8 +137,9 @@ const EquipmentInfo = ref("暂无数据")
 const Requesting = ref(false)
 const TableData = ref([])
 const TableColumns = ref([
-                    { colKey: "eqname", title: "设备名称" },
-                    { colKey: "eqcode", title: "设备Code", width: "200" },
+                    { colKey: "lend_id", title: "借出编号", width: "60" },
+                    { colKey: "eqname", title: "设备名称", minWidth: "80" },
+                    { colKey: "eqcode", title: "设备Code", width: "160" },
                     {
                         colKey: "status",
                         title: "借出状态",
@@ -150,10 +157,10 @@ const TableColumns = ref([
                             );
                         },
                     },
-                    { colKey: "user", title: "借出人", align: "center" },
-                    { colKey: "dothisthinguser", title: "操作人", align: "center" },
+                    { colKey: "user", title: "借出人", align: "center", minWidth: "80" },
+                    { colKey: "dothisthinguser", title: "操作人", align: "center", minWidth: "80" },
                     { colKey: "lendtime", title: "借出时间", ellipsis: true, width: "200" },
-                    { colKey: "more", title: "备注", width: "250" },
+                    { colKey: "more", title: "备注", minWidth: "80" },
                 ])
 
 const props = defineProps({
