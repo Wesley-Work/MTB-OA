@@ -3,8 +3,7 @@ interface ComponentsMap {
   [key: string]: Function
 }
 
-
-interface RouteMapItems {
+export type RouteMapItems {
   key?: string,
   label: string,
   icon?: string,
@@ -13,17 +12,12 @@ interface RouteMapItems {
   hidden?: boolean,
   hiddenBreadCrumb?: boolean,
   fatherCrumb?: string,
-  children?: RouteMapItem[]
+  children?: RouteMapItems[]
 }
 
+export type RouteMaps = RouteMapItems[]
 
-export type RouteMapItem = RouteMapItems
-
-export type RouteMaps = RouteMapItem[]
-
-
-
-interface LendTableDataItem {
+export type LendTableDataItem = {
   id?: number,
   eqname: string,
   eqcode: string,
@@ -32,6 +26,19 @@ interface LendTableDataItem {
   dothisthinguser: string,
   lendtime: string,
   more: string,
+  SHA?: string,
+}
+
+export type ReturnTableDataItem = {
+  id?: number,
+  eqname: string,
+  eqcode: string,
+  status: object,
+  user: string,
+  dothisthinguser: string,
+  returntime: string,
+  more: string,
+  SHA?: string,
 }
 
 interface LendTableData extends Array<LendTableDataItem> {}

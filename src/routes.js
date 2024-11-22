@@ -13,7 +13,7 @@ function getRoutes(docs, type) {
       docsRoutes = docsRoutes.concat(getRoutes(children, docType));
     } else {
       docRoute = { 
-        path: "/mtb/" + item.key,
+        path: "/system/" + item.key,
         ...item
     };
       docsRoutes.push(docRoute);
@@ -25,18 +25,18 @@ function getRoutes(docs, type) {
 
 const routes = [
   {
-    path: '/mtb/',
-    redirect: '/mtb/Lend',
+    path: '/system/',
+    redirect: '/system/Content',
     component: RenderComponents,
     children: [...getRoutes(routerMap)],
   },
   {
     path: '/',
-    redirect: '/mtb/',
+    redirect: '/system/',
   },
   {
     path: '/:w+',
-    redirect: '/mtb/',
+    redirect: '/system/',
   },
 ];
 

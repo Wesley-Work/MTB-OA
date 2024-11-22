@@ -1,16 +1,16 @@
 <template>
     <div
         class="MainBox"
-        id="LendComponent"
+        id="ReturnComponent"
         style="background: var(--td-bg-color-container); padding: 32px; border-radius: 5px"
         ref="MainBox">
         <div class="MainBox-Operate">
-            <div id="lendpage">
+            <div id="returnpage">
                 <div style="display: flex; flex-direction: row; justify-content: space-between">
                     <!--info-->
                     <div style="min-width: 35%">
                         <div>
-                            <t-button style="width: 100%; height: 56px; font: var(--td-font-title-large); margin-bottom: 16px" @click.end="ChangePageUrl('Return',true)">去归还设备</t-button>
+                            <t-button style="width: 100%; height: 56px; font: var(--td-font-title-large); margin-bottom: 16px" @click.end="handleChangeComponent('Lend',true)">去借出设备</t-button>
                         </div>
                         <div>
                             <t-card
@@ -20,46 +20,35 @@
                             </t-card>
                         </div>
                         <div
-                            style="display: flex; align-items: center; margin: 5px 0px 12px;width: fit-content;"
-                            class="helpotheruserlend_big guide_helplend">
+                            v-if="false"
+                            style="display: flex; align-items: center; margin: 5px 0px 12px"
+                            class="helpotheruserReturn_big">
                             <t-checkbox
-                                class="helpotheruserlend_box"
+                                class="helpotheruserReturn_box"
                                 v-model="formData.help"
-                                @click.end="formData.guest = false"
-                                >帮借/转借</t-checkbox
+                                >帮还</t-checkbox
                             >
                             <div style="display: flex">
                                 <t-input
                                     :disabled="!formData.help"
-                                    class="helpotheruserlend_input"
-                                    placeholder="使用者Code"
+                                    class="helpotheruserReturn_input"
+                                    placeholder="借出者Code"
                                     size="small"
                                     v-model="formData.helpWho"
                                     style="margin: 0px 10px 0px 12px" />
                             </div>
-                        </div>
-                        <div
-                            style="display: flex; align-items: center; margin: 5px 0px 12px;width: fit-content;"
-                            class="helpotheruserlend_big guide_guestlend">
-                            <t-checkbox
-                                class="helpotheruserlend_box"
-                                v-model="formData.guest"
-                                @click.end="formData.help = false"
-                                >访客借出</t-checkbox
-                            >
-                            <div style="display: flex">
-                                <t-input
-                                    :disabled="!formData.guest"
-                                    class="helpotheruserlend_input"
-                                    placeholder="借出人/使用人"
-                                    size="small"
-                                    v-model="formData.guestname"
-                                    style="margin: 0px 10px 0px 12px" />
-                            </div>
+                            <t-tag
+                                theme="warning"
+                                variant="light-outline">
+                                <template #icon>
+                                    <t-icon name="error-circle" />
+                                </template>
+                                只有管理员才可以帮借/转借!
+                            </t-tag>
                         </div>
                         <!---->
                         <div style="margin-top: 13px">
-                            <div style="display: flex; align-items: center;width: fit-content;" class="guide_lendinput">
+                            <div style="display: flex; align-items: center">
                                 <span class="bitian">*</span>
                                 <span
                                     style="
@@ -70,29 +59,28 @@
                                 </span>
                                 <t-input
                                     style="width: 181px; margin-left: 10px"
-                                    class="lendinput"
-                                    ref="lendinput"
+                                    class="returninput"
+                                    ref="returninput"
                                     placeholder="请扫描或输入"
                                     v-model="formData.eqcode"
-                                    :onEnter="Lend"
+                                    :onEnter="Return"
                                     :autofocus="true"
                                     @Input="RequestEqInfo(formData.eqcode)"></t-input>
                                 <t-button
-                                    class="lendbutton"
+                                    class="returnbutton"
                                     style="margin-left: -10px; z-index: 2"
-                                    @click.end="Lend"
-                                    :loading="Requesting"
-                                    >借出</t-button
+                                    @click.end="Return"
+                                    >归还</t-button
                                 >
                             </div>
                         </div>
                     </div>
                     <!--list-->
-                    <div style="max-width: 60%" lend-list-table>
+                    <div style="max-width: 60%" return-list-table>
                         <t-card
                             id="weTag">
                             <template #title>
-                                <span>本次借出设备列表（共<scrollNumber :val="TableData.length"></scrollNumber>个设备）</span>
+                                <span>本次归还设备列表（共<scrollNumber :val="TableData.length"></scrollNumber>个设备）</span>
                             </template>
                             <div style="display: flex; flex-direction: row; align-items: center">
                                 <t-table
@@ -109,78 +97,70 @@
 
 <script setup lang="tsx">
 import { config } from "../../components/config";
-import useRequest from "../../hooks/useRequest";
+import { HTTPRequest } from "../../components/function/hooks";
 import scrollNumber from "../../components/function/scrollnumber.vue";
 import { NotifyPlugin } from "tdesign-vue-next";
 import { CheckCircleFilledIcon, CloseCircleFilledIcon } from 'tdesign-icons-vue-next';
-import { ref, reactive } from "vue";
+import { onMounted, reactive, ref } from "vue";
+import { ReturnTableDataItem } from "@/types/type";
+import useRequest from "../../hooks/useRequest";
 
 const formData = reactive({
-                    usercode: "",
-                    eqcode: "",
-                    help: false,
-                    helpWho: "",
-                    guest:false,
-                    guestname:"",
-                })
-const EquipmentInfo = ref("暂无数据")
-const Requesting = ref(false)
-const TableData = ref([])
-const TableColumns = ref([
-                    { colKey: "eqname", title: "设备名称" },
-                    { colKey: "eqcode", title: "设备Code", width: "200" },
-                    {
-                        colKey: "status",
-                        title: "借出状态",
-                        width: "110",
-                        align: "center",
-                        cell: (h, { row }) => {
-                            return (
-                                <t-tag
-                                    shape="round"
-                                    theme={row.status.theme}
-                                    variant="light-outline">
-                                    {row.status.icon}
-                                    {row.status.text}
-                                </t-tag>
-                            );
-                        },
-                    },
-                    { colKey: "user", title: "借出人", align: "center" },
-                    { colKey: "dothisthinguser", title: "操作人", align: "center" },
-                    { colKey: "lendtime", title: "借出时间", ellipsis: true, width: "200" },
-                    { colKey: "more", title: "备注", width: "250" },
-                ])
+    usercode: "",
+    eqcode: "",
+    help: false,
+    helpWho: "",
+});
+const EquipmentInfo = ref("暂无数据");
+const TableData = ref([]);
+const TableColumns = reactive([
+    { colKey: "eqname", title: "设备名称" },
+    { colKey: "eqcode", title: "设备Code", width: "200" },
+    {
+        colKey: "status",
+        title: "归还状态",
+        width: "110",
+        align: "center",
+        cell: (h, { row }) => {
+            return (
+                <t-tag
+                    shape="round"
+                    theme={row.status.theme}
+                    variant="light-outline">
+                    {row.status.icon}
+                    {row.status.text}
+                </t-tag>
+            );
+        },
+    },
+    { colKey: "user", title: "借出人", width: "140", align: "center" },
+    { colKey: "dothisthinguser", title: "操作人", width: "140", align: "center" },
+    { colKey: "returntime", title: "归还时间", ellipsis: true, width: "200" },
+    { colKey: "more", title: "备注" },
+]);
+const Requesting = ref(false);
+const props = defineProps({
+    handleChangeComponent: {
+        type: Function,
+        default: null
+    }
+})
 
-
-                
-/**
- * @loadTableViewHeight
- * @加载表格高度
- */
-const loadTableViewHeight = () => {
+const initStyle = () => {
     setTimeout(() => {
-        var ElDom = document.getElementById("weTag")
-        if (!ElDom) {
-            console.error("未找到元素: weTag")
-            NotifyPlugin.error({
-                title: "TableHeightError",
-                content: "加载高度失败：未找到元素"
-            })
-            return;
-        }
-        var TableBody = ElDom.getElementsByClassName("t-table__body")[0] as HTMLElement
-        TableBody.style.overflow = "hidden"
-        var innerHeight = TableBody.getElementsByTagName("div")[0].clientHeight
-        TableBody.style.maxHeight = innerHeight + "px"
-    });
+        var a = document.getElementById("weTag");
+        var b = a.getElementsByClassName("t-card__body")[0] as HTMLElement;
+        b.style.overflow = "hidden";
+        var c = b.getElementsByTagName("div")[0].clientHeight;
+        b.style.maxHeight = c + "px";
+    }, 10);
 }
 
 /**
  * @RequestEqInfo
  * @获取设备信息
  */
-const RequestEqInfo= (eq_code) => {
+const RequestEqInfo = (eq_code) => {
     if (eq_code == '') return;
     var TOKEN = localStorage.getItem("token");
     try {
@@ -219,22 +199,22 @@ const RequestEqInfo= (eq_code) => {
 }
 
 /**
- * @Lend
- * @借出设备
+ * @Return
+ * @归还设备
  */
-const Lend = () => {
-    const lendUserCode = formData.help ? formData.helpWho : formData.usercode
+const Return = () => {
+    var LEND_USERCODE = formData.help ? formData.helpWho : formData.usercode
     var LEND_EQUIPMENTCODE = formData.eqcode
     formData.eqcode = ""
     if ((LEND_EQUIPMENTCODE == "") || (formData.help && formData.helpWho == "")) {
-        NotifyPlugin("warning",{title: "温馨提示",content: `请输入正确的信息再进行借出！`})
+        NotifyPlugin("warning",{title: "温馨提示",content: "请输入设备/用户信息再进行归还！"});
         return;
     }
     Requesting.value = true
     var TOKEN = localStorage.getItem("token");
     try {
         useRequest({
-            url: "/equipment/lend",
+            url: "/equipment/return",
             methods: "POST",
             header: {
                 "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
@@ -242,82 +222,76 @@ const Lend = () => {
             },
             data:{
                 equipment_code: LEND_EQUIPMENTCODE,
-                user_code: lendUserCode,
-                guest: formData.guest ? formData.guestname : "",
+                user_code: LEND_USERCODE,
             },
             success: function (res) {
                 var RES = JSON.parse(res);
-                var errmsg = RES.errmsg
                 if (RES.errcode == 0) {
                     // pass
                     NotifyPlugin("success",{
-                        title: "借出成功",
-                        content: `设备：${RES.data.eq_name} 借出成功`
+                        title: "归还成功",
+                        content: `设备：${RES.data.eq_name} 归还成功`
                     })
                 }
-                else if (RES.errcode == -30001) {
+                else if (RES.errcode == -40002) {
                     // NO Permissions
                     NotifyPlugin("error",{
-                        title: "借出失败",
-                        content: "您没有帮他人借出设备权限！"
+                        title: "归还失败",
+                        content: "您没有帮他人归还设备权限！"
                     })
-                    errmsg = "您没有帮他人借出设备权限"
                 }
-                else if (RES.errcode == -30002) {
+                else if (RES.errcode == -40003) {
                     // Cannot find user
                     NotifyPlugin("error",{
-                        title: "借出失败",
+                        title: "归还失败",
                         content: "找不到借出用户！"
                     })
-                    errmsg = "找不到借出用户"
                 }
-                else if (RES.errcode == -30003) {
+                else if (RES.errcode == -40001) {
                     // Cannot find equipment
                     NotifyPlugin("error",{
-                        title: "借出失败",
+                        title: "归还失败",
                         content: "找不到设备！"
                     })
-                    errmsg = "找不到设备"
                 }
-                else if (RES.errcode == -30004) {
+                else if (RES.errcode == -40004) {
                     // This Equipment Already Out
                     NotifyPlugin("error",{
-                        title: "借出失败",
-                        content: "设备已借出！"
+                        title: "归还失败",
+                        content: "设备已归还！"
                     })
-                    errmsg = "设备已借出"
                 }
                 else{
                     // Unknown
                     NotifyPlugin("error",{
-                        title: "借出失败",
+                        title: "归还失败",
                         content: `未知错误，错误码${RES.errcode}，${RES.errmsg}`
                     })
                 }
                 Requesting.value = false
-                const ecodeOK = RES.errcode === 0
-                const newItem:LendTableDataItem = {
-                    eqname: RES.data.eq_name ?? '未知设备',
-                    eqcode: ecodeOK ? RES.data.eqcode ?? LEND_EQUIPMENTCODE : LEND_EQUIPMENTCODE,
+                const newRow:ReturnTableDataItem = {
+                    eqname: RES.data.eq_name ? RES.data.eq_name : '未知设备',
+                    eqcode: RES.data.eq_code ?? LEND_EQUIPMENTCODE,
+                    //
                     status: {
-                        text: ecodeOK ? "借出成功" : "借出失败",
-                        theme: ecodeOK ? "success" : "danger",
-                        icon: ecodeOK ? <CheckCircleFilledIcon /> : <CloseCircleFilledIcon />,
+                        text: RES.errcode === 0 ? "归还成功" : "归还失败",
+                        theme: RES.errcode === 0 ? "success" : "danger",
+                        icon: RES.errcode === 0 ? <CheckCircleFilledIcon /> : <CloseCircleFilledIcon />,
                     },
-                    user: ecodeOK ? RES.data.lend_user ?? "未知用户" : "-",
-                    lendtime: RES.data.lend_time ?? getTime(),
-                    dothisthinguser: ecodeOK ? RES.data.operator : "-",
-                    more: ecodeOK ? RES.data.remark ?? errmsg : errmsg,
-                    SHA: RES.data.SHA ?? null,
+                    returntime: RES.data.return_date ?? getTime(),
+                    user: RES.data.return_user ?? "未知用户",
+                    dothisthinguser: RES.data.operator ?? "-",
+                    more: RES.errcode === 0 ? RES.data.remark ?? "ok" : RES.errmsg,
+                    SHA: RES.data.SHA ?? undefined,
                 }
-                TableData.value.push(newItem)
-                loadTableViewHeight()
+                TableData.value.push(newRow)
+                initStyle()
             },
             error: function (err) {
                 Requesting.value = false
                 console.error(err);
                 NotifyPlugin("error", {
-                    title: "借出设备失败！",
+                    title: "归还设备失败！",
                     content: err,
                     duration: 5000,
                 });
@@ -325,7 +299,7 @@ const Lend = () => {
         });
     } catch (e) {
         Requesting.value = false
-        console.error(e);
+        console.log(e);
     }
 }
 
@@ -337,23 +311,29 @@ const getTime = () => {
     ].join('-') + " " + new Date().toTimeString().substring(0, 8)
 }
 
+onMounted(() => {
+    var USER_INFO_STR = localStorage.getItem("user_info")
+    try{
+        let a = JSON.parse(USER_INFO_STR)
+        if (a) {
+            formData.usercode = a.code
+        }
+    }
+    catch(e){
+        NotifyPlugin("error",{
+            title: '出现错误',
+            content: '无法解析用户信息，请尝试重新登录！'
+        })
+    }
+});
+
 </script>
 
 <script lang="tsx">
 
 export default {
-    name: "EquiMentLend",
-    props: {
-        ChangePageUrl: {
-        type: Function,
-        default: null
-      }
-    },
-
-    methods: {
-    },
+    name: "EquiMentReturn",
 };
-
 </script>
 
 <style>
@@ -361,12 +341,12 @@ export default {
     transition: height 0.28s var(--transition-default);
     user-select: none;
 }
+[return-list-table] .t-card--bordered{
+    border: none !important;
+}
 .t-card__body {
     overflow-y: hidden;
     transition: max-height 0.28s var(--transition-default) !important;
-}
-[lend-list-table] .t-card--bordered{
-    border: none !important;
 }
 .t-table__empty{
     min-height: 69px !important;

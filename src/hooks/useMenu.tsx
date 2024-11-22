@@ -2,6 +2,8 @@
 import { defineComponent, ref, computed, toRefs, watch, toRef } from 'vue';
 import { routerMap } from '../components/config';
 import packageFile from '../../package.json';
+import { h } from 'vue';
+import { MenuGroup, Submenu, MenuItem, Icon } from 'tdesign-vue-next';
 
 export default defineComponent({
     name: "Menu",
@@ -35,45 +37,78 @@ export default defineComponent({
             return arr.every(item => item === null)
         }
 
-        function renderSubmenu(child) {
-            return child.map(item => {
-                const isSubMenu = item?.children ? true : false
-                const isHidden = item?.hidden === true
-                return isSubMenu ? (
-                    isHidden ? null : 
-                    <t-submenu value={item.key} title={item.label} v-slots={{
-                            icon: () => (
-                                <>
-                                { item.icon ? <t-icon name={item.icon} /> : null }
-                                </>
-                            )
-                        }}>
-                        { renderSubmenu(item.children) }
-                    </t-submenu>
-                ) : (
-                    isHidden ? null : 
-                    <t-menu-item value={item.key} v-slots={{
-                            icon: () => (
-                                <>
-                                { item.icon ? <t-icon name={item.icon} /> : null }
-                                </>
-                            )
-                        }}>
-                        { item.label }
-                    </t-menu-item>
-                )
-            })
+        // function renderSubmenu(child) {
+        //     return child.map(item => {
+        //         const isSubMenu = item?.children ? true : false
+        //         const isHidden = item?.hidden === true
+        //         return isSubMenu ? (
+        //             isHidden ? null : 
+        //             <t-submenu value={item.key} title={item.label} v-slots={{
+        //                     icon: () => (
+        //                         <>
+        //                         { item.icon ? <t-icon name={item.icon} /> : null }
+        //                         </>
+        //                     )
+        //                 }}>
+        //                 { renderSubmenu(item.children) }
+        //             </t-submenu>
+        //         ) : (
+        //             isHidden ? null : 
+        //             <t-menu-item value={item.key} v-slots={{
+        //                     icon: () => (
+        //                         <>
+        //                         { item.icon ? <t-icon name={item.icon} /> : null }
+        //                         </>
+        //                     )
+        //                 }}>
+        //                 { item.label }
+        //             </t-menu-item>
+        //         )
+        //     })
+        // }
+
+        // function renderGroupMenu() {
+        //     return routerMap.map(item => {
+        //         const subMenu = renderSubmenu(item.children)
+        //         return arrayAllItemIsNull(subMenu) || item?.hidden ? null :  (
+        //             <t-menu-group title={item.label}>
+        //                 { subMenu }
+        //             </t-menu-group>
+        //         )
+        //     })
+        // }
+
+        function renderMenu(items) {
+            return items.map(item => {
+                const isSubMenu = item?.children && item?.children.length > 0;
+                const isHidden = item?.hidden === true;
+            
+                if (isHidden) return null;
+            
+                if (isSubMenu) {
+                    const subMenu = renderMenu(item.children);
+                    if (arrayAllItemIsNull(subMenu)) return null;
+                
+                    return h(Submenu, { value: item.key, title: item.label }, {
+                        default: () => subMenu,
+                        icon: () => item.icon ? h(Icon, { name: item.icon }) : null
+                    });
+                }
+            
+                return h(MenuItem, { value: item.key }, {
+                    default: () => item.label,
+                    icon: () => item.icon ? h(Icon, { name: item.icon }) : null
+                });
+            });
         }
 
-        function renderGroupMenu() {
+        function renderGroupMenu(routerMap) {
             return routerMap.map(item => {
-                const subMenu = renderSubmenu(item.children)
-                return arrayAllItemIsNull(subMenu) || item?.hidden ? null :  (
-                    <t-menu-group title={item.label}>
-                        { subMenu }
-                    </t-menu-group>
-                )
-            })
+                const subMenu = renderMenu(item.children);
+                return arrayAllItemIsNull(subMenu) || item?.hidden ? null : h(MenuGroup, { title: item.label }, {
+                    default: () => subMenu
+                });
+            });
         }
 
         function renderMenuFooter() {
@@ -98,7 +133,7 @@ export default defineComponent({
               class={ visiable.value ? 'sidemenu sidemenu-show' : 'sidemenu' }
               onChange={props?.valueChange}
             >
-                {renderGroupMenu()}
+                {renderGroupMenu(routerMap)}
                 {renderMenuFooter()}
             </t-menu>
         )
