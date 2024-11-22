@@ -1,4 +1,4 @@
-import { config } from "../../components/config.js";
+import { config } from "../../components/config";
 import { NotifyPlugin } from "tdesign-vue-next";
 
 

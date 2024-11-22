@@ -109,7 +109,7 @@
 
 <script setup lang="tsx">
 import { config } from "../../components/config";
-import useRequest from "../../components/hooks/useRequest";
+import useRequest from "../../hooks/useRequest";
 import scrollNumber from "../../components/function/scrollnumber.vue";
 import { NotifyPlugin } from "tdesign-vue-next";
 import { CheckCircleFilledIcon, CloseCircleFilledIcon } from 'tdesign-icons-vue-next';

@@ -1,7 +1,7 @@
 
 import { defineComponent, ref, computed, toRefs } from 'vue';
 import { getRoutePathObj } from './common';
-import { routerMap } from '../config';
+import { routerMap } from '../components/config';
 import { RouteData } from 'tdesign-vue-next';
 import { RouteMapItem, RouteMaps } from '@/types/type';
 
@@ -16,20 +16,21 @@ export default defineComponent({
         const { value } = toRefs(props)
         const isHidden = ref(false)
 
-        function getIteminMap(map: RouteMaps, value: string, deep: number = 0): { parent: string | null, current: string | null } {
+        function getIteminMap(map: RouteMaps, value: string, deep: number = 0): { parent: string | null, current: string | null, fatherCrumb?: string | null } {
             for (const item of map) {
                 if (item?.key === value) {
                     isHidden.value = item?.hiddenBreadCrumb ?? false
                     return {
                         parent: null,
-                        current: item.label
+                        current: item.label,
+                        fatherCrumb: item?.fatherCrumb
                     };
                 }
                 if (item?.children) {
                     const result = getIteminMap(item.children, value, deep + 1);
                     if (result?.current) {
                         return {
-                            parent: result?.parent ?? item.label,
+                            parent: result?.fatherCrumb ?? result?.parent ?? item.label,
                             current: result.current
                         };
                     }

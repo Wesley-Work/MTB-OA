@@ -103,8 +103,8 @@
 </template>
 
 <script setup lang="tsx">
-import SideMenus from "../components/hooks/useMenu.tsx"
-import BreadCurmb from "../components/hooks/useBreadcrumb.tsx"
+import SideMenus from "../hooks/useMenu.tsx"
+import BreadCurmb from "../hooks/useBreadcrumb.tsx"
 import { onBeforeMount, onMounted, reactive, ref } from "vue";
 import { themeMode, toggleTheme } from "../components/function/theme.js";
 import { config } from "../components/config";
@@ -112,8 +112,8 @@ import Component from "../components/index.tsx";
 import { PoweroffIcon, UserIcon, ChatBubbleHelpIcon } from "tdesign-icons-vue-next";
 import { NotifyPlugin } from "tdesign-vue-next";
 import { HTTPRequest, VerifyToken } from '../components/function/hooks'
-import { getCurrentPage, verifyPath, getSSOURL } from '../components/hooks/common'
-import { useRequest } from "../components/hooks/useRequest"
+import { getCurrentPage, verifyPath, getSSOURL } from '../hooks/common'
+import { useRequest } from "../hooks/useRequest"
 import PageTooSmall from "../components/pages/PageSmall.vue"
 import router from '../routes'
 
@@ -421,7 +421,7 @@ const applyUrlParam = (new_param, value, location = window.location ) => {
             window.history.pushState(null, null, newurl);
         } else {
             //有参数，替换
-            var newurl = this.updateUrlParam(new_param, value);
+            var newurl = updateUrlParam(new_param, value);
             window.history.pushState(null, null, newurl);
         }
     } else {
@@ -494,7 +494,7 @@ onBeforeMount(() => {
                             handleChangeComponent(param_path, true);
                         }
                     }
-                    handleChangeComponent(MainContent.lastChoose,true,false,true)
+                    handleChangeComponent(MainContent.lastChoose,true,false)
                     localStorage.setItem("token",VERIFY_TOKEN)
                     NotifyPlugin("success", {
                         title: "温馨提示",

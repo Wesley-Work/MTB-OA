@@ -1,6 +1,6 @@
 import { NotifyPlugin } from "tdesign-vue-next";
 import { getAPIURL } from "./common";
-import { config } from "../config"
+import { config } from "../components/config"
 function SpliceParameter(DATA:Object) {
     if (Object.prototype.toString.call(DATA) !== '[object Object]') return false;
     // PASS

@@ -12,6 +12,7 @@ interface RouteMapItems {
   component?: Function,
   hidden?: boolean,
   hiddenBreadCrumb?: boolean,
+  fatherCrumb?: string,
   children?: RouteMapItem[]
 }
 

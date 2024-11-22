@@ -15,7 +15,6 @@ const routerMap:RouteMaps = [
                 key: "Lend",
                 label: "借出",
                 icon: "logout",
-                hiddenBreadCrumb: true,
                 permissions: ['equipment.lend'],
                 component: () => import('../pages/equiment/lend.vue')
             },
@@ -194,6 +193,20 @@ const routerMap:RouteMaps = [
                 key: "CHANGELOG",
                 label: "更新日志",
                 icon: "root-list",
+                component: () => import('../pages/other/CHANGELOG.vue')
+            }
+        ]
+    },
+    {
+        key: "NotShowGroup",
+        label: "不显示页面",
+        hidden: true,
+        children: [
+            {
+                key: "Test",
+                label: "测试页面",
+                fatherCrumb: "",
+                icon: "user-checked",
                 component: () => import('../pages/other/CHANGELOG.vue')
             }
         ]
