@@ -1,9 +1,6 @@
-import { defineAsyncComponent, defineComponent, h, resolveComponent } from "vue";
-import { config, routerMap } from "./config.js";
-import { VerifyPermissions,VerifyLocalPermissions } from "./function/hooks.js"
-import { RouteMaps, RouteMapItem } from "../types/type.js";
+import { defineComponent, h } from "vue";
 
-import Error from "./pages/Error.vue"
+import Error from "./pages/Error.vue";
 
 export default defineComponent({
   props:{
@@ -32,9 +29,3 @@ export default defineComponent({
     }
   },
 });
-
-
-
-
-
-

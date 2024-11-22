@@ -1,5 +1,5 @@
 import { NotifyPlugin } from "tdesign-vue-next";
-import { getAPIURL } from "./common";
+import { getAPIURL, getLoginURL } from "./common";
 import { config } from "../components/config"
 function SpliceParameter(DATA:Object) {
     if (Object.prototype.toString.call(DATA) !== '[object Object]') return false;
@@ -56,7 +56,7 @@ export function useRequest(option) {
                                 duration: 0,
                             })
                             setTimeout(() => {
-                                location.href = config.API_URL.login_url
+                                location.href = getLoginURL()
                             }, 2000)
                         }
                     }

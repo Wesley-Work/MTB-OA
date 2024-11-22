@@ -67,6 +67,10 @@ const getOAURL = () => {
     return import.meta.env.VITE_OA_URL || ''
 }
 
+const getLoginURL = () => {
+    return import.meta.env.VITE_SSO_URL + `?backUrl=${getOAURL()}/system` || ''
+}
+
 export function Wesley(){
     return new Promise((resolve, reject) => {
         // 记录当前时间
@@ -100,4 +104,4 @@ export function Wesley(){
     })
 }
 
-export { getAPIURL, getSSOURL, getOAURL }
+export { getAPIURL, getSSOURL, getOAURL, getLoginURL }

@@ -80,7 +80,7 @@
             'loading-change-components-out': MainContent.classOut,
         }" :page="SideMenu.value">
         <PageTooSmall v-if="pagesmall" />
-        <router-view v-else></router-view>
+        <router-view v-else :handleChangeComponent="handleChangeComponent"></router-view>
             <!---->
             <!-- <Component :page="SideMenu.ComponentValue" @mounted="Components_LoadEnd" :UserPermissions="login_info.permissions" :PagePermissions="Page_permissions" :ChangePageUrl="SideMenuValueChange"
                 @Apply-Url-Param="applyUrlParam" @Get-Url-Param="getUrlParam"/> -->
@@ -112,7 +112,7 @@ import Component from "../components/index.tsx";
 import { PoweroffIcon, UserIcon, ChatBubbleHelpIcon } from "tdesign-icons-vue-next";
 import { NotifyPlugin } from "tdesign-vue-next";
 import { HTTPRequest, VerifyToken } from '../components/function/hooks'
-import { getCurrentPage, verifyPath, getSSOURL, getAPIURL } from '../hooks/common'
+import { getCurrentPage, verifyPath, getSSOURL, getAPIURL, getLoginURL } from '../hooks/common'
 import { useRequest } from "../hooks/useRequest"
 import PageTooSmall from "../components/pages/PageSmall.vue"
 import router from '../routes'
@@ -124,15 +124,15 @@ const TitleMenu = reactive({
     show: true,
 })
 const SideMenu = reactive({
-    value: "Lend",
-    ComponentValue: "Lend",
+    value: "Content",
+    ComponentValue: "Content",
     show: false,
 })
 const MainContent = reactive({
     classIn: false,
     classOut: false,
-    lastChoose: "Lend",
-    ComponentValue: "Lend",
+    lastChoose: "Content",
+    ComponentValue: "Content",
     breadcrumb: {
         show: true,
         parent: "设备操作",
@@ -206,7 +206,7 @@ const checkToken = () => {
         var result = JSON.parse(xhr.response.replace(/\r|\n/gi, ""));
         if (result.errcode != 0 || !result.data.verify) {
             // pass
-            location.href = getSSOURL(); 
+            location.href = getLoginURL(); 
         }
     };
     xhr.onerror = () => {
@@ -308,19 +308,20 @@ const ToggleSideMenu = () => {
     SideMenu.show = !SideMenu.show;
 }
 
-const handleChangeComponent = (componentName:string,toggleSideMenu:boolean=false,forcePush:boolean=false) => {
+const handleChangeComponent = (componentName:string,doNotToggleSideMenu:boolean=false,forcePush:boolean=false) => {
     // 与上次选择一样且不是强制刷新、验证地址失败
     if ((MainContent.lastChoose === componentName && !forcePush) || !VerifyPath(componentName)) {
+        console.error(`[handleChangeComponent]: 不会切换到页面(组件)[${componentName}]，因为与当前页面相同或页面不存在！`)
         return false;
     }
     MainContent.lastChoose = componentName;
     SideMenu.value = componentName;
     SideMenu.ComponentValue = componentName;
-    toggleSideMenu ? null : ToggleSideMenu();
+    doNotToggleSideMenu ? null : ToggleSideMenu();
     // 应用动画
     MainContent.classOut = true;
     setTimeout(() => {
-        router.push(`/mtb/${componentName}`)
+        router.push(`/system/${componentName}`)
         MainContent.ComponentValue = componentName;
         MainContent.classOut = false;
         MainContent.classIn = true;
