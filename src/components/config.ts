@@ -15,7 +15,6 @@ const routerMap:RouteMaps = [
                 key: "Lend",
                 label: "借出",
                 icon: "logout",
-                hiddenBreadCrumb: true,
                 permissions: ['equipment.lend'],
                 component: () => import('../pages/equiment/lend.vue')
             },
@@ -197,6 +196,20 @@ const routerMap:RouteMaps = [
                 component: () => import('../pages/other/CHANGELOG.vue')
             }
         ]
+    },
+    {
+        key: "NotShowGroup",
+        label: "不显示页面",
+        hidden: true,
+        children: [
+            {
+                key: "Test",
+                label: "测试页面",
+                fatherCrumb: "",
+                icon: "user-checked",
+                component: () => import('../pages/other/CHANGELOG.vue')
+            }
+        ]
     }
     
 ]
@@ -206,16 +219,12 @@ const config = {
     version_mode: 'RC',
     systemname: '顺德中专团委媒体部管理系统',
     develop_mode: false,//开发模式
-    login_verify: true,//登陆验证
+    login_verify: false,//登陆验证
     logout_time: 120000,//无操作退登时间,ms
     check_time: 3000,//验证登录态时间,ms
     minWidth: 960,//页面最小宽度
     update_mode: false,//是否开启更新模式
     aTag_DontNav: true,//A标签不允许跳转
-    API_URL:{
-        login_url: `${GetSSOUrl()}/?backUrl=${GetOAUrl()}/system/`,
-        MAIN_URL: `${GetAPIUrl()}/api`,
-    },
     //侧边菜单相关配置
     SideMenuValueConfig:{
         'lend':{

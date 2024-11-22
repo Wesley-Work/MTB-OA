@@ -1,6 +1,7 @@
 
 import { defineComponent, ref, computed, toRefs, watch, toRef } from 'vue';
-import { routerMap } from '../config';
+import { routerMap } from '../components/config';
+import packageFile from '../../package.json';
 
 export default defineComponent({
     name: "Menu",
@@ -22,6 +23,18 @@ export default defineComponent({
     },
     setup(props) {
         var { theme, visiable, value } = toRefs(props);
+        var version = "-.-.-"
+        try {
+            version = packageFile?.version
+        } catch (error) {
+            console.log("Cannot Resload Version",error)
+        }
+
+
+        function arrayAllItemIsNull(arr) {
+            return arr.every(item => item === null)
+        }
+
         function renderSubmenu(child) {
             return child.map(item => {
                 const isSubMenu = item?.children ? true : false
@@ -54,12 +67,21 @@ export default defineComponent({
 
         function renderGroupMenu() {
             return routerMap.map(item => {
-                return (
+                const subMenu = renderSubmenu(item.children)
+                return arrayAllItemIsNull(subMenu) || item?.hidden ? null :  (
                     <t-menu-group title={item.label}>
-                        { renderSubmenu(item.children) }
+                        { subMenu }
                     </t-menu-group>
                 )
             })
+        }
+
+        function renderMenuFooter() {
+            return (
+                <div style="margin-bottom: 56px;text-align: center;font: var(--td-font-body-small);">
+                    MTBOA {version}
+                </div>
+            )
         }
 
         watch(
@@ -68,7 +90,7 @@ export default defineComponent({
                 visiable.value = val;
             },
           );
-        console.log(visiable.value)
+
         return () => (
             <t-menu
               value={value}
@@ -77,6 +99,7 @@ export default defineComponent({
               onChange={props?.valueChange}
             >
                 {renderGroupMenu()}
+                {renderMenuFooter()}
             </t-menu>
         )
     }

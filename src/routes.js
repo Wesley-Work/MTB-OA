@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router';
 import RenderComponents from './components/index.tsx';
 import { routerMap } from './components/config';
 
@@ -41,7 +41,7 @@ const routes = [
 ];
 
 const routerConfig = {
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes,
   scrollBehavior(to, from) {
     if (to.path !== from.path) {

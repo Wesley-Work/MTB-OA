@@ -1,4 +1,4 @@
-import { routerMap } from "../config";
+import { routerMap } from "../components/config";
 
 const applyParmer = (parmer:Object) => {
     const keys:string[] = Object.keys(parmer);
