@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router';
 import RenderComponents from './components/index.tsx';
 import { routerMap } from './components/config';
-
+import { config } from './components/config'
 function getRoutes(docs, type) {
   let docsRoutes = [];
   let docRoute;
@@ -13,7 +13,7 @@ function getRoutes(docs, type) {
       docsRoutes = docsRoutes.concat(getRoutes(children, docType));
     } else {
       docRoute = { 
-        path: "/system/" + item.key,
+        path: config.routerPrefix + "/" + item.key,
         ...item
     };
       docsRoutes.push(docRoute);
@@ -25,18 +25,18 @@ function getRoutes(docs, type) {
 
 const routes = [
   {
-    path: '/system/',
-    redirect: '/system/Content',
+    path: config.routerPrefix + '/',
+    redirect: config.routerPrefix + '/Content',
     component: RenderComponents,
     children: [...getRoutes(routerMap)],
   },
   {
     path: '/',
-    redirect: '/system/',
+    redirect: config.routerPrefix + '/',
   },
   {
     path: '/:w+',
-    redirect: '/system/',
+    redirect: config.routerPrefix + '/',
   },
 ];
 

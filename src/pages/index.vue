@@ -105,7 +105,7 @@
 <script setup lang="tsx">
 import SideMenus from "../hooks/useMenu.tsx"
 import BreadCurmb from "../hooks/useBreadcrumb.tsx"
-import { onBeforeMount, onMounted, reactive, ref } from "vue";
+import { onBeforeMount, onMounted, reactive, ref, watch } from "vue";
 import { themeMode, toggleTheme } from "../components/function/theme.js";
 import { config } from "../components/config";
 import Component from "../components/index.tsx";
@@ -118,6 +118,12 @@ import PageTooSmall from "../components/pages/PageSmall.vue"
 import router from '../routes'
 
 var Version
+
+
+watch(() => router.currentRoute.value.path, (val, oldVal) =>{
+    const v = val.replace(config.routerPrefix+"/","")
+    SideMenu.ComponentValue = v
+})
 
 const TitleMenu = reactive({
     text: config.systemname,
@@ -308,6 +314,11 @@ const ToggleSideMenu = () => {
     SideMenu.show = !SideMenu.show;
 }
 
+const getpath = () =>{
+    const path = window.location.hash.replace('#', '').replace(config.routerPrefix+"/","")
+    return path
+}
+
 const handleChangeComponent = (componentName:string,doNotToggleSideMenu:boolean=false,forcePush:boolean=false) => {
     // 与上次选择一样且不是强制刷新、验证地址失败
     // (MainContent.lastChoose === componentName && !forcePush) || // 与当前页面相同或
@@ -325,7 +336,7 @@ const handleChangeComponent = (componentName:string,doNotToggleSideMenu:boolean=
     // 应用动画
     MainContent.classOut = true;
     setTimeout(() => {
-        router.push(`/system/${componentName}`)
+        router.push(`${config.routerPrefix}/${componentName}`)
         MainContent.ComponentValue = componentName;
         MainContent.classOut = false;
         MainContent.classIn = true;
