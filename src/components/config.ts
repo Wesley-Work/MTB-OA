@@ -175,12 +175,14 @@ const routerMap:RouteMaps = [
                 key: "RandomPerson",
                 label: "随机抽取",
                 icon: "user-checked",
+                hidden: true,
                 component: () => import('../pages/other/RandomPerson.vue')
             },
             {
                 key: "MaintainGuide",
                 label: "维护手册",
                 icon: "tools",
+                hidden: true,
                 component: () => import('../pages/other/CHANGELOG.vue')
             },
             {
