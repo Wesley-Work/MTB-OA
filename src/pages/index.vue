@@ -72,7 +72,7 @@
             theme="light"></t-back-top>
     </div>
     <!-- if show sidemenu need margin-left: 232px;-->
-    <div style="padding: 24px" class="MainContent" :class="{ 'SideMenuShow-MainContent': SideMenu.show }"
+    <div style="padding: 24px" class="MainContent" :class="{ 'SideMenuShow-MainContent': SideMenu.show, 'SideMenuUseCollapsed': config.menuUseCollapsed && !SideMenu.show }"
         :NoShowMenu="!TitleMenu.show">
         <BreadCurmb :value="SideMenu.ComponentValue"></BreadCurmb>
         <section class="loading-change-components-animation" :class="{
@@ -318,7 +318,10 @@ const handleChangeComponent = (componentName:string,doNotToggleSideMenu:boolean=
     MainContent.lastChoose = componentName;
     SideMenu.value = componentName;
     SideMenu.ComponentValue = componentName;
-    doNotToggleSideMenu ? null : ToggleSideMenu();
+    // 若菜单是使用Collapsed模式，则判断当前菜单是否为展开状态，若是则关闭
+    if (config.menuUseCollapsed && SideMenu.show) {
+        doNotToggleSideMenu ? null : ToggleSideMenu();
+    }
     // 应用动画
     MainContent.classOut = true;
     setTimeout(() => {
@@ -570,7 +573,7 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
 
 @keyframes light-to-dark {
     0% {
@@ -740,12 +743,14 @@ a[we-a-tag]:hover {
     height: 100%;
     position: fixed !important;
     transition: transform 0.28s var(--transition-default), width 0.28s var(--transition-default) !important;
-    transform: translateX(-232px);
     top: 56px;
 }
 
-.sidemenu-show {
-    transform: translateX(0px);
+.sidemenu-normal {
+    transform: translateX(-232px);
+    &.sidemenu-show {
+        transform: translateX(0px);
+    }
 }
 
 .t-submenu>div {
@@ -818,6 +823,10 @@ a:has(.t-menu__operations-icon):not(.guide_refresh) {
 /** Main Content */
 .SideMenuShow-MainContent {
     margin-left: 232px;
+}
+
+.SideMenuUseCollapsed{
+    margin-left: 64px;
 }
 
 .MainContent:not([noshowmenu="true"]) {

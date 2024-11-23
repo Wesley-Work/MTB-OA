@@ -237,6 +237,7 @@ const config = {
     minWidth: 960,//页面最小宽度
     update_mode: false,//是否开启更新模式
     aTag_DontNav: true,//A标签不允许跳转
+    menuUseCollapsed: true,//菜单是否使用折叠模式
     routerMap
 }
 

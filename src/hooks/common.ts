@@ -55,6 +55,14 @@ export function getCurrentPage() {
     return path;
 }
 
+export function testTOKEN() {
+    return "E5BE89E5FD803A72CD7F5BC6DF07924B5B8EAD29C06151C18EC630BCB0196FD3"
+}
+
+export function getToken() {
+    return localStorage.getItem('token') ?? testTOKEN() ?? null
+}
+
 const getAPIURL = () => {
     return import.meta.env.VITE_API_URL || ''
 }
