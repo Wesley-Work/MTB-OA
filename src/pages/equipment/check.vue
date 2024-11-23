@@ -14,40 +14,38 @@
                             placeholder="请扫描或输入" v-model="formData.code" :onEnter="check" :autofocus="true"></t-input>
                         <t-button class="lendbutton" style="margin-left: -10px; z-index: 2" @click.end="check">查询</t-button>
                     </div>
-                    <div v-if="hasresult">
-                        <t-row align="middle">
-                            <t-col :span="6">
-                                <div data-w-di13cx>
-                                    <t-row>
-                                        <t-col v-for="(item, index) in data" :key="item.id" :span="3">
-                                            <div>{{ item.lable }}</div>
-                                            <div>{{ item.text }}</div>
-                                        </t-col>
-                                    </t-row>
-                                </div>
-                            </t-col>
-                            <t-col :span="6">
-                                <div>
-                                    <t-steps layout="vertical" :current="4" readonly>
-                                        <t-step-item title="借出设备" content="" />
-                                        <t-step-item title="使用" content="" />
-                                        <t-step-item title="归还" content="" />
-                                    </t-steps>
-                                </div>
-                            </t-col>
-                        </t-row>
-
-                    </div>
+                    <t-row style="margin-top: 12px;">
+                        <t-col :flex="6">
+                            <div>
+                                <t-descriptions title="借出信息" bordered :colon="true" :column="2">
+                                    <t-descriptions-item label="借出记录id">{{ data.id }}</t-descriptions-item>
+                                    <t-descriptions-item label="设备Code">{{ data.eqcode }}</t-descriptions-item>
+                                    <t-descriptions-item label="设备名称">{{ data.eqname }}</t-descriptions-item>
+                                    <t-descriptions-item label="借出人">{{ data.lender }}</t-descriptions-item>
+                                    <t-descriptions-item label="使用人">{{ data.user }}</t-descriptions-item>
+                                    <t-descriptions-item label="归还人">{{ data.returner }}</t-descriptions-item>
+                                    <t-descriptions-item label="借出时间">{{ data.lendtime }}</t-descriptions-item>
+                                    <t-descriptions-item label="归还时间">{{ data.returntime }}</t-descriptions-item>
+                                    <t-descriptions-item label="借出记录SHA" :span="2">{{ data.record_sha }}</t-descriptions-item>
+                                    <t-descriptions-item label="备注" :span="2">{{ data.remark }}</t-descriptions-item>
+                                </t-descriptions>
+                            </div>
+                        </t-col>
+                        <t-col :flex="5"></t-col>
+                    </t-row>
                 </div>
             </div>
         </div>
     </div>
-    <t-loading attach="#MainBox" size="middle" :loading="loading" text="搜索中..."></t-loading>
 </template>
 
 <script lang="jsx">
 // import * as api from "../../components/config/api.js";
+import useRequest from "../../hooks/useRequest";
 import * as config from "../../components/config";
+import { getToken } from "../../hooks/common";
+import { NotifyPlugin } from "tdesign-vue-next";
+
 export default {
     name: "LendList",
     data() {
@@ -55,30 +53,7 @@ export default {
             formData: {
                 code: "",
             },
-            data: [
-                {
-                    lable: "设备编号",
-                    text: "123456789",
-                }, {
-                    lable: "设备编号",
-                    text: "123456789",
-                }, {
-                    lable: "设备编号",
-                    text: "123456789",
-                }, {
-                    lable: "设备编号",
-                    text: "123456789",
-                }, {
-                    lable: "设备编号",
-                    text: "123456789",
-                }, {
-                    lable: "设备编号",
-                    text: "123456789",
-                }, {
-                    lable: "设备编号",
-                    text: "123456789",
-                },
-            ],
+            data: {},
             loading: false,
             hasresult: false,
         };
@@ -88,7 +63,37 @@ export default {
 
     methods: {
         check() {
-            this.$data.loading = true;
+            const TOKEN = getToken();
+            var that = this
+            useRequest({
+                url: "/record/item",
+                methods: "POST",
+                header: {
+                    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                    token: TOKEN,
+                },
+                data: {
+                    id: this.$data.formData.code,
+                },
+                success: function (res) {
+                    const json = JSON.parse(res);
+                    if (json.errcode != 0) {
+                        NotifyPlugin.error({
+                            title: "获取记录失败",
+                            content: "错误：" + json.errmsg,
+                        })
+                        return;
+                    }
+                    that.$data.data = json.data;
+                },
+                error: function (err) {
+                    console.error(err)
+                    NotifyPlugin.error({
+                        title: "获取记录失败",
+                        content: "错误：" + err,
+                    })
+                }
+            })
         },
     },
 };
