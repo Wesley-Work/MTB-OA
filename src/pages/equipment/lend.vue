@@ -124,6 +124,7 @@ import { NotifyPlugin } from "tdesign-vue-next";
 import { CheckCircleFilledIcon, CloseCircleFilledIcon } from 'tdesign-icons-vue-next';
 import { ref, reactive } from "vue";
 import { LendTableDataItem } from "../../types/type";
+import { getToken } from "../../hooks/common";
 
 const formData = reactive({
                     usercode: "",
@@ -198,7 +199,7 @@ const loadTableViewHeight = () => {
  */
 const RequestEqInfo= (eq_code) => {
     if (eq_code == '') return;
-    var TOKEN = localStorage.getItem("token");
+    var TOKEN = getToken();
     try {
         useRequest({
             url: "/equipment/info",
@@ -247,7 +248,7 @@ const Lend = () => {
         return;
     }
     Requesting.value = true
-    var TOKEN = localStorage.getItem("token");
+    var TOKEN = getToken();
     try {
         useRequest({
             url: "/equipment/lend",

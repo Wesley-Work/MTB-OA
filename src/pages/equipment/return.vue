@@ -104,6 +104,7 @@ import { CheckCircleFilledIcon, CloseCircleFilledIcon } from 'tdesign-icons-vue-
 import { onMounted, reactive, ref } from "vue";
 import { ReturnTableDataItem } from "@/types/type";
 import useRequest from "../../hooks/useRequest";
+import { getToken } from "../../hooks/common";
 
 const formData = reactive({
     usercode: "",
@@ -162,7 +163,7 @@ const initStyle = () => {
  */
 const RequestEqInfo = (eq_code) => {
     if (eq_code == '') return;
-    var TOKEN = localStorage.getItem("token");
+    var TOKEN = getToken();
     try {
         useRequest({
             url: "/equipment/info",
@@ -211,7 +212,7 @@ const Return = () => {
         return;
     }
     Requesting.value = true
-    var TOKEN = localStorage.getItem("token");
+    var TOKEN = getToken();
     try {
         useRequest({
             url: "/equipment/return",
