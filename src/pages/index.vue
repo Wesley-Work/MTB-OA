@@ -531,14 +531,14 @@ onBeforeMount(() => {
                 },
                 duration: 5000
             });
-            handleChangeComponent(MainContent.lastChoose,true,false)
-            var param_path = getUrlParam("path");
-            if (param_path) {
-                console.log("检测到 Path 参数,跳转至指定页面。");
-                if (VerifyPath(param_path) === true) {
-                    handleChangeComponent(param_path, true);
-                }
-            }
+            // handleChangeComponent(MainContent.lastChoose,true,false)
+            // var param_path = getUrlParam("path");
+            // if (param_path) {
+            //     console.log("检测到 Path 参数,跳转至指定页面。");
+            //     if (VerifyPath(param_path) === true) {
+            //         handleChangeComponent(param_path, true);
+            //     }
+            // }
         }
         LoadUserPermissions()
         const currentPage = getCurrentPage()
