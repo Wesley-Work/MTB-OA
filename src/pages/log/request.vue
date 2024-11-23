@@ -45,7 +45,8 @@
 <script lang="jsx">
 import { NotifyPlugin } from "tdesign-vue-next";
 import { config } from "../../components/config";
-import { HTTPRequest } from "../../components/function/hooks";
+import useRequest from "../../hooks/useRequest";
+import { getToken } from "../../hooks/common";
 
 export default {
     name: "LogRequest",
@@ -147,10 +148,10 @@ export default {
             this.InitDatePickerData();
             this.$data.table_Loading = true;
             var that = this;
-            var TOKEN = localStorage.getItem("token");
+            var TOKEN = getToken();
             try {
-                HTTPRequest({
-                    url: config.API_URL.MAIN_URL + "/log/request",
+                useRequest({
+                    url: "/log/request",
                     methods: "POST",
                     data: {
                         date: date || "",
@@ -209,10 +210,10 @@ export default {
         InitDatePickerData() {
             this.$data.table_Loading = true;
             var that = this;
-            var TOKEN = localStorage.getItem("token");
+            var TOKEN = getToken();
             try {
-                HTTPRequest({
-                    url: config.API_URL.MAIN_URL + "/log/getFileDate",
+                useRequest({
+                    url: "/log/getFileDate",
                     methods: "POST",
                     data: {
                         type: "REQUEST",
