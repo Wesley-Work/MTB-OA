@@ -1,30 +1,4 @@
 <template>
-    <!-- <t-space size="small">
-        <t-button variant="outline" theme="primary" ghost style="--ripple-color: #fff" @click="attc">
-            <template #icon>
-                <t-icon name="add" />
-            </template>
-            补记录
-        </t-button>
-        <t-button :disabled="SelectData.length > 1 || SelectData.length == 0">
-            <template #icon>
-                <t-icon name="edit-1" />
-            </template>
-            编辑
-        </t-button>
-        <t-popconfirm theme="danger" content="确认删除？删除后不可恢复！" placement="bottom" :onConfirm="del">
-            <t-button :disabled="SelectData.length == 0" theme="danger">
-                <template #icon>
-                    <t-icon name="delete" />
-                </template>
-                删除
-            </t-button>
-        </t-popconfirm>
-    </t-space> -->
-    <div style="display: flex;flex-direction: row;align-items: center;gap: 4px;font-size: 18px;font-family: PingFang SC, Microsoft YaHei, Arial Regular;color: var(--td-warning-color);font-weight: 600;">
-        <span style="font-size: 26px;display: flex;"><info-circle-icon /></span>
-        <span>本页面数据不包含晚修管理部牌借出数据！</span>
-    </div>
     <!---->
     <div style="margin-top: 16px;">
         <t-table row-key="id" :columns="table_Columns" :data="table_Data" select-on-row-click cellEmptyContent="-" bordered
@@ -40,8 +14,9 @@ import { InfoCircleIcon } from 'tdesign-icons-vue-next';
 
 <script lang="jsx">
 import { config } from "../../components/config";
-import { HTTPRequest } from "../../components/function/hooks";
 import { NotifyPlugin } from "tdesign-vue-next";
+import useRequest from '../../hooks/useRequest';
+import { getToken } from '../../hooks/common';
 
 
 export default {
@@ -50,11 +25,6 @@ export default {
         return {
             NotifyPlugin,
             table_Columns: [
-                {
-                    colKey: "row-select",
-                    type: "single",
-                    width: 45,
-                },
                 { colKey: "id", title: "借出编号", width: "100" },
                 { colKey: "lender", title: "借出人", width: "160",align: "center" },
                 { colKey: "user", title: "使用人", width: "160",align: "center" },
@@ -113,10 +83,10 @@ export default {
          InitTableData() {
             this.$data.table_Loading = true;
             var that = this;
-            var TOKEN = localStorage.getItem("token");
+            var TOKEN = getToken()
             try {
-                HTTPRequest({
-                    url: config.API_URL.MAIN_URL + "/record/list",
+                useRequest({
+                    url: "/record/list",
                     methods: "POST",
                     header: {
                         "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
@@ -125,7 +95,8 @@ export default {
                     success: function (res) {
                         var RES = JSON.parse(res);
                         if (RES.errcode == 0) {
-                            that.$data.table_Data = RES.data
+                            // 数据倒序
+                            that.$data.table_Data = RES.data.reverse()
                         }
                         else{
                             NotifyPlugin("error", {

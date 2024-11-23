@@ -24,7 +24,7 @@ export function useRequest(option) {
             option.methods = option.methods ? option.methods.toUpperCase() : 'GET';
             option.data = SpliceParameter(option.data) || null;
             option.header = option.header || {};
-            option.timeout = option.timeout || 10000;
+            option.timeout = option.timeout || 60000;
             option.url = option.useCustomURL ? option.url : getAPIURL() + option.url;
             
             const xhr = new XMLHttpRequest();
