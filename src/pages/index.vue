@@ -330,7 +330,7 @@ const handleChangeComponent = (componentName:string,doNotToggleSideMenu:boolean=
     MainContent.lastChoose = componentName;
     SideMenu.value = componentName;
     SideMenu.ComponentValue = componentName;
-    // 若菜单不Collapsed模式，则判断当前菜单是否为展开状态，若是则关闭
+    // 若菜单不是Collapsed模式，则判断当前菜单是否为展开状态，若是则关闭
     if (config.menuUseCollapsed && SideMenu.show && !config.menuUseCollapsed) {
         doNotToggleSideMenu ? null : ToggleSideMenu();
     }
