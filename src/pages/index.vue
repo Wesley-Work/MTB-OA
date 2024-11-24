@@ -331,9 +331,9 @@ const handleChangeComponent = (componentName:string,doNotToggleSideMenu:boolean=
     SideMenu.value = componentName;
     SideMenu.ComponentValue = componentName;
     // 若菜单是使用Collapsed模式，则判断当前菜单是否为展开状态，若是则关闭
-    if (config.menuUseCollapsed && SideMenu.show) {
-        doNotToggleSideMenu ? null : ToggleSideMenu();
-    }
+    // if (config.menuUseCollapsed && SideMenu.show) {
+    //     doNotToggleSideMenu ? null : ToggleSideMenu();
+    // }
     // 应用动画
     MainContent.classOut = true;
     setTimeout(() => {
