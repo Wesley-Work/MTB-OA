@@ -59,6 +59,12 @@
                                     v-model="formData.guestname"
                                     style="margin: 0px 10px 0px 12px" />
                             </div>
+                            <t-tag theme="success" variant="light-outline">
+                                <template #icon>
+                                    <t-icon name="error-circle" />
+                                </template>
+                                注意：为访客借出设备，责任人为操作人！ 
+                            </t-tag>
                         </div>
                         <!---->
                         <div style="margin-top: 13px">
@@ -118,6 +124,7 @@ import { NotifyPlugin } from "tdesign-vue-next";
 import { CheckCircleFilledIcon, CloseCircleFilledIcon } from 'tdesign-icons-vue-next';
 import { ref, reactive } from "vue";
 import { LendTableDataItem } from "../../types/type";
+import { getToken } from "../../hooks/common";
 
 const formData = reactive({
                     usercode: "",
@@ -130,31 +137,32 @@ const formData = reactive({
 const EquipmentInfo = ref("暂无数据")
 const Requesting = ref(false)
 const TableData = ref([])
-const TableColumns = ref([
-                    { colKey: "eqname", title: "设备名称" },
-                    { colKey: "eqcode", title: "设备Code", width: "200" },
-                    {
-                        colKey: "status",
-                        title: "借出状态",
-                        width: "110",
-                        align: "center",
-                        cell: (h, { row }) => {
-                            return (
-                                <t-tag
-                                    shape="round"
-                                    theme={row.status.theme}
-                                    variant="light-outline">
-                                    {row.status.icon}
-                                    {row.status.text}
-                                </t-tag>
-                            );
+const TableColumns = [
+                        { colKey: "lend_id", title: "借出编号", width: "60" },
+                        { colKey: "eqname", title: "设备名称", minWidth: "80" },
+                        { colKey: "eqcode", title: "设备Code", width: "160" },
+                        {
+                            colKey: "status",
+                            title: "借出状态",
+                            width: "110",
+                            align: "center",
+                            cell: (h, { row }) => {
+                                return (
+                                    <t-tag
+                                        shape="round"
+                                        theme={row.status.theme}
+                                        variant="light-outline">
+                                        {row.status.icon}
+                                        {row.status.text}
+                                    </t-tag>
+                                );
+                            },
                         },
-                    },
-                    { colKey: "user", title: "借出人", align: "center" },
-                    { colKey: "dothisthinguser", title: "操作人", align: "center" },
-                    { colKey: "lendtime", title: "借出时间", ellipsis: true, width: "200" },
-                    { colKey: "more", title: "备注", width: "250" },
-                ])
+                        { colKey: "user", title: "借出人", align: "center", minWidth: "80" },
+                        { colKey: "dothisthinguser", title: "操作人", align: "center", minWidth: "80" },
+                        { colKey: "lendtime", title: "借出时间", ellipsis: true, width: "200" },
+                        { colKey: "more", title: "备注", minWidth: "80" },
+                    ]
 
 const props = defineProps({
     handleChangeComponent: {
@@ -191,7 +199,7 @@ const loadTableViewHeight = () => {
  */
 const RequestEqInfo= (eq_code) => {
     if (eq_code == '') return;
-    var TOKEN = localStorage.getItem("token");
+    var TOKEN = getToken();
     try {
         useRequest({
             url: "/equipment/info",
@@ -240,7 +248,7 @@ const Lend = () => {
         return;
     }
     Requesting.value = true
-    var TOKEN = localStorage.getItem("token");
+    var TOKEN = getToken();
     try {
         useRequest({
             url: "/equipment/lend",

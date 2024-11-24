@@ -96,6 +96,7 @@ const routerMap:RouteMaps = [
                     {
                         key: "EqCheck",
                         label: "设备清点",
+                        hidden: true,
                         permissions: ['equipment.check'],
                         component: () => import('../pages/equipment/check.vue')
                     }
@@ -157,6 +158,7 @@ const routerMap:RouteMaps = [
     {
         key: "Message",
         label: "消息中心",
+        hidden: true,
         children: [
             {
                 key: "MessageList",
@@ -175,12 +177,14 @@ const routerMap:RouteMaps = [
                 key: "RandomPerson",
                 label: "随机抽取",
                 icon: "user-checked",
+                hidden: true,
                 component: () => import('../pages/other/RandomPerson.vue')
             },
             {
                 key: "MaintainGuide",
                 label: "维护手册",
                 icon: "tools",
+                hidden: true,
                 component: () => import('../pages/other/CHANGELOG.vue')
             },
             {
@@ -237,6 +241,8 @@ const config = {
     minWidth: 960,//页面最小宽度
     update_mode: false,//是否开启更新模式
     aTag_DontNav: true,//A标签不允许跳转
+    menuUseCollapsed: true,//菜单是否使用折叠模式
+    routerPrefix: '/system',//路由前缀
     routerMap
 }
 

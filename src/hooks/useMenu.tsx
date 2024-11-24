@@ -1,6 +1,6 @@
 
 import { defineComponent, ref, computed, toRefs, watch, toRef } from 'vue';
-import { routerMap } from '../components/config';
+import config, { routerMap } from '../components/config';
 import packageFile from '../../package.json';
 import { h } from 'vue';
 import { MenuGroup, Submenu, MenuItem, Icon } from 'tdesign-vue-next';
@@ -114,7 +114,8 @@ export default defineComponent({
         function renderMenuFooter() {
             return (
                 <div style="margin-bottom: 56px;text-align: center;font: var(--td-font-body-small);">
-                    MTBOA {version}
+                    { config.menuUseCollapsed && !visiable.value ? 'v' : 'MTBOA ' }
+                    {version}
                 </div>
             )
         }
@@ -130,7 +131,8 @@ export default defineComponent({
             <t-menu
               value={value}
               height="550px"
-              class={ visiable.value ? 'sidemenu sidemenu-show' : 'sidemenu' }
+              collapsed={!visiable.value && config.menuUseCollapsed}
+              class={ !config.menuUseCollapsed ? visiable.value ? 'sidemenu sidemenu-normal sidemenu-show' : 'sidemenu sidemenu-normal' : 'sidemenu' }
               onChange={props?.valueChange}
             >
                 {renderGroupMenu(routerMap)}

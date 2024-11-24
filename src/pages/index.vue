@@ -72,7 +72,7 @@
             theme="light"></t-back-top>
     </div>
     <!-- if show sidemenu need margin-left: 232px;-->
-    <div style="padding: 24px" class="MainContent" :class="{ 'SideMenuShow-MainContent': SideMenu.show }"
+    <div style="padding: 24px" class="MainContent" :class="{ 'SideMenuShow-MainContent': SideMenu.show, 'SideMenuUseCollapsed': config.menuUseCollapsed && !SideMenu.show }"
         :NoShowMenu="!TitleMenu.show">
         <BreadCurmb :value="SideMenu.ComponentValue"></BreadCurmb>
         <section class="loading-change-components-animation" :class="{
@@ -105,7 +105,7 @@
 <script setup lang="tsx">
 import SideMenus from "../hooks/useMenu.tsx"
 import BreadCurmb from "../hooks/useBreadcrumb.tsx"
-import { onBeforeMount, onMounted, reactive, ref } from "vue";
+import { onBeforeMount, onMounted, reactive, ref, watch } from "vue";
 import { themeMode, toggleTheme } from "../components/function/theme.js";
 import { config } from "../components/config";
 import Component from "../components/index.tsx";
@@ -118,6 +118,13 @@ import PageTooSmall from "../components/pages/PageSmall.vue"
 import router from '../routes'
 
 var Version
+
+
+watch(() => router.currentRoute.value.path, (val, oldVal) =>{
+    const v = val.replace(config.routerPrefix+"/","")
+    SideMenu.ComponentValue = v
+    SideMenu.value = v
+})
 
 const TitleMenu = reactive({
     text: config.systemname,
@@ -308,20 +315,29 @@ const ToggleSideMenu = () => {
     SideMenu.show = !SideMenu.show;
 }
 
+const getpath = () =>{
+    const path = window.location.hash.replace('#', '').replace(config.routerPrefix+"/","")
+    return path
+}
+
 const handleChangeComponent = (componentName:string,doNotToggleSideMenu:boolean=false,forcePush:boolean=false) => {
     // 与上次选择一样且不是强制刷新、验证地址失败
-    if ((MainContent.lastChoose === componentName && !forcePush) || !VerifyPath(componentName)) {
-        console.error(`[handleChangeComponent]: 不会切换到页面(组件)[${componentName}]，因为与当前页面相同或页面不存在！`)
+    // (MainContent.lastChoose === componentName && !forcePush) || // 与当前页面相同或
+    if (!VerifyPath(componentName)) {
+        console.error(`[handleChangeComponent]: 不会切换到页面(组件)[${componentName}]，因为页面不存在！`)
         return false;
     }
     MainContent.lastChoose = componentName;
     SideMenu.value = componentName;
     SideMenu.ComponentValue = componentName;
-    doNotToggleSideMenu ? null : ToggleSideMenu();
+    // 若菜单不是Collapsed模式，则判断当前菜单是否为展开状态，若是则关闭
+    if (config.menuUseCollapsed && SideMenu.show && !config.menuUseCollapsed) {
+        doNotToggleSideMenu ? null : ToggleSideMenu();
+    }
     // 应用动画
     MainContent.classOut = true;
     setTimeout(() => {
-        router.push(`/system/${componentName}`)
+        router.push(`${config.routerPrefix}/${componentName}`)
         MainContent.ComponentValue = componentName;
         MainContent.classOut = false;
         MainContent.classIn = true;
@@ -527,14 +543,14 @@ onBeforeMount(() => {
                 },
                 duration: 5000
             });
-            handleChangeComponent(MainContent.lastChoose,true,false)
-            var param_path = getUrlParam("path");
-            if (param_path) {
-                console.log("检测到 Path 参数,跳转至指定页面。");
-                if (VerifyPath(param_path) === true) {
-                    handleChangeComponent(param_path, true);
-                }
-            }
+            // handleChangeComponent(MainContent.lastChoose,true,false)
+            // var param_path = getUrlParam("path");
+            // if (param_path) {
+            //     console.log("检测到 Path 参数,跳转至指定页面。");
+            //     if (VerifyPath(param_path) === true) {
+            //         handleChangeComponent(param_path, true);
+            //     }
+            // }
         }
         LoadUserPermissions()
         const currentPage = getCurrentPage()
@@ -569,7 +585,7 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
 
 @keyframes light-to-dark {
     0% {
@@ -739,12 +755,14 @@ a[we-a-tag]:hover {
     height: 100%;
     position: fixed !important;
     transition: transform 0.28s var(--transition-default), width 0.28s var(--transition-default) !important;
-    transform: translateX(-232px);
     top: 56px;
 }
 
-.sidemenu-show {
-    transform: translateX(0px);
+.sidemenu-normal {
+    transform: translateX(-232px);
+    &.sidemenu-show {
+        transform: translateX(0px);
+    }
 }
 
 .t-submenu>div {
@@ -817,6 +835,10 @@ a:has(.t-menu__operations-icon):not(.guide_refresh) {
 /** Main Content */
 .SideMenuShow-MainContent {
     margin-left: 232px;
+}
+
+.SideMenuUseCollapsed{
+    margin-left: 64px;
 }
 
 .MainContent:not([noshowmenu="true"]) {
