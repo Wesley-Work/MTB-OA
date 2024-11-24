@@ -1,7 +1,7 @@
 
-import { defineComponent, ref, computed, toRefs, watch } from 'vue';
+import { defineComponent, ref, computed, toRefs } from 'vue';
 import { getRoutePathObj } from './common';
-import config, { routerMap } from '../components/config';
+import { routerMap } from '../components/config';
 import { RouteData } from 'tdesign-vue-next';
 import { RouteMapItem, RouteMaps } from '@/types/type';
 
@@ -13,20 +13,9 @@ export default defineComponent({
         }
     },
     setup(props) {
-        // const { value } = toRefs(props)
         const { value } = toRefs(props)
-
-        watch(() => value.value, (newVal) => {
-            value.value = newVal
-        })
         const isHidden = ref(false)
 
-        // 通过url判断当前页面
-        const getpath = () =>{
-            const path = window.location.hash.replace('#', '').replace(config.routerPrefix+"/","")
-            return path
-        }
-        
         function getIteminMap(map: RouteMaps, value: string, deep: number = 0): { parent: string | null, current: string | null, fatherCrumb?: string | null } {
             for (const item of map) {
                 if (item?.key === value) {
