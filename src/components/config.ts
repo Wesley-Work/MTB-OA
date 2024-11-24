@@ -158,6 +158,7 @@ const routerMap:RouteMaps = [
     {
         key: "Message",
         label: "消息中心",
+        hidden: true,
         children: [
             {
                 key: "MessageList",

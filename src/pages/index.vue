@@ -123,6 +123,7 @@ var Version
 watch(() => router.currentRoute.value.path, (val, oldVal) =>{
     const v = val.replace(config.routerPrefix+"/","")
     SideMenu.ComponentValue = v
+    SideMenu.value = v
 })
 
 const TitleMenu = reactive({
