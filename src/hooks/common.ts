@@ -1,5 +1,6 @@
 import { routerMap } from "../components/config";
 import isNumber from 'lodash/isNumber';
+import { RouteMaps, RouteMapItems } from "../types/type";
 
 const applyParmer = (parmer:Object) => {
     const keys:string[] = Object.keys(parmer);
@@ -9,29 +10,25 @@ const applyParmer = (parmer:Object) => {
     return kv.join('&')
 }
 
-export function getRoutePathObj(key:string) {
-    routerMap.map(item => {
-        if(item.key === key) {
+export function getRoutePathObj(map: RouteMaps=routerMap, value: string, deep: number = 0): { parent: RouteMapItems | null, current: RouteMapItems | null } {
+    for (const item of map) {
+        if (item?.key === value) {
             return {
                 parent: null,
-                current: item
+                current: item,
+            };
+        }
+        if (item?.children) {
+            const result = getRoutePathObj(item.children, value, deep + 1);
+            if (result?.current) {
+                return {
+                    parent: result?.parent ?? item,
+                    current: result.current
+                };
             }
         }
-        if (item.children) {
-            return item.children.map(child => {
-                if (child.key === key) {
-                    return {
-                        parent: item,
-                        current: child
-                    }
-                }
-            })
-        }
-    })
-    return {
-        parent: null,
-        current: null
     }
+    return { parent: null, current: null };
 }
 
 export function verifyPath(path:string,map=routerMap,deep:number=0) {

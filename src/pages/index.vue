@@ -107,12 +107,12 @@ import SideMenus from "../hooks/useMenu.tsx"
 import BreadCurmb from "../hooks/useBreadcrumb.tsx"
 import { onBeforeMount, onMounted, reactive, ref, watch } from "vue";
 import { themeMode, toggleTheme } from "../components/function/theme.js";
-import { config } from "../components/config";
+import { config, routerMap } from "../components/config";
 import Component from "../components/index.tsx";
 import { PoweroffIcon, UserIcon, ChatBubbleHelpIcon } from "tdesign-icons-vue-next";
 import { NotifyPlugin } from "tdesign-vue-next";
 import { HTTPRequest, VerifyToken } from '../components/function/hooks'
-import { getCurrentPage, verifyPath, getSSOURL, getAPIURL, getLoginURL } from '../hooks/common'
+import { getCurrentPage, verifyPath, getSSOURL, getAPIURL, getLoginURL, getRoutePathObj } from '../hooks/common'
 import { useRequest } from "../hooks/useRequest"
 import PageTooSmall from "../components/pages/PageSmall.vue"
 import router from '../routes'
@@ -126,6 +126,7 @@ watch(() => router.currentRoute.value.path, (val, oldVal) =>{
     SideMenu.value = v
 })
 
+const componentPermissions = ref([])
 const TitleMenu = reactive({
     text: config.systemname,
     show: true,
@@ -167,6 +168,16 @@ const timer = reactive({
 const theme = ref(false)
 const pagesmall = ref(false)
 
+
+const getComponentPermissions = (componentName) => {
+    const { current } = getRoutePathObj(routerMap,componentName)
+    console.log(current)
+    return current?.permissions ?? []
+}
+
+watch(() => SideMenu.value, (val, oldVal) => {
+    componentPermissions.value = getComponentPermissions(val)
+})
 
 // 获取用户权限
 const LoadUserPermissions = (TOKEN:string=localStorage.getItem("token")) => {
@@ -327,6 +338,7 @@ const handleChangeComponent = (componentName:string,doNotToggleSideMenu:boolean=
         console.error(`[handleChangeComponent]: 不会切换到页面(组件)[${componentName}]，因为页面不存在！`)
         return false;
     }
+    componentPermissions.value = getComponentPermissions(componentName)
     MainContent.lastChoose = componentName;
     SideMenu.value = componentName;
     SideMenu.ComponentValue = componentName;

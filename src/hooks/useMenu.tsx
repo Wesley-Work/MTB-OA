@@ -4,6 +4,7 @@ import config, { routerMap } from '../components/config';
 import packageFile from '../../package.json';
 import { h } from 'vue';
 import { MenuGroup, Submenu, MenuItem, Icon } from 'tdesign-vue-next';
+import { getRoutePathObj } from './common';
 
 export default defineComponent({
     name: "Menu",
@@ -26,12 +27,12 @@ export default defineComponent({
     setup(props) {
         var { theme, visiable, value } = toRefs(props);
         var version = "-.-.-"
+
         try {
             version = packageFile?.version
         } catch (error) {
             console.log("Cannot Resload Version",error)
         }
-
 
         function arrayAllItemIsNull(arr) {
             return arr.every(item => item === null)
