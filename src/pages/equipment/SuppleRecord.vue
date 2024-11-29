@@ -68,8 +68,6 @@ import { MessagePlugin, NotifyPlugin } from 'tdesign-vue-next';
 import { reactive, ref } from 'vue';
 import dayjs from "dayjs";
 import { getToken } from '../../hooks/common';
-import { format } from 'echarts/types/src/util/time.js';
-
 
 const props = defineProps({
     handleChangeComponent: {
