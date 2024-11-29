@@ -3,7 +3,7 @@ interface ComponentsMap {
   [key: string]: Function
 }
 
-export type RouteMapItems {
+export type RouteMapItems = {
   key?: string,
   label: string,
   icon?: string,
