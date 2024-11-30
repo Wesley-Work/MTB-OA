@@ -54,15 +54,20 @@ const routerMap:RouteMaps = [
         ]
     },
     {
-        label: "Management",
+        label: "指数",
         children: [
             {
                 key: "Dashboard",
-                label: "数据报表",
+                label: "系统数据",
                 icon: "precise-monitor",
                 permissions: [],
                 component: () => import('../pages/manage/dashboard.vue')
             },
+        ]
+    },
+    {
+        label: "Management",
+        children: [
             {
                 key: "lend-manage",
                 label: "借出管理",
