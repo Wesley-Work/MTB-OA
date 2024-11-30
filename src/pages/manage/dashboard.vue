@@ -10,7 +10,7 @@
             </div>
           </template>
           <div class="item-right">
-            <span>{{ Top_items_Content.LendTime }}</span>
+            <span>{{ topCardData.LendTotal }}</span>
           </div>
           <div class="item-top" tag-green>
             <t-avatar size="56px">
@@ -23,11 +23,6 @@
             <div class="t-card__footer-wrapper">
               <div class="dashboard-item-bottom">
                 <div class="dashboard-item-block">
-                  {{
-                    Math.floor(Math.random() * 2) == 1
-                      ? "是个不错的数字！"
-                      : "芜芜芜芜芜芜芜芜湖~~"
-                  }}
                   <!-- <span class="trend-container trend-container__down dashboard-item-trend"><span
                       class="trend-icon-container"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"
                         xmlns="http://www.w3.org/2000/svg">
@@ -50,7 +45,7 @@
             </div>
           </template>
           <div class="item-right">
-            <span>{{ Top_items_Content.EquipmentTotal }}</span>
+            <span>{{ topCardData.EquipmentTotal }}</span>
           </div>
           <div class="item-top" tag-blue>
             <t-avatar size="56px">
@@ -63,29 +58,7 @@
             <div class="t-card__footer-wrapper">
               <div class="dashboard-item-bottom">
                 <div class="dashboard-item-block">
-                  上次新增
-                  <span
-                    class="trend-container trend-container__down dashboard-item-trend">
-                    <span class="trend-icon-container">
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 16 16"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        style="transform: rotate(180deg)">
-                        <path
-                          d="M11.5 8L8 11.5L4.5 8"
-                          stroke="currentColor"
-                          stroke-width="1.5"></path>
-                        <path
-                          d="M8 11L8 4"
-                          stroke="currentColor"
-                          stroke-width="1.5"></path>
-                      </svg>
-                    </span>
-                    <span>5件 设备</span>
-                  </span>
+                  <!---->
                 </div>
               </div>
             </div>
@@ -101,7 +74,7 @@
             </div>
           </template>
           <div class="item-right">
-            <span>{{ Top_items_Content.NotReturnTotal }}</span>
+            <span>{{ topCardData.NotReturnTotal }}</span>
           </div>
           <div class="item-top" tag-red>
             <t-avatar size="56px">
@@ -114,11 +87,6 @@
             <div class="t-card__footer-wrapper">
               <div class="dashboard-item-bottom">
                 <div class="dashboard-item-block">
-                  {{
-                    Math.floor(Math.random() * 2) == 1
-                      ? "使用完设备记得还哦！"
-                      : "用完不还是会被斩的！"
-                  }}
                   <!-- <span class="trend-container trend-container__down dashboard-item-trend">
                     <span class="trend-icon-container">
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -143,7 +111,7 @@
             </div>
           </template>
           <div class="item-right">
-            <span style="color: var(--td-text-color-primary)">NaN</span>
+            <span style="color: var(--td-text-color-primary)">{{ topCardData.LoginTotal }}</span>
           </div>
           <div class="item-top" tag-black>
             <t-avatar size="56px">
@@ -211,10 +179,6 @@
             ref="ChartsLR"
             id="ChartsLR"
             style="width: 100%; height: 100%" class="Ischarts"></div>
-          <div
-            id="skeleton"
-            v-if="checkDOM('ChartsLR')"
-            style="margin-top: 12px; height: 95%; width: 100%"></div>
         </t-card>
       </div>
       <div>
@@ -227,34 +191,12 @@
           card-body-remove-paddingtop
           card-body-height-100>
           <div
-            ref="ChartsLRP"
-            id="ChartsLRP"
+            ref="ChartsTodayPercent"
+            id="ChartsTodayPercent"
             style="width: 100%; height: 100%" class="Ischarts"></div>
-          <div
-            id="skeleton"
-            v-if="checkDOM('ChartsLRP')"
-            style="margin-top: 12px; height: 95%; width: 100%"></div>
         </t-card>
       </div>
       <!-- </t-space> -->
-    </div>
-    <!-- <div
-      style="display: flex; flex-direction: row; margin-top: 16px"
-      tag-100p-width>
-      <t-space>
-        <div>
-          <t-card
-            style="width: 100%; height: 460px"
-            title="借出设备排行"
-            we-tag-dashboard-card></t-card>
-        </div>
-        <div>
-          <t-card
-            style="width: 100%; height: 460px"
-            title="借出人次排行"
-            we-tag-dashboard-card></t-card>
-        </div>
-      </t-space>
     </div>
     <div
       style="display: flex; flex-direction: row; margin-top: 16px"
@@ -262,341 +204,536 @@
       <t-space>
         <div>
           <t-card
+            class="limitHeight"
             style="width: 100%; height: 460px"
-            title="出入库概览"
-            we-tag-dashboard-card></t-card>
+            title="借出设备排行"
+            we-tag-dashboard-card>
+            <t-table :columns="tableEquipmentRankingColumns" :data="tableEquipmentRankingData" max-height="368px"></t-table>
+          </t-card>
+        </div>
+        <div>
+          <t-card
+            class="limitHeight"
+            style="width: 100%; height: 460px"
+            we-tag-dashboard-card>
+            <template #title>
+              <div style="display: flex; flex-direction: row; gap: 8px; align-items: flex-end;">
+                <div> 借出人次排行 </div>
+                <span style="font: var(--td-font-link-medium); color: var(--td-text-color-disabled);">(不包含访客数据)</span>
+              </div>
+            </template>
+            <t-table :columns="tableUserRankingColumns" :data="tableUserRankingData" :rowspan-and-colspan="tableUserRankingRowspanAndColspan" max-height="368px" bordered></t-table>
+          </t-card>
         </div>
       </t-space>
-    </div> -->
-  </div>
-  <footer
-    class="t-layout__footer tdesign-starter-footer-layout"
-    style="display: none">
-    <div class="tdesign-starter-footer">
-      Copyright © 2021-2023 Tencent. All Rights Reserved
     </div>
-  </footer>
+  </div>
 </template>
 
-<script>
-import * as api from "../../components/config/api.js";
-// import * as config from "@/components/config.js"; // for testing, replace with "./config.js" for production server. 描述自身数据库信息以";
+<script setup lang="tsx">
+
 import { themeMode, toggleTheme } from "../../components/function/theme.js";
 import { NotifyPlugin } from "tdesign-vue-next";
 import { config } from "../../components/config";
 import { HTTPRequest } from "../../components/function/hooks";
-import { getCurrentInstance, onMounted } from "vue";
+import { getCurrentInstance, onMounted, reactive, ref } from "vue";
+import useRequest from "../../hooks/useRequest";
+import { getToken } from "../..//hooks/common";
 
 var echarts;
 var Chartslist = []
+let internalInstance = getCurrentInstance();
+echarts = internalInstance.appContext.config.globalProperties.$echarts;
 
-export default {
-  name: "DashBoard",
-  data() {
-    return {
-      onlineuser: {
-        fromdata: {},
-        stand: "NaN",
-        data: "NaN",
-        desc: "NaN",
-        pre: "NaN",
-        preway: true,
-      },
-      Top_items_Content: {
-        LendTime: NaN,
-        EquipmentTotal: NaN,
-        NotReturnTotal: NaN,
-      },
-      Charts_LR: {
-        Charts_xAxis_Text: [],
-        Charts_xAxis_LData: [],
-        Charts_xAxis_RData: [],
-      },
-      Charts_TodayLR: {
-        lend: 0,
-        return: 0,
-        percent: 0,
-      },
-    };
+
+const onlineuser = {
+  fromdata: {},
+  stand: "NaN",
+  data: "NaN",
+  desc: "NaN",
+  pre: "NaN",
+  preway: true,
+}
+const Top_items_Content = {
+  LendTime: NaN,
+  EquipmentTotal: NaN,
+  NotReturnTotal: NaN,
+}
+// 默认数据都为0，使用updateChartsLendReturn更新图表数据
+const chartsLendReturn = reactive({
+  Charts_xAxis_Text: [0,0,0,0,0,0,0],
+  Charts_xAxis_LData: [0,0,0,0,0,0,0],
+  Charts_xAxis_RData: [0,0,0,0,0,0,0],
+})
+// 默认数据都为0，使用updateChartsTodayPercent更新图表数据
+const chartsTodayPercent = reactive({
+  lend: 0,
+  return: 0,
+  percent: 0,
+})
+// 顶部卡片数据
+const topCardData = ref({
+  EquipmentTotal: NaN,
+  LendTotal: NaN,
+  LoginTotal: NaN,
+  NotReturnTotal: NaN
+})
+// 借出设备排行表
+const tableEquipmentRankingColumns = [
+  {
+      colKey: "id",
+      title: "排名",
+      width: 120,
   },
-  setup() {
-    let internalInstance = getCurrentInstance();
-    echarts = internalInstance.appContext.config.globalProperties.$echarts;
-    const checkDOM = (id) => {
-      let a = document.getElementById(id);
-      if (!a) {
-        return true;
-      } else {
-        return false;
+  {
+      colKey: "equipment_code",
+      title: "设备码",
+      minWidth: 80,
+  },
+  {
+      colKey: "equipment_name",
+      title: "设备名称",
+      minWidth: 80,
+  },
+  {
+      colKey: "lend_total",
+      title: "借出次数",
+      width: 160,
+  },
+]
+const tableEquipmentRankingData = ref([])
+// 借出人次排行表排名
+const tableUserRankingColumns = [
+  {
+      colKey: "id",
+      title: "排名",
+      width: 120,
+  },
+  {
+      colKey: "lend_userid",
+      title: "借出人",
+      minWidth: 80,
+      align: "center",
+  },
+  {
+      colKey: "operater_username",
+      title: "操作人",
+      minWidth: 80,
+      align: "center",
+  },
+  {
+      colKey: "lend_equipment",
+      title: "借过几样设备",
+      minWidth: 80,
+      cell: (h, { row }) => {
+        return (
+          row.lend_equipment.length + " 样"
+        )
+      },
+  },
+  {
+      colKey: "lend_total",
+      title: "总计借出次数",
+      width: 160,
+      cell: (h, { row }) => {
+        return (
+          row.lend_total + " 次"
+        )
+      },
+  },
+]
+const tableUserRankingData = ref([])
+// 合并单元格
+const tableUserRankingRowspanAndColspan = ({ row, col, rowIndex, colIndex }) => {
+  // console.log(row, col, rowIndex, colIndex)
+  if (row.lend_userid === row.operater_username && col.colKey === 'lend_userid') {
+    console.log(row, col, rowIndex, colIndex)
+    return {
+      colspan: 2,
+      rowspan: 1,
+    };
+  }
+  // if (col.colKey === 'lend_userid' && colIndex === 4) {
+  //   return {
+  //     colspan: 2,
+  //     rowspan: 2,
+  //   };
+  // }
+}
+
+// 初始化全部图表
+const InitAllCharts = () => {
+  initCharts_LendReturn()
+  initChartsTodayPercent()
+}
+
+const ResizeAllCharts = () => {
+  const cl = Chartslist
+  for (const index in cl) {
+    if (Object.hasOwnProperty.call(cl, index)) {
+      cl[index].resize()
+    }
+  }
+}
+
+// 更新归还率图表
+const updateChartsTodayPercent = () => {
+  const option = {
+    // ["#E290D0", "#4582E6"]
+    color: ["#FABD2A", "#4582e6"],
+    legend: {
+      bottom: 0,
+      selectedMode: false,
+      icon: "rect",
+      itemHeight: 3,
+      itemWidth: 12,
+      textStyle:{
+        color: "var(--td-text-color-primary)",
       }
-    };
-    return {
-      checkDOM,
-    };
-  },
-  mounted() {
-    var that = this;
-    this.InitAllContentData();
-    setTimeout(() => {
-      that.InitAllCharts();
-    }, 1000);
-    var a = window.onresize
-    window.onresize = (e) => {
-      a(e)
-      that.ResizeAllCharts();
-    };
-  },
-  methods: {
-
-    InitAllContentData() {
-      this.initContentData()
-      this.initChartsData()
     },
-
-    InitAllCharts() {
-      this.initChartsLR()
-      this.initChartsLRP()
+    grid: {
+      top: "24px",
+      left: "16px",
+      right: "32px",
+      bottom: "26px",
+      containLabel: true,
     },
+    series: [
+      {
+        name: "Access From",
+        type: "pie",
+        radius: ["50%", "70%"],
+        avoidLabelOverlap: false,
+        hoverAnimation: false,
+        label: {
+          normal: {
+            show: true,
+            position: "center",
+            color: "#4c4a4a",
+            formatter:
+              "{total|" + chartsTodayPercent.percent + "%}" + "\n\r" + "{active|归还率}",
+            rich: {
+              total: {
+                fontSize: 35,
+                fontFamily: "微软雅黑",
+                color: "#4582e6",
+              },
+              active: {
+                fontFamily: "微软雅黑",
+                fontSize: 16,
+                color: "var(--td-text-color-placeholder)",
+                padding: [4, 0, 0, 0],
+              },
+            },
+          },
+          emphasis: {
+            //中间文字显示
+            show: true,
+          },
+        },
+        emphasis: {
+          label: {
+            show: false,
+            fontSize: 40,
+            fontWeight: "bold",
+          },
+        },
+        labelLine: {
+          show: false,
+        },
+        data: [
+          {
+            value: 100 - chartsTodayPercent.lend,
+            name: "未归还",
+          },
+          { value: chartsTodayPercent.return, name: "已归还" },
+        ],
+      },
+    ],
+  };
+  // 设置实例参数
+  Chartslist["ChartsTodayPercent"].setOption(option);
+}
 
-    ResizeAllCharts() {
-      const cl = Chartslist
-      for (const index in cl) {
-        if (Object.hasOwnProperty.call(cl, index)) {
-          cl[index].resize()
+// 初始化归还率图表实例
+const initChartsTodayPercent = () => {
+  const dom = document.getElementById("ChartsTodayPercent");
+  if (dom === null) return false;
+  Chartslist["ChartsTodayPercent"] = echarts.init(dom, null, {renderer: 'svg'});
+}
+
+// 更新借出归还图表
+const updateChartsLendReturn = () => {
+  const option = {
+    tooltip: {
+      trigger: "axis",
+    },
+    // ["#4582E6", "#E290D0"]
+    color: ["#4582e6", "#4DC156"],
+    legend: {
+      data: ["借出次数", "归还次数"],
+      bottom: 0,
+      textStyle: {
+        color: "abcd",
+      },
+    },
+    grid: {
+      top: "24px",
+      left: "16px",
+      right: "32px",
+      bottom: "26px",
+      containLabel: true,
+    },
+    xAxis: {
+      type: "category",
+      boundaryGap: false,
+      data: chartsLendReturn.Charts_xAxis_Text
+    },
+    yAxis: {
+      type: "value",
+    },
+    series: [
+      {
+        name: "借出次数",
+        type: "line",
+        symbol: "circle",
+        symbolSize: 8,
+        areaStyle: {
+          color: "#2667d470",
+        },
+        lineStyle: {
+          width: 3,
+        },
+        data: chartsLendReturn.Charts_xAxis_LData,
+      },
+      {
+        name: "归还次数",
+        type: "line",
+        data: chartsLendReturn.Charts_xAxis_RData,
+        symbol: "circle",
+        symbolSize: 8,
+        lineStyle: {
+          width: 3,
+          type: "dotted",
+        },
+      },
+    ],
+  };
+  // 设置实例参数
+  Chartslist["ChartsLR"].setOption(option);
+};
+
+// 初始化借出归还图表实例
+const initCharts_LendReturn = () => {
+  // const RANDOM = Math.floor(Math.random() * 3600) % 2;
+  const dom = document.getElementById("ChartsLR");
+  if (dom === null) return false;
+  Chartslist["ChartsLR"] = echarts.init(dom);
+  updateChartsLendReturn()
+}
+
+// 顶部卡片数据、折线图文字数据
+const loadContentData = () => {
+  const TOKEN = getToken()
+  useRequest({
+    url: '/Dashboard/ContentData',
+    methods: "GET",
+    header: {
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        token: TOKEN,
+    },
+    success: function (res) {
+        var RES = JSON.parse(res);
+        if (RES.errcode == 0) {
+          chartsLendReturn.Charts_xAxis_Text = RES.data.Days_LR_Text
+          topCardData.value = RES.data.TopItemsData
+          updateChartsLendReturn()
         }
-      }
-    },
-
-    initContentData() {
-      var that = this;
-      try {
-        HTTPRequest({
-          url: config.API_URL.MAIN_URL + "/Dashboard/ContentData",
-          methods: "GET",
-          header: {
-            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-          },
-          success: function (res) {
-            var RES = JSON.parse(res);
-            if (RES.errcode == 0) {
-              that.$data.Charts_LR.Charts_xAxis_Text = RES.data.Days_LR_Text;
-              that.$data.Top_items_Content.LendTime = RES.data.TopItemsData.LendTotal
-              that.$data.Top_items_Content.EquipmentTotal = RES.data.TopItemsData.EquipmentTotal
-              that.$data.Top_items_Content.NotReturnTotal = RES.data.TopItemsData.NotReturnTotal
-              // that.$data.Top_items_Content
-            } else {
-              that.$data.Charts_LR.Charts_xAxis_Text = [
-                "NaN",
-                "NaN",
-                "NaN",
-                "NaN",
-                "NaN",
-                "NaN",
-                "NaN",
-              ];
-            }
-          },
-          error: function (err) {
-            console.error(err);
+        else{
             NotifyPlugin("error", {
-              title: "获取图表数据失败",
-              content: err,
-              duration: 4000,
+                title: "获取设备借出列表失败",
+                content: RES.errmsg,
+                duration: 5000,
             });
-          },
-        });
-      } catch (e) {
-        console.log(e);
-      }
+        }
     },
+    error: function (err) {
+        console.error(err);
+        NotifyPlugin("error", {
+            title: "获取设备借出列表失败",
+            content: err,
+            duration: 5000,
+        });
+    },
+  })
+}
 
-    initChartsData() {
-      var that = this;
-      try {
-        HTTPRequest({
-          url: config.API_URL.MAIN_URL + "/Dashboard/ChartData",
-          methods: "GET",
-          header: {
-            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-          },
-          success: function (res) {
-            var RES = JSON.parse(res);
-            if (RES.errcode == 0) {
-              that.$data.Charts_LR.Charts_xAxis_LData = RES.data.LendTotal;
-              that.$data.Charts_LR.Charts_xAxis_RData = RES.data.ReturnTotal;
-              that.$data.Charts_TodayLR.lend = RES.data.TodayTotal.lend;
-              that.$data.Charts_TodayLR.return = RES.data.TodayTotal.return;
-              that.$data.Charts_TodayLR.percent = RES.data.TodayTotal.percent;
-            } else {
-              that.$data.Charts_LR.Charts_xAxis_LData = [0, 0, 0, 0, 0, 0, 0];
-              that.$data.Charts_LR.Charts_xAxis_RData = [0, 0, 0, 0, 0, 0, 0];
-            }
-          },
-          error: function (err) {
-            console.error(err);
+// 图表数据
+const loadChartData = () => {
+  const TOKEN = getToken()
+  useRequest({
+    url: '/Dashboard/ChartData',
+    methods: "GET",
+    header: {
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        token: TOKEN,
+    },
+    success: function (res) {
+        var RES = JSON.parse(res);
+        if (RES.errcode == 0) {
+          chartsLendReturn.Charts_xAxis_LData = RES.data.LendTotal
+          chartsLendReturn.Charts_xAxis_RData = RES.data.ReturnTotal
+          chartsTodayPercent.lend = RES.data.TodayTotal.lend
+          chartsTodayPercent.return = RES.data.TodayTotal.return
+          chartsTodayPercent.percent = RES.data.TodayTotal.percent
+          updateChartsLendReturn()
+          updateChartsTodayPercent()
+        }
+        else{
             NotifyPlugin("error", {
-              title: "获取图表数据失败",
-              content: err,
-              duration: 4000,
+                title: "获取设备借出列表失败",
+                content: RES.errmsg,
+                duration: 5000,
             });
-          },
+        }
+    },
+    error: function (err) {
+        console.error(err);
+        NotifyPlugin("error", {
+            title: "获取设备借出列表失败",
+            content: err,
+            duration: 5000,
         });
-      } catch (e) {
-        console.log(e);
-      }
     },
+  })
+}
 
-    initChartsLR() {
-      var that = this;
-      const RANDOM = Math.floor(Math.random() * 3600) % 2;
-      const dom = document.getElementById("ChartsLR");
-      if (dom === null) return false;
-      Chartslist["ChartsLR"] = echarts.init(dom); // 初始化echarts实例
-      const option = {
-        tooltip: {
-          trigger: "axis",
-        },
-        color: RANDOM == 0 ? ["#4582e6", "#4DC156"] : ["#4582E6", "#E290D0"],
-        legend: {
-          data: ["借出次数", "归还次数"],
-          bottom: 0,
-          textStyle: {
-            color: "abcd",
-          },
-        },
-        grid: {
-          top: "24px",
-          left: "16px",
-          right: "32px",
-          bottom: "26px",
-          containLabel: true,
-        },
-        xAxis: {
-          type: "category",
-          boundaryGap: false,
-          data: that.$data.Charts_LR.Charts_xAxis_Text,
-        },
-        yAxis: {
-          type: "value",
-        },
-        series: [
-          {
-            name: "借出次数",
-            type: "line",
-            symbol: "circle",
-            symbolSize: 8,
-            areaStyle: {
-              color: "#2667d470",
-            },
-            lineStyle: {
-              width: 3,
-            },
-            data: that.$data.Charts_LR.Charts_xAxis_LData,
-          },
-          {
-            name: "归还次数",
-            type: "line",
-            data: that.$data.Charts_LR.Charts_xAxis_RData,
-            symbol: "circle",
-            symbolSize: 8,
-            lineStyle: {
-              width: 3,
-              type: "dotted",
-            },
-          },
-        ],
-      };
-      // 设置实例参数
-      Chartslist["ChartsLR"].setOption(option);
+// TableData
+// {
+//     "data": {
+//         "equipment": [
+//             {
+//                 "equipment_code": "01002",
+//                 "equipment_name": "\u7d22\u5c3cA7M3\u76f8\u673a",
+//                 "id": 1,
+//                 "lend_total": 22,
+//                 "user_name": [
+//                     "\u6797\u6653\u541b",
+//                     "\u6b27\u9633\u8335\u6b23",
+//                     "\u9093\u5609\u6d01",
+//                     "\u90d1\u79c0\u7433",
+//                     "\u5b63\u6069\u6cfd",
+//                     "\u5434\u6893\u6052",
+//                     "\u4f55\u9e3f\u4eae",
+//                     "\u80e1\u94ed\u6866",
+//                     "\u674e\u4fca\u6bc5",
+//                     "\u8c22\u529b\u6d69",
+//                     "\u9ec4\u6653\u742a"
+//                 ]
+//             }
+//         ],
+//         "user": [
+//             {
+//                 "id": 1,
+//                 "lend_equipment": [
+//                     "01030",
+//                     "01036",
+//                     "05006",
+//                     "04003",
+//                     "01002",
+//                     "02065",
+//                     "01032",
+//                     "02079",
+//                     "04007",
+//                     "02022",
+//                     "02016",
+//                     "01011",
+//                     "02070",
+//                     "02077",
+//                     "01029",
+//                     "02076",
+//                     "01038"
+//                 ],
+//                 "lend_total": 39,
+//                 "lend_userid": "69",
+//                 "operater_username": "\u5434\u6893\u6052"
+//             }
+//         ]
+//     },
+//     "errcode": 0,
+//     "errmsg": "ok"
+// }
+
+
+// 加载全部数据
+
+const loadTableData = () => {
+  const TOKEN = getToken()
+  useRequest({
+    url: '/Dashboard/TableData',
+    methods: "GET",
+    header: {
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        token: TOKEN,
     },
-
-    initChartsLRP() {
-      var that = this;
-      const RANDOM = Math.floor(Math.random() * 3600) % 2;
-      const dom = document.getElementById("ChartsLRP");
-      if (dom === null) return false;
-      Chartslist["ChartsLRP"] = echarts.init(dom, null, {renderer: 'svg'}); // 初始化echarts实例
-      const option = {
-        color: RANDOM == 0 ? ["#FABD2A", "#4582e6"] : ["#E290D0", "#4582E6"],
-        legend: {
-          bottom: 0,
-          selectedMode: false,
-          icon: "rect",
-          itemHeight: 3,
-          itemWidth: 12,
-          textStyle:{
-            color: "var(--td-text-color-primary)",
-          }
-        },
-        grid: {
-          top: "24px",
-          left: "16px",
-          right: "32px",
-          bottom: "26px",
-          containLabel: true,
-        },
-        series: [
-          {
-            name: "Access From",
-            type: "pie",
-            radius: ["50%", "70%"],
-            avoidLabelOverlap: false,
-            hoverAnimation: false,
-            label: {
-              normal: {
-                show: true,
-                position: "center",
-                color: "#4c4a4a",
-                formatter:
-                  "{total|" + that.$data.Charts_TodayLR.percent + "%}" + "\n\r" + "{active|归还率}",
-                rich: {
-                  total: {
-                    fontSize: 35,
-                    fontFamily: "微软雅黑",
-                    color: "#4582e6",
-                  },
-                  active: {
-                    fontFamily: "微软雅黑",
-                    fontSize: 16,
-                    color: "var(--td-text-color-placeholder)",
-                    padding: [4, 0, 0, 0],
-                  },
-                },
-              },
-              emphasis: {
-                //中间文字显示
-                show: true,
-              },
-            },
-            emphasis: {
-              label: {
-                show: false,
-                fontSize: 40,
-                fontWeight: "bold",
-              },
-            },
-            labelLine: {
-              show: false,
-            },
-            data: [
-              {
-                value: 100 - that.$data.Charts_TodayLR.percent,
-                name: "未归还",
-              },
-              { value: that.$data.Charts_TodayLR.percent, name: "已归还" },
-            ],
-          },
-        ],
-      };
-      // 设置实例参数
-      Chartslist["ChartsLRP"].setOption(option);
+    success: function (res) {
+        var RES = JSON.parse(res);
+        if (RES.errcode == 0) {
+          tableEquipmentRankingData.value = RES.data.equipment
+          tableUserRankingData.value = RES.data.user
+        }
+        else{
+            NotifyPlugin("error", {
+                title: "获取设备借出列表失败",
+                content: RES.errmsg,
+                duration: 5000,
+            });
+        }
     },
+    error: function (err) {
+        console.error(err);
+        NotifyPlugin("error", {
+            title: "获取设备借出列表失败",
+            content: err,
+            duration: 5000,
+        });
+    },
+  })
+}
 
-  },
+const loadAllData = () => {
+  loadContentData()
+  loadChartData()
+  loadTableData()
+}
+
+onMounted(() => {
+  // 初始化全部图表
+  InitAllCharts()
+  // 加载全部数据
+  loadAllData()
+  // this.InitAllContentData();
+  // setTimeout(() => {
+  //   that.InitAllCharts();
+  // }, 1000);
+  // var a = window.onresize
+  // window.onresize = (e) => {
+  //   a(e)
+  //   that.ResizeAllCharts();
+  // };
+})
+</script>
+
+<script lang="tsx">
+
+
+
+export default { 
+  name: "DashBoard",
 };
 </script>
 
-<style>
+<style lang="scss">
 /**顶部5位的样式 */
 /**蓝色的 */
 [we-bg-color-blue] {
@@ -625,6 +762,10 @@ export default {
 .t-layout__footer {
   color: var(--td-text-color-placeholder);
   padding: 24px 24px 0px 24px !important;
+}
+
+.t-card.limitHeight .t-card__header {
+    padding-bottom: 0 !important;
 }
 
 /**红色的 */
@@ -855,11 +996,11 @@ export default {
   display: flex !important;
   flex-direction: row !important;
   align-items: flex-start !important;
-  padding-top: 6px !important;
+  padding-top: 12px !important;
 }
 
 .item-right > span {
-  font-size: 40px !important;
+  font-size: 45px !important;
   color: #fff;
 }
 
