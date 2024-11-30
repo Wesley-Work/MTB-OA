@@ -267,7 +267,6 @@ var Chartslist = [];
 let internalInstance = getCurrentInstance();
 echarts = internalInstance.appContext.config.globalProperties.$echarts;
 var Timer = null;
-var ResizeTimer = null;
 const props = defineProps({
     handleChangeComponent: {
         type: Function,
@@ -737,9 +736,6 @@ onMounted(() => {
   Timer = setInterval(() => {
     loadAllData();
   }, 30000);
-  // ResizeTimer = setInterval(() => {
-  //   ResizeAllCharts();
-  // }, 0);
 })
 
 onUnmounted(() => {
@@ -752,14 +748,11 @@ onUnmounted(() => {
   });
   // 关闭计时器
   clearInterval(Timer);
-  // clearInterval(ResizeTimer);
 })
+
 </script>
 
 <script lang="tsx">
-
-
-
 export default { 
   name: "DashBoard",
 };
