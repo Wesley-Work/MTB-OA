@@ -158,7 +158,8 @@
     </div>
     <div
       style="display: flex; margin-top: 16px; flex-direction: row"
-      tag-100p-width>
+      tag-100p-width
+      >
       <!-- <t-space> -->
       <div style="min-width: 75.65%">
         <t-card
@@ -179,6 +180,26 @@
             ref="ChartsLR"
             id="ChartsLR"
             style="width: 100%; height: 100%" class="Ischarts"></div>
+            <!--监测尺寸变化Object-->
+            <object
+              tabindex="-1"
+              type="text/html"
+              aria-hidden="true"
+              data="about:blank"
+              ref="objectResizeRef"
+              style="display: block; 
+                      position: absolute; 
+                      top: 0px; 
+                      left: 0px; 
+                      width: 100%; 
+                      height: 100%; 
+                      border: none; 
+                      padding: 0px; 
+                      margin: 0px; 
+                      opacity: 0; 
+                      z-index: -1000; 
+                      pointer-events: none;">
+              </object>
         </t-card>
       </div>
       <div>
@@ -236,53 +257,42 @@ import { themeMode, toggleTheme } from "../../components/function/theme.js";
 import { NotifyPlugin } from "tdesign-vue-next";
 import { config } from "../../components/config";
 import { HTTPRequest } from "../../components/function/hooks";
-import { getCurrentInstance, onMounted, reactive, ref } from "vue";
+import { getCurrentInstance, onMounted, onUnmounted, reactive, ref } from "vue";
 import useRequest from "../../hooks/useRequest";
 import { getToken } from "../..//hooks/common";
 
+const objectResizeRef = ref(null)
 var echarts;
-var Chartslist = []
+var Chartslist = [];
 let internalInstance = getCurrentInstance();
 echarts = internalInstance.appContext.config.globalProperties.$echarts;
-
+var Timer = null;
+var ResizeTimer = null;
 const props = defineProps({
     handleChangeComponent: {
         type: Function,
         default: null
     }
-})
-const onlineuser = {
-  fromdata: {},
-  stand: "NaN",
-  data: "NaN",
-  desc: "NaN",
-  pre: "NaN",
-  preway: true,
-}
-const Top_items_Content = {
-  LendTime: NaN,
-  EquipmentTotal: NaN,
-  NotReturnTotal: NaN,
-}
+});
 // 默认数据都为0，使用updateChartsLendReturn更新图表数据
 const chartsLendReturn = reactive({
   Charts_xAxis_Text: [0,0,0,0,0,0,0],
   Charts_xAxis_LData: [0,0,0,0,0,0,0],
   Charts_xAxis_RData: [0,0,0,0,0,0,0],
-})
+});
 // 默认数据都为0，使用updateChartsTodayPercent更新图表数据
 const chartsTodayPercent = reactive({
   lend: 0,
   return: 0,
   percent: 0,
-})
+});
 // 顶部卡片数据
 const topCardData = ref({
   EquipmentTotal: NaN,
   LendTotal: NaN,
   LoginTotal: NaN,
   NotReturnTotal: NaN
-})
+});
 // 借出设备排行表
 const tableEquipmentRankingColumns = [
   {
@@ -305,7 +315,7 @@ const tableEquipmentRankingColumns = [
       title: "借出次数",
       width: 160,
   },
-]
+];
 const tableEquipmentRankingData = ref([])
 // 借出人次排行表排名
 const tableUserRankingColumns = [
@@ -346,13 +356,12 @@ const tableUserRankingColumns = [
         )
       },
   },
-]
+];
 const tableUserRankingData = ref([])
+
 // 合并单元格
 const tableUserRankingRowspanAndColspan = ({ row, col, rowIndex, colIndex }) => {
-  // console.log(row, col, rowIndex, colIndex)
   if (row.lend_userid === row.operater_username && col.colKey === 'lend_userid') {
-    console.log(row, col, rowIndex, colIndex)
     return {
       colspan: 2,
       rowspan: 1,
@@ -717,15 +726,33 @@ onMounted(() => {
   InitAllCharts()
   // 加载全部数据
   loadAllData()
-  // this.InitAllContentData();
-  // setTimeout(() => {
-  //   that.InitAllCharts();
-  // }, 1000);
-  // var a = window.onresize
-  // window.onresize = (e) => {
-  //   a(e)
-  //   that.ResizeAllCharts();
-  // };
+  // 添加一个窗口变化事件
+  window.addEventListener('resize', () => {
+    ResizeAllCharts();
+  })
+  objectResizeRef.value.contentDocument.defaultView.addEventListener("resize", () => {
+    ResizeAllCharts();
+  });
+  // 启动计时器
+  Timer = setInterval(() => {
+    loadAllData();
+  }, 30000);
+  // ResizeTimer = setInterval(() => {
+  //   ResizeAllCharts();
+  // }, 0);
+})
+
+onUnmounted(() => {
+  // 移除监听事件
+  window.removeEventListener('resize', () => {
+    ResizeAllCharts();
+  })
+  objectResizeRef.value.contentDocument.defaultView.removeEventListener("resize", () => {
+    ResizeAllCharts();
+  });
+  // 关闭计时器
+  clearInterval(Timer);
+  // clearInterval(ResizeTimer);
 })
 </script>
 
