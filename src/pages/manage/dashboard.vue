@@ -245,7 +245,12 @@ var Chartslist = []
 let internalInstance = getCurrentInstance();
 echarts = internalInstance.appContext.config.globalProperties.$echarts;
 
-
+const props = defineProps({
+    handleChangeComponent: {
+        type: Function,
+        default: null
+    }
+})
 const onlineuser = {
   fromdata: {},
   stand: "NaN",
