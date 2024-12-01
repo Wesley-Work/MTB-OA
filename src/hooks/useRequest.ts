@@ -1,12 +1,12 @@
 import { NotifyPlugin } from "tdesign-vue-next";
 import { getAPIURL, getLoginURL } from "./common";
 import { config } from "../components/config"
+import { RequestHooksOptions } from "@/types/type";
+import isObject from "lodash/isObject"
 function SpliceParameter(DATA:Object) {
     if (Object.prototype.toString.call(DATA) !== '[object Object]') return false;
     // PASS
     var ParameterOBJ = []
-    var JSONLENGTH = DATA.length;
-    if (JSONLENGTH <=0) return false;
     for (const [key, value] of Object.entries(DATA)){
         var keys = encodeURIComponent(key);
         var values = value === null ? '' : encodeURIComponent(value);
@@ -16,9 +16,29 @@ function SpliceParameter(DATA:Object) {
     return ParameterSRT
 }
 
-export function useRequest(option) {
+export function useRequest(option: RequestHooksOptions) {
     return new Promise((resolve, reject) => {
         try{
+            function emitComplete(xhr) {
+                if(option.complete && typeof option.complete === 'function') {
+                    option.complete(xhr)
+                }
+            }
+            function emitError(et, xhr) {
+                if(option.error && typeof option.error === 'function') {
+                    option.error(et, xhr)
+                }
+                else{
+                    console.log(et, xhr)
+                }
+                emitComplete(xhr)
+            }
+            function emitSuccess(xhr) {
+                if(option.success && typeof option.success === 'function') {
+                    option.success(xhr.response)
+                }
+                emitComplete(xhr)
+            }
             if(Object.prototype.toString.call(option) !== '[object Object]') resolve(false);
             
             option.methods = option.methods ? option.methods.toUpperCase() : 'GET';
@@ -35,21 +55,14 @@ export function useRequest(option) {
             
             xhr.timeout = option.timeout;
             xhr.ontimeout = () => {
-                if(option.error && typeof option.error === 'function') {
-                    option.error('RequestTimeout',xhr)
-                }
-                else{
-                    console.log('RequestTimeout: ',xhr)
-                }
+                emitError('RequestTimeout',xhr)
             };
             xhr.onload = () => {
                 if(xhr.status === 200) {
                     var RES = JSON.parse(xhr.response);
                     if(RES.errcode === -1003) {
                         console.error("Token Timeout!")
-                        if(option.error && typeof option.error === 'function') {
-                            option.error("TokenTimeout", xhr)
-                        }
+                        emitError("TokenTimeout", xhr)
                         if (config.login_verify) {
                             NotifyPlugin("error",{
                                 title: '登录已过期，请重新登录',
@@ -67,28 +80,15 @@ export function useRequest(option) {
                         })
                     }
                     else{
-                        // RequestSuccess
-                        if(option.success && typeof option.success === 'function') {
-                            option.success(xhr.response)
-                        }
+                        emitSuccess(xhr)
                     }
                 }
                 else{
-                    if(option.error && typeof option.error === 'function') {
-                        option.error("RequestError", xhr)
-                    }
-                    else{
-                        console.error('RequestError: ',xhr)
-                    }
+                    emitError("RequestError",xhr)
                 }
             };
             xhr.onerror = () => {
-                if(option.error && typeof option.error === 'function') {
-                    option.error("RequestError", xhr)
-                }
-                else{
-                    console.error('RequestError: ',xhr)
-                }
+                emitError("RequestError",xhr)
             };
             xhr.send(option.data);
         }
