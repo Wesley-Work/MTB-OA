@@ -42,3 +42,15 @@ export type ReturnTableDataItem = {
 }
 
 interface LendTableData extends Array<LendTableDataItem> {}
+
+export type RequestHooksOptions = {
+  url: string,
+  methods?: string,
+  header?: object,
+  data?: object | string,
+  useCustomURL?: boolean,
+  timeout?: number,
+  success?: Function,
+  error?: Function,
+  complete?: Function
+}

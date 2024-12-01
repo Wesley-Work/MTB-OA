@@ -257,7 +257,7 @@ import { themeMode, toggleTheme } from "../../components/function/theme.js";
 import { NotifyPlugin } from "tdesign-vue-next";
 import { config } from "../../components/config";
 import { HTTPRequest } from "../../components/function/hooks";
-import { getCurrentInstance, onMounted, onUnmounted, reactive, ref } from "vue";
+import { getCurrentInstance, onBeforeUnmount, onMounted, onUnmounted, reactive, ref } from "vue";
 import useRequest from "../../hooks/useRequest";
 import { getToken } from "../..//hooks/common";
 
@@ -738,7 +738,7 @@ onMounted(() => {
   }, 30000);
 })
 
-onUnmounted(() => {
+onBeforeUnmount(() => {
   // 移除监听事件
   window.removeEventListener('resize', () => {
     ResizeAllCharts();
