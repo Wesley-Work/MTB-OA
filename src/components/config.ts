@@ -49,6 +49,7 @@ const routerMap:RouteMaps = [
                 label: "我的任务",
                 icon: "control-platform",
                 permissions: [],
+                hidden: true,
                 component: () => import('../pages/task/myTask.vue')
             },
         ]

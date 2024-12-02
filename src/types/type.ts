@@ -45,6 +45,7 @@ interface LendTableData extends Array<LendTableDataItem> {}
 
 export type RequestHooksOptions = {
   url: string,
+  token?: string,
   methods?: string,
   header?: object,
   data?: object | string,

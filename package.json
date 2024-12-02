@@ -25,6 +25,7 @@
     "md5.js": "^1.3.5",
     "sass": "^1.63.6",
     "sass-loader": "^13.3.2",
+    "tdesigm-icons-vue-next": "^0.3.3",
     "tdesign-vue-next": "^1.10.4",
     "vue": "^3.5.12",
     "vue-router": "^4.4.5"

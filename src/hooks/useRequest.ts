@@ -1,8 +1,10 @@
 import { NotifyPlugin } from "tdesign-vue-next";
-import { getAPIURL, getLoginURL } from "./common";
+import { getAPIURL, getLoginURL, getToken } from "./common";
 import { config } from "../components/config"
 import { RequestHooksOptions } from "@/types/type";
-import isObject from "lodash/isObject"
+import isFunction from "lodash/isFunction"
+import merge from "lodash/merge";
+import { omit } from "lodash";
 function SpliceParameter(DATA:Object) {
     if (Object.prototype.toString.call(DATA) !== '[object Object]') return false;
     // PASS
@@ -42,14 +44,20 @@ export function useRequest(option: RequestHooksOptions) {
             if(Object.prototype.toString.call(option) !== '[object Object]') resolve(false);
             
             option.methods = option.methods ? option.methods.toUpperCase() : 'GET';
+            console.log(option.data)
             option.data = SpliceParameter(option.data) || null;
             option.header = option.header || {};
             option.timeout = option.timeout || 60000;
             option.url = option.useCustomURL ? option.url : getAPIURL() + option.url;
-            
+            var headers = {};
+            // 优先header使用提供的内容 若没提供则使用默认值
+            headers["Content-Type"] = option.header["Content-Type"] || "application/x-www-form-urlencoded; charset=UTF-8";
+            headers["TOKEN"] = option.token || option.header["TOKEN"] || getToken() || null;
+            // 合并两个object 排除上面两项
+            var headersMerge = merge(headers,omit(option.header,["Content-Type","TOKEN","token"]));
             const xhr = new XMLHttpRequest();
             xhr.open(option.methods, option.url, true);
-            for (const [key, value] of Object.entries(option.header)){
+            for (const [key, value] of Object.entries(headersMerge)){
                 xhr.setRequestHeader(key, value)
             }
             
