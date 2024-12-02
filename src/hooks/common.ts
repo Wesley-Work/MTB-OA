@@ -53,7 +53,7 @@ export function getCurrentPage() {
 }
 
 export function testTOKEN() {
-    return "DDD9DEDDDE58BED263D3445A7E57DCF06281D37F9CA82780A39743F4203D9F14"
+    return "34C33DEFC72E380045754D72F8100D213446274E8172F635FBD60A30C4CC7623"
 }
 
 export function getToken() {
@@ -107,6 +107,33 @@ export function Wesley(){
             resolve(false)
         })
     })
+}
+
+export const taskType = [
+    { label: "常规任务", value: 0, theme: "primary" },
+    { label: "优先", value: 1, theme: "self", color: "rgb(177, 31, 38)" },
+    { label: "加急", value: 2, theme: "warning" },
+    { label: "暂缓（保留任务）", value: 3, theme: "default" }
+];
+
+export const taskStatus = [
+    { label: "待办", value: 0, theme: "self", color: "rgb(177, 31, 38)" },
+    { label: "统筹中", value: 1, theme: "self", color: "rgb(247, 199, 151)" },
+    { label: "拍摄中", value: 2, theme: "self", color: "rgb(105, 158, 245)" },
+    { label: "后期中", value: 3, theme: "self", color: "rgb(217, 113, 185)" },
+    { label: "审核中", value: 4, theme: "warning" },
+    { label: "进行中", value: 5, theme: "primary" },
+    { label: "已完成", value: 6, theme: "success" },
+    { label: "未知", value: 7, theme: "self", color: "rgb(250, 145, 152)" },
+    { label: "暂缓", value: 8, theme: "default" }
+];
+
+export function findObjectByValueAndKeyInArray(arr: Array<any>, key: string, value: string | number): object | undefined {
+    for (const obj of arr) {
+        if (obj[key] === value) {
+            return obj;
+        }
+    }
 }
 
 export { getAPIURL, getSSOURL, getOAURL, getLoginURL }
