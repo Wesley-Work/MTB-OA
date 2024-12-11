@@ -140,7 +140,6 @@
 
 <script setup lang="tsx">
 import { computed, onMounted, reactive, ref } from "vue";
-import PermissionsTransfer from "../../components/PermissionsTransfer.tsx";
 import dayjs from 'dayjs';
 import { NotifyPlugin } from "tdesign-vue-next";
 import { config } from "../../components/config";
