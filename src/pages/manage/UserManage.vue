@@ -95,11 +95,50 @@
     <!--Permissions Dialog-->
     <t-dialog v-model:visible="Dialog_Model.permissions" header="配置权限" width="40%" :closeBtn="false" cancelBtn="取消"
         confirmBtn="保存" :closeOnEscKeydown="false" :destroyOnClose="true" :onClose="handlePermissionDialogClose">
-        <PermissionsTransfer :value="permissionsValue" :data="systemPermissionsList" :user="activeUserPermissions" :group="activeGroupPermissions"></PermissionsTransfer>
+        <t-transfer :data="permissionsTransfer.data" v-model="permissionsTransfer.value" :operation="['移除', '添加']" class="transfer-horizontal">
+            <template #title="props">
+              <div>{{ props.type === 'target' ? '目标' : '来源' }}</div>
+            </template>
+            <template #footer="props">
+              <div class="transfer-footer--tagGroup narrow-scrollbar" v-if="activeGroupPermissions.length !== 0">
+                <span v-if="props.type === 'target'" v-for="(item, index) in activeGroupPermissions" style="display: flex;">
+                    <span class="group-permission--item">{{ permissionsTransfer.nameList[item?.val] }}</span>
+                </span>
+              </div>
+            </template>
+            <template #transferItem="{ data, index, type }">
+                <div :data-transfer-checkbox-id="index" style="margin-left: 8px;">
+                    <t-tag
+                    v-if="activeGroupPermissions.map(item => item.val).includes(data.value)"
+                    color="rgb(217, 0, 87)"
+                    variant="light-outline"
+                    size="small"
+                    style="margin-right: 4px;">
+                        <span>重复</span>
+                    </t-tag>
+                    {{ data.label }}
+                    <span
+                        v-if="type === 'target'"
+                        class="UserCanTSelect"
+                        @click.prevent="() => { togglePermissionStatus(data.value) }">
+                        <t-tag
+                        :theme="permissionsTransfer.statusList[data.value]?.open === true ? 'success' : permissionsTransfer.statusList[data.value]?.open === false ? 'danger' : 'warning'"
+                        variant="light-outline"
+                        size="small"
+                        style="margin-left: 4px">
+                            <span v-if="permissionsTransfer.statusList[data.value]?.open === true">开启</span>
+                            <span v-else-if="permissionsTransfer.statusList[data.value]?.open === false">关闭</span>
+                            <span v-else>⚠ 未知状态</span>
+                        </t-tag>
+                    </span>
+                </div>
+            </template>
+        </t-transfer>
+        <!-- <PermissionsTransfer :value="permissionsValue" :data="systemPermissionsList" :user="activeUserPermissions" :group="activeGroupPermissions"></PermissionsTransfer> -->
     </t-dialog>
 </template>
 
-<script setup lang="jsx">
+<script setup lang="tsx">
 import { computed, onMounted, reactive, ref } from "vue";
 import PermissionsTransfer from "../../components/PermissionsTransfer.tsx";
 import dayjs from 'dayjs';
@@ -108,6 +147,7 @@ import { config } from "../../components/config";
 import sha256 from 'crypto-js/sha256'
 import useRequest from "../../hooks/useRequest";
 import { loadSystemPermissions, loadUserPermissionsList } from "../../hooks/usePermission.ts";
+import { PermissionsArray, PermissionsObject } from "@/types/type.ts";
 
 const table_Columns = [
     {
@@ -208,6 +248,14 @@ const backupPermissionsValue = reactive({
     value: [],// target
     data: []// source
 })
+
+const permissionsTransfer = reactive({
+    data: [],
+    value: [],
+    nameList: {},
+    statusList: {},
+})
+
 const userPermissionsList = ref({})
 const activeUserPermissions = ref([])
 const activeGroupPermissions = ref([])
@@ -222,16 +270,26 @@ const table_Pagination = computed(() => {
 })
 
 const loadSystemPermissionsList = () => {
-    loadSystemPermissions().then((res) => {
+    loadSystemPermissions().then((res: PermissionsArray) => {
         systemPermissionsList.value = JSON.parse(JSON.stringify(res))
         backupPermissionsValue.data = JSON.parse(JSON.stringify(res))
+        permissionsTransfer.data = res.map(item => {
+            return {
+                label: item.object,
+                value: item.val
+            }
+        })
+        permissionsTransfer.nameList = res.reduce((acc, cur) => {
+            acc[cur.val] = cur.object
+            return acc
+        }, {})
     }).catch((err) => {
         console.error(err)
     })
 }
 
 const loadUserPermissions = () => {
-    loadUserPermissionsList().then((res) => {
+    loadUserPermissionsList().then((res: PermissionsArray) => {
         userPermissionsList.value = res
     }).catch((err) => {
         console.error(err)
@@ -311,17 +369,38 @@ const handleEdit = () => {
     const { id, group } = row
     activeUserPermissions.value = userPermissionsList.value.users[id] ?? []
     activeGroupPermissions.value = userPermissionsList.value.group[group] ?? []
-    console.log(activeUserPermissions.value,activeGroupPermissions.value)
+    // 清空权限value 还原权限data 将用户permissions添加至value
+    permissionsTransfer.value = []
+    handlePermissionDialogClose()
+    permissionsTransfer.value = activeUserPermissions.value.map(item => {
+        return item.val ?? "未知权限"
+    })
+    // 设置权限状态
+    activeUserPermissions.value.forEach(item => {
+        permissionsTransfer.statusList[item.val] = {
+            open: item?.open === 1 ? true : false
+        }
+    })
     EditUserDialogFrom.value = {...row}
     Dialog_Model.edit = true
 }
 
 const handlePermissionDialogClose = () => {
     // 因为没有开启 点击蒙层关闭、关闭按钮关闭、esc关闭，所以只要关闭了都要还原permissionTransfer组件的数据
-    console.log(permissionsValue.value,systemPermissionsList.value,backupPermissionsValue)
-    permissionsValue.value = JSON.parse(JSON.stringify(backupPermissionsValue.value))
-    systemPermissionsList.value = JSON.parse(JSON.stringify(backupPermissionsValue.data))
-    console.log(permissionsValue.value,systemPermissionsList.value)
+    permissionsTransfer.data = systemPermissionsList.value.map(item => {
+            return {
+                label: item.object,
+                value: item.val
+            }
+        })
+}
+
+// 切换权限开关
+const togglePermissionStatus = (val) => {
+    const isOpen = permissionsTransfer.statusList[val]?.open === true ? true : false
+    permissionsTransfer.statusList[val] = {
+        open: !isOpen
+    }
 }
 
 /**
@@ -374,7 +453,7 @@ const loadTableData = () => {
             error: function (err) {
                 console.error(err);
                 NotifyPlugin("error", {
-                    title: "获取设备列表失败",
+                    title: "获取账号列表失败",
                     content: err,
                     duration: 5000,
                 });
@@ -607,15 +686,14 @@ onMounted(() => {
 
 </script>
 
-<script lang="jsx">
+<script lang="tsx">
 // import * as XLSX from "xlsx";
-
 export default {
     name: "UserManage",
 };
 </script>
 
-<style>
+<style lang="scss">
 .t-dialog__body:has(mtb-tag[TAG]) {
     padding-bottom: 0px !important;
 }
@@ -640,4 +718,62 @@ div[unrequired] {
     display: flex;
     align-items: center;
 }
-</style>async async 
+
+.t-transfer {
+    &.transfer-horizontal {
+        gap: 8px;
+        flex-direction: column-reverse;
+        .t-transfer__list-header {
+            width: calc(100% - var(--td-comp-margin-s) * 2) !important;
+        }
+        .t-transfer__list-content .t-checkbox-group {
+            flex-direction: row !important;
+            padding: 0 12px;
+            .t-checkbox {
+                margin-right: 0px !important;
+                margin-left: 0px !important;
+            }
+            .UserCanTSelect {
+                user-select: none;
+            }
+        }
+        &.t-transfer__footer .t-transfer__list {
+            &:has(.transfer-footer--tagGroup){
+                padding-bottom: 48px !important;
+            }
+            padding-bottom: 0px;
+        }
+        .t-transfer__list {
+            height: 186px !important;
+        }
+        .t-transfer__list-source {
+            padding-bottom: 0px !important;
+        }
+        .t-transfer__list-target {
+            .transfer-footer--tagGroup {
+                padding: 12px;
+                border-top: 1px solid #e7e7e7;
+                max-height: 68px;
+                .group-permission--item {
+                    transition: background-color 0.2s cubic-bezier(0.38, 0, 0.24, 1);
+                    display: flex;
+                    cursor: pointer;
+                    border-radius: var(--td-radius-default);
+                    padding: var(--td-comp-paddingLR-xs) var(--td-comp-paddingLR-s);
+                    &:hover {
+                        background: var(--td-bg-color-container-hover);
+                    }
+                }
+            }
+        }
+        .t-transfer__operations {
+            justify-content: center;
+            flex-direction: row !important;
+            .t-icon {
+                transform: rotate(-90deg);
+            }
+        }
+    }
+}
+
+</style>
