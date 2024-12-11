@@ -8,12 +8,6 @@
                     </template>
                     添加账号
                 </t-button>
-                <t-button :disabled="SelectData.length > 1 || SelectData.length === 0" @click="handleEdit">
-                    <template #icon>
-                        <t-icon name="edit-1" />
-                    </template>
-                    编辑
-                </t-button>
                 <t-popconfirm theme="danger" content="确认删除？删除后不可恢复！" placement="bottom" :onConfirm="DeleteEquipment">
                     <t-button :disabled="SelectData.length === 0" theme="danger">
                         <template #icon>
@@ -183,7 +177,7 @@ const table_Columns = [
         colKey: "group", title: "组别", sortType: "all", sorter: true, width: 110,
         cell: (h, { row }) => {
             return (
-                row.group == 1 ? "照片组" : row.group == 2 ? "视频组" : row.group == 3 ? "海报组" : row.group == 4 ? "特效组" : row.group == 5 ? "技术组" : row.group == 6 ? "晚修管理" : "未分组"
+                <span>{ groupOptions.value.find(item => item.value === row.group )?.label ?? "-" }</span>
             )
         }
     },
@@ -205,6 +199,18 @@ const table_Columns = [
             return row.login_time ? dayjs(row.login_time).format('YYYY-MM-DD HH:mm:ss') : '-'
         }
     },
+    {
+        colKey: "operation",
+        title: "操作",
+        cell: (h, { row }) => {
+            return (
+                <t-space>
+                    <t-link theme="primary" onClick={ (e) => handleEdit(e,row) }>编辑</t-link>
+                    <t-link theme="danger">删除</t-link>
+                </t-space>
+            )
+        },
+    }
     // {
     //     colKey: "status",
     //     title: "账号状态",
@@ -362,8 +368,8 @@ const handleAdd = () => {
     Dialog_Model.edit = true
 }
 
-const handleEdit = () => {
-    const row = SelectData.value[0]
+const handleEdit = (e:Event, row) => {
+    e.stopPropagation()
     actionMode.value = "edit"
     const { id, group } = row
     activeUserPermissions.value = userPermissionsList.value.users[id] ?? []
