@@ -153,8 +153,8 @@ const routerMap:RouteMaps = [
                     },
                     {
                         key: "RequestLog",
-                        label: "用户日志",
-                        permissions: ['log.user'],
+                        label: "请求日志",
+                        permissions: ['log.request'],
                         component: () => import('../pages/log/request.vue')
                     }
                 ]
