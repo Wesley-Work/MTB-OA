@@ -67,4 +67,14 @@ export interface PermissionsObject {
 
 export type PermissionsArray = PermissionsObject[]
 
-export type PermissionsTransferType = "target" | "source"
+export interface equipmentStatusTips {
+  [key: number | string]: string | HTMLElement
+}
+
+export type equipmentStatus = {
+  id: number,
+  label: string,
+  theme: string,
+  n?: Array<number | "start"> | undefined,
+  tips?: equipmentStatusTips[]
+}[]
