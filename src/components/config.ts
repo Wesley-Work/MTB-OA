@@ -97,14 +97,14 @@ const routerMap:RouteMaps = [
                         key: "EqList",
                         label: "设备列表",
                         permissions: ['equipment.list'],
-                        component: () => import('../pages/equipment/list.vue')
+                        component: () => import('../pages/manage/eqList.vue')
                     },
                     {
                         key: "EqCheck",
                         label: "设备清点",
                         hidden: true,
                         permissions: ['equipment.check'],
-                        component: () => import('../pages/equipment/check.vue')
+                        component: () => import('../pages/manage/eqCheck.vue')
                     }
                 ]
             },
