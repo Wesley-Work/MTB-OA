@@ -29,7 +29,7 @@
     </div>
     <!--Edit Dialog include add-->
     <t-dialog v-model:visible="Dialog_Model.edit" :header="(actionMode === 'add' ? '新增' : '编辑') + '用户'" width="45%" :closeBtn="false" cancelBtn="取消"
-        confirmBtn="提 交" :onConfirm="VerifyAddForm" :closeOnEscKeydown="false">
+        confirmBtn="提 交" :onConfirm="submitForm" :closeOnEscKeydown="false">
         <mtb-tag TAG />
         <div style="width: 100%; margin-top: 8px">
             <t-space direction="horizontal" size="16px" style="width: 100%">
@@ -59,7 +59,7 @@
                 <t-space direction="vertical" size="12px" style="width: 100%">
                     <div style="font-size: 20px;font-weight: 700;color: var(--td-text-color-primary);">其他信息</div>
                     <div required>
-                        <t-button variant="dashed" block @click="Dialog_Model.permissions = true">配置权限</t-button>
+                        <t-button variant="dashed" block @click="showPermissionsDialog">配置权限</t-button>
                     </div>
                     <div>
                         <t-select :value="EditUserDialogFrom.group" :options="groupOptions" label="组别：" placeholder="请选择"
@@ -88,14 +88,14 @@
     </t-dialog>
     <!--Permissions Dialog-->
     <t-dialog v-model:visible="Dialog_Model.permissions" header="配置权限" width="40%" :closeBtn="false" cancelBtn="取消"
-        confirmBtn="保存" :closeOnEscKeydown="false" :destroyOnClose="true" :onClose="handlePermissionDialogClose">
-        <t-transfer :data="permissionsTransfer.data" v-model="permissionsTransfer.value" :operation="['移除', '添加']" class="transfer-horizontal">
+        confirmBtn="保存" :closeOnEscKeydown="false" :destroyOnClose="true" :onClose="handlePermissionDialogClose" :onConfirm="handleSavePermissions">
+        <t-transfer :data="permissionsTransfer.data" v-model="permissionsTransfer.value" :operation="['移除', '添加']" class="transfer-horizontal" :onChange="handlePermissionsTransferChange">
             <template #title="props">
               <div>{{ props.type === 'target' ? '目标' : '来源' }}</div>
             </template>
             <template #footer="props">
-              <div class="transfer-footer--tagGroup narrow-scrollbar" v-if="activeGroupPermissions.length !== 0">
-                <span v-if="props.type === 'target'" v-for="(item, index) in activeGroupPermissions" style="display: flex;">
+              <div class="transfer-footer--tagGroup narrow-scrollbar" v-if="activeGroupPermissions.length !== 0 && props.type === 'target'">
+                <span v-for="(item, index) in activeGroupPermissions">
                     <span class="group-permission--item">{{ permissionsTransfer.nameList[item?.val] }}</span>
                 </span>
               </div>
@@ -103,7 +103,7 @@
             <template #transferItem="{ data, index, type }">
                 <div :data-transfer-checkbox-id="index" style="margin-left: 8px;">
                     <t-tag
-                    v-if="activeGroupPermissions.map(item => item.val).includes(data.value)"
+                    v-if="activeGroupPermissions.map(item => item.val).includes(data.value) && type === 'target'"
                     color="rgb(217, 0, 87)"
                     variant="light-outline"
                     size="small"
@@ -140,7 +140,8 @@ import { config } from "../../components/config";
 import sha256 from 'crypto-js/sha256'
 import useRequest from "../../hooks/useRequest";
 import { loadSystemPermissions, loadUserPermissionsList } from "../../hooks/usePermission.ts";
-import { PermissionsArray, PermissionsObject } from "@/types/type.ts";
+import { PermissionsArray, PermissionsObject, userListObject } from "../../types/type.ts";
+import { TransferProps } from 'tdesign-vue-next';
 
 const table_Columns = [
     {
@@ -239,11 +240,11 @@ const defaultDialogData = {
     password: null,
     share_device: 2,
     group: null,
-    grade: 2023,
+    grade: dayjs().year(),
     reg_time: new Date(),
     join_time: new Date(),
 }
-const EditUserDialogFrom = ref({...Dialog_Model})
+const EditUserDialogFrom = ref<userListObject>({...defaultDialogData})
 const upload_file_data = ref([])
 const groupOptions = ref([])// 组列表
 const permissionsValue = ref([])
@@ -253,15 +254,17 @@ const backupPermissionsValue = reactive({
     value: [],// target
     data: []// source
 })
-
+// 权限穿梭框数据
 const permissionsTransfer = reactive({
     data: [],
     value: [],
     nameList: {},
     statusList: {},
+    // 代理，最终提交的数据，按状态分类提交。
+    proxyStatus: {},
 })
 
-const userPermissionsList = ref({})
+const userPermissionsList = ref<{users?: object, group?: object}>({})
 const activeUserPermissions = ref([])
 const activeGroupPermissions = ref([])
 const table_Pagination = computed(() => {
@@ -294,7 +297,7 @@ const loadSystemPermissionsList = () => {
 }
 
 const loadUserPermissions = () => {
-    loadUserPermissionsList().then((res: PermissionsArray) => {
+    loadUserPermissionsList().then((res) => {
         userPermissionsList.value = res
     }).catch((err) => {
         console.error(err)
@@ -364,6 +367,7 @@ const loadUserPermissions = () => {
 
 const handleAdd = () => {
     actionMode.value = "add"
+    initPermissionsTransfer()
     EditUserDialogFrom.value = {...defaultDialogData}
     Dialog_Model.edit = true
 }
@@ -372,32 +376,91 @@ const handleEdit = (e:Event, row) => {
     e.stopPropagation()
     actionMode.value = "edit"
     const { id, group } = row
-    activeUserPermissions.value = userPermissionsList.value.users[id] ?? []
-    activeGroupPermissions.value = userPermissionsList.value.group[group] ?? []
-    // 清空权限value 还原权限data 将用户permissions添加至value
+    activeUserPermissions.value = userPermissionsList.value?.users[id] ?? []
+    activeGroupPermissions.value = userPermissionsList.value?.group[group] ?? []
+    EditUserDialogFrom.value = {...row}
+    initPermissionsTransfer()
+    Dialog_Model.edit = true
+}
+
+// 初始权限穿梭框
+const initPermissionsTransfer = () => {
     permissionsTransfer.value = []
+    permissionsTransfer.statusList = {}
+    permissionsTransfer.proxyStatus = {}
+    // 
     handlePermissionDialogClose()
-    permissionsTransfer.value = activeUserPermissions.value.map(item => {
-        return item.val ?? "未知权限"
-    })
-    // 设置权限状态
+    if (actionMode.value === "edit") {
+        permissionsTransfer.value = activeUserPermissions.value.map(item => {
+            return item.val ?? "未知权限"
+        })
+    }
+}
+
+const showPermissionsDialog = () => {
+    Dialog_Model.permissions = true
+    actionMode.value === "add" ? (activeGroupPermissions.value = userPermissionsList.value?.group[EditUserDialogFrom.value["group"]] ?? []) : null
+    initPermissionsTransfer()
+}
+
+// 还原权限状态
+const restorePermissionsStatus = () => {
     activeUserPermissions.value.forEach(item => {
         permissionsTransfer.statusList[item.val] = {
             open: item?.open === 1 ? true : false
         }
     })
-    EditUserDialogFrom.value = {...row}
-    Dialog_Model.edit = true
+    permissionsTransfer.proxyStatus = JSON.parse(JSON.stringify(permissionsTransfer.statusList))
+}
+
+// 设置权限状态，用于记录保存后的权限状态，必需，否则会导致二次打开时权限状态丢失
+const setPermissionsStatus = (val:string, open:boolean) => {
+    activeUserPermissions.value.forEach(item => {
+        if (item.val === val) {
+            item.open = open ? 1 : 0
+        }
+    })
 }
 
 const handlePermissionDialogClose = () => {
+    // T-Transfer组件不会改变data数据，所以下方的代码是不必要的，但仍然保留。
     // 因为没有开启 点击蒙层关闭、关闭按钮关闭、esc关闭，所以只要关闭了都要还原permissionTransfer组件的数据
-    permissionsTransfer.data = systemPermissionsList.value.map(item => {
-            return {
-                label: item.object,
-                value: item.val
+    // permissionsTransfer.data = systemPermissionsList.value.map(item => {
+    //         return {
+    //             label: item.object,
+    //             value: item.val
+    //         }
+    //     })
+    // 包括还原状态，不还原会影响提交数据
+    restorePermissionsStatus()
+}
+
+// 穿梭框数据变化时
+const handlePermissionsTransferChange:TransferProps['onChange'] = (val, ctx) => {
+    const { movedValue, type } = ctx
+    if (type === "target") {
+        // 需要设置权限状态，默认为true
+        movedValue.forEach(item => {
+            permissionsTransfer.statusList[item] = {
+                open: true
             }
         })
+    }
+    else if (type === "source") {
+        // 权限状态删除
+        movedValue.forEach(item => {
+            delete permissionsTransfer.statusList[item]
+        })
+    }
+}
+
+// 保存权限
+const handleSavePermissions = () => {
+    permissionsTransfer.proxyStatus = JSON.parse(JSON.stringify(permissionsTransfer.statusList))
+    Object.keys(permissionsTransfer.statusList).forEach(item => {
+        setPermissionsStatus(item, permissionsTransfer.statusList[item]?.open)
+    })
+    Dialog_Model.permissions = false
 }
 
 // 切换权限开关
@@ -653,6 +716,59 @@ const EditForm = () => {
     EditUserDialogFrom.value = {...defaultDialogData}
 }
 
+/**
+ * @submitForm
+ * @提交 新增账号或编辑账号
+ */
+const submitForm = () => {
+    const isEditMode = actionMode.value === "edit"
+
+    // 提交的数据->只有模式为编辑模式时才会有id
+    const FORMDATA = {
+        id: isEditMode ? EditUserDialogFrom.value.id : null,
+        name: EditUserDialogFrom.value.name,
+        code: EditUserDialogFrom.value.code,
+        class: EditUserDialogFrom.value.class,
+        password: EditUserDialogFrom.value.password ? sha256(EditUserDialogFrom.value.password) : null,
+        share_device: EditUserDialogFrom.value.share_device,
+        group: EditUserDialogFrom.value.group,
+        grade: EditUserDialogFrom.value.grade,
+        reg_time: dayjs(EditUserDialogFrom.value.reg_time).toString(),
+        join_time: dayjs(EditUserDialogFrom.value.join_time).toString(),
+        permissions_open: Object.keys(permissionsTransfer.proxyStatus).filter(key => permissionsTransfer.proxyStatus[key].open),
+        permissions_close: Object.keys(permissionsTransfer.proxyStatus).filter(key => !permissionsTransfer.proxyStatus[key].open),
+    }
+    console.log(FORMDATA)
+
+    // useRequest({
+    //     url: "/user/edit",
+    //     methods: "POST",
+    //     data: FORMDATA,
+    //     success: function (res) {
+    //         var RES = JSON.parse(res);
+    //         if (RES.errcode === 0) {
+    //             var E_id = RES.data.id;
+    //             NotifyPlugin("success", {
+    //                 title: "编辑账号信息成功",
+    //                 content: `成功编辑了id为${E_id}的账号信息`,
+    //                 duration: 5000,
+    //             });
+    //             console.log(`编辑了id为${E_id}的账号信息`);
+    //             // 刷新数据
+    //             loadTableData()
+    //         }
+    //     },
+    //     error: function (err) {
+    //         NotifyPlugin("error", {
+    //             title: "编辑账号信息失败",
+    //             content: err,
+    //             duration: 5000,
+    //         });
+    //         console.error(err);
+    //     },
+    // });
+}
+
 const sortChange = (e) => {
     table_Sort.value = e;
     TableSortData();
@@ -677,8 +793,8 @@ const handleTableSelectChange = (value, { selectedRowData }) => {
 }
 
 const onPageChange = (pageInfo, context) => {
-    table_Pagination.current = pageInfo.current;
-    table_Pagination.pageSize = pageInfo.pageSize;
+    table_Pagination.value.current = pageInfo.current;
+    table_Pagination.value.pageSize = pageInfo.pageSize;
 }
 
 onMounted(() => {
@@ -728,6 +844,9 @@ div[unrequired] {
     &.transfer-horizontal {
         gap: 8px;
         flex-direction: column-reverse;
+        * {
+            user-select: none
+        }
         .t-transfer__list-header {
             width: calc(100% - var(--td-comp-margin-s) * 2) !important;
         }
@@ -744,7 +863,7 @@ div[unrequired] {
         }
         &.t-transfer__footer .t-transfer__list {
             &:has(.transfer-footer--tagGroup){
-                padding-bottom: 48px !important;
+                padding-bottom: 54.67px !important;
             }
             padding-bottom: 0px;
         }
@@ -758,7 +877,11 @@ div[unrequired] {
             .transfer-footer--tagGroup {
                 padding: 12px;
                 border-top: 1px solid #e7e7e7;
-                max-height: 68px;
+                height: 30.67px;
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                overflow: auto;
                 .group-permission--item {
                     transition: background-color 0.2s cubic-bezier(0.38, 0, 0.24, 1);
                     display: flex;

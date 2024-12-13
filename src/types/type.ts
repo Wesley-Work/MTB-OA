@@ -78,3 +78,16 @@ export type equipmentStatus = {
   n?: Array<number | "start"> | undefined,
   tips?: equipmentStatusTips[]
 }[]
+
+export type userListObject = {
+  id?: number,
+  name: string,
+  class: string,
+  code: string,
+  password: string | null,
+  share_device: number,
+  group: number,
+  grade: string | number,
+  reg_time: string | Date,
+  join_time: string | Date,
+}
