@@ -3,7 +3,7 @@ import { taskStatus, taskType } from "../../hooks/common";
 import { Table } from "tdesign-vue-next";
 
 export default defineComponent({
-    name: "Menu",
+    name: "TaskListRender",
     props: {
         data: {
             type: Object,
