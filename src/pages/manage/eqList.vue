@@ -206,6 +206,7 @@
 import { computed, reactive, ref } from "vue";
 import { getCurrentInstance } from "vue";
 import { NotifyPlugin } from "tdesign-vue-next";
+import { equipmentStatus, equipmentStatusTips } from "@/types/type";
 
 const that = getCurrentInstance();
 
@@ -222,69 +223,39 @@ const equipmentType = [
     },
 ];
 
-const EquipmentStatus = [
+const equipmentStatus:equipmentStatus = [
     {
         id: 0,
         label: "正常",
         theme: "success",
+        n: [2],
     },
     {
         id: 1,
         label: "作为固定设备",
         theme: "primary",
+        n: [2,4],
     },
     {
         id: 2,
         label: "已借出",
         theme: "warning",
-        notchoose: true,
+        n: ["start",0,1,4],
     },
     {
         id: 3,
         label: "丢失",
         theme: "danger",
+        n: [4],
+        // TODO: 若从借出状态改为该状态 后端需要操作借出记录为丢失（归还）！！！
     },
     {
         id: 4,
         label: "清点中",
         theme: "primary",
-        notchoose: true,
+        n: ["start",2],
     },
 ];
-
-const Edit_Dialog_EqStatus = [
-    {
-        id: 0,
-        label: "正常",
-        theme: "success",
-        not: [2],
-    },
-    {
-        id: 1,
-        label: "作为固定设备",
-        theme: "primary",
-        not: [2],
-    },
-    {
-        id: 2,
-        label: "已借出",
-        theme: "warning",
-        not: [0, 1, 3, 4],
-    },
-    {
-        id: 3,
-        label: "丢失",
-        theme: "danger",
-        not: [],
-    },
-    {
-        id: 4,
-        label: "清点中",
-        theme: "primary",
-        not: [2],
-    },
-];
-
 
 const table_Columns = [
     {
@@ -323,8 +294,8 @@ const table_Columns = [
         sorter: true,
         cell: (h, { row }) => {
             return (
-                <t-tag shape="round" theme={row.type === 0 ? "primary" : "success"} variant="light-outline">
-                    {row.type == 0 ? "部门设备" : "晚修管理部部牌"}
+                <t-tag shape="round" theme={equipmentType.find(item => item.id === row.type)?.theme ?? "danger"} variant="light-outline">
+                    { equipmentType.find(item => item.id === row.type)?.label ?? "未知" }
                 </t-tag>
             );
         },
@@ -335,34 +306,13 @@ const table_Columns = [
         sortType: "all",
         sorter: true,
         cell: (h, { row }) => {
+            const el = equipmentStatus.find(item => item.id === row.status);
             return (
                 <t-tag
                     shape="square"
-                    theme={
-                        row.status === 0
-                            ? "success"
-                            : row.status === 1
-                            ? "primary"
-                            : row.status === 2
-                            ? "warning"
-                            : row.status === 3
-                            ? "danger"
-                            : row.status === 4
-                            ? "primary"
-                            : "default"
-                    }
+                    theme={ el.theme ?? "default" }
                     variant="light-outline">
-                    {row.status === 0
-                        ? "正常"
-                        : row.status === 1
-                        ? "作为固定设备"
-                        : row.status === 2
-                        ? "已借出"
-                        : row.status === 3
-                        ? "丢失"
-                        : row.status === 4
-                        ? "清点中"
-                        : "数据错误"}
+                    { el.label ?? "未知状态"}
                 </t-tag>
             );
         },

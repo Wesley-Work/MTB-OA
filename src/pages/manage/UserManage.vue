@@ -1,8 +1,8 @@
 <template>
-    <div>
-        <div style="display: flex; flex-direction: row">
+    <div style="background-color: var(--td-bg-color-container);border-radius: 5px;">
+        <div style="display: flex;flex-direction: row;padding: 12px;justify-content: space-between;">
             <t-space size="small">
-                <t-button variant="outline" theme="primary" ghost style="--ripple-color: #fff" @click="handleAdd">
+                <t-button variant="outline" theme="primary" @click="handleAdd">
                     <template #icon>
                         <t-icon name="add" />
                     </template>
@@ -16,10 +16,16 @@
                         {{ SelectData.length == 0 ? "删除" : "删除 " + SelectData.length + " 个" }}
                     </t-button>
                 </t-popconfirm>
-                <!-- <t-upload theme="file" accept=".xls,.xlsx" :requestMethod="ParsingFile"/> -->
+                <t-button  theme="success" @click="exportToXlsx">
+                    <template #icon>
+                        <t-icon name="file-export" />
+                    </template>
+                    导出账号列表
+                </t-button>
+                <!-- <t-upload theme="file" accept=".xls,.xlsx" :requestMethod="uploadFile" /> -->
             </t-space>
         </div>
-        <div style="padding-top: 16px">
+        <div>
             <t-table row-key="id" :columns="table_Columns" :data="table_Data" select-on-row-click
                 :reserveSelectedRowOnPaginate="false" :sort="table_Sort" @sort-change="sortChange"
                 @select-change="handleTableSelectChange" @page-change="onPageChange" :pagination="table_Pagination"
@@ -142,6 +148,7 @@ import useRequest from "../../hooks/useRequest";
 import { loadSystemPermissions, loadUserPermissionsList } from "../../hooks/usePermission.ts";
 import { PermissionsArray, PermissionsObject, userListObject } from "../../types/type.ts";
 import { TransferProps } from 'tdesign-vue-next';
+import ExcelJS from 'exceljs';
 
 const table_Columns = [
     {
@@ -154,14 +161,14 @@ const table_Columns = [
         title: "id",
         sortType: "all",
         sorter: true,
-        width: "80",
+        width: 80,
     },
     {
         colKey: "code",
         title: "Code",
         sortType: "all",
         sorter: true,
-        width: "200",
+        width: 200,
     },
     {
         colKey: "name",
@@ -303,67 +310,6 @@ const loadUserPermissions = () => {
         console.error(err)
     })
 }
-
-// const ParsingFile = (e) => {
-//     var that = this
-//     return new Promise(function (resolve, reject) {
-//         that.ParsingFile_son(e).then((res) => {
-//             resolve(res)
-//         }).catch((res) => {
-//             reject(res)
-//         })
-//     })
-// }
-
-// const ParsingFile_son = (e) => {
-//     return new Promise(function (resolve, reject) {
-//         if (!/\.(xls|xlsx)$/.test(e.name.toLowerCase())) {
-//             NotifyPlugin("error",{
-//                 title: "错误",
-//                 content: "上传格式不正确，请上传xls或者xlsx格式",
-//             });
-//             reject({ status: 'fail', error: '上传失败，文件格式不正确', response:{ files: [{ name: e.name }] } });
-//         }
-//         try{
-//             // 读取文件
-//             var reader = new FileReader();
-//             reader.onload = function () {
-//                 var fileData = reader.result;
-//                 var wb = XLSX.read(fileData, { type: 'binary', cellDates: true });
-//                 //{header:1}取消标题列.
-//                 var rowObj = XLSX.utils.sheet_to_json(wb.Sheets['Sheet1'], { header: 1 });
-//                 if (rowObj.length <= 0) {
-//                     NotifyPlugin("error",{
-//                         title: "错误",
-//                         content: "空文件！",
-//                     });
-//                     reject({ status: 'fail', error: '解析失败，空文件！', response:{ files: [{ name: e.name }] } });
-//                 }
-//                 rowObj.forEach((item,index) => {
-//                     if (index != 0) {
-//                         that.upload_file_data.push({
-//                             code: item[0],
-//                             name: item[1],
-//                             class: item[2],
-//                             grade: item[3],
-//                             group: item[4],
-//                             password: item[5],
-//                             permissions: item[6] == 0 ? 26738688 : item[6],
-//                             reg_time: item[7],
-//                             join_time: item[8],
-//                         });
-//                     }
-//                 });
-//             };
-//             //已二进制的形式读取文件
-//             reader.readAsBinaryString(e.raw);
-//             resolve({ status: 'success', response:{ files: [{ name: e.name }] }})
-//         }
-//         catch(error){
-//             reject({ status: 'fail', error: `解析文件失败，${error}`, response:{ files: [{ name: e.name }] } });
-//         }
-//     })
-// }
 
 const handleAdd = () => {
     actionMode.value = "add"
@@ -714,6 +660,262 @@ const EditForm = () => {
     SelectData = []
     // 还原表单
     EditUserDialogFrom.value = {...defaultDialogData}
+}
+
+
+async function readExcel(file) {
+    // 忽略前几行
+    const ignoreRows = 2;
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(file.raw); // 读取 Excel 文件
+    
+    const worksheet = workbook.getWorksheet(1); // 获取第一个工作表
+
+    worksheet.eachRow((row, rowNumber) => {
+        if (rowNumber <= ignoreRows) return;
+        const name = row.values[1]
+        const code = row.values[2]
+        const classes = row.values[3]
+        const grade = row.values[4]
+        const group = row.values[5]
+        const password = row.values[6]
+        const permissions = row.values[7]
+        const join_time = row.values[8]
+        const share_device = row.values[9]
+        const openid = row.values[10]
+        const remark = row.values[11]
+
+        console.log(`Row ${rowNumber}:`, row.values); // 打印每一行的数据
+    });
+}
+
+const uploadFile = (e) => {
+    return new Promise(function (resolve, reject) {
+        if (!/\.(xls|xlsx)$/.test(e.name.toLowerCase())) {
+            NotifyPlugin("error",{
+                title: "错误",
+                content: "上传格式不正确，请上传xls或者xlsx格式",
+            });
+            reject({ status: 'fail', error: '上传失败，文件格式不正确', response:{ files: [{ name: e.name }] } });
+        }
+        try{
+            readExcel(e)
+            resolve({ status: 'success', response:{ files: [{ name: e.name }] }})
+        }
+        catch(error){
+            reject({ status: 'fail', error: `解析文件失败，${error}`, response:{ files: [{ name: e.name }] } });
+        }
+    })
+}
+
+const exportToXlsx = () => {
+    async function createExcel() {
+        const headerStyle = {
+            font: {
+                name: 'Arial',
+                family: 4,
+                size: 12,
+                bold: true,
+                // color: { argb: 'FF0000' }
+            },
+            fill: {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'A0C2FA' },
+            },
+            alignment: {
+                vertical: 'middle',
+                horizontal: 'center',
+                wrapText: true,
+            },
+            border: {
+                top: {style: 'thin', color: {argb: '000000'}},
+                left: {style: 'thin', color: {argb: '000000'}},
+                bottom: {style: 'thin', color: {argb: '000000'}},
+                right: {style: 'thin', color: {argb: '000000'}}
+            }
+        };
+
+        const bodyStyle = {
+            font: {
+                name: '黑体',
+                family: 4,
+                size: 12,
+                bold: true,
+            },
+            alignment: {
+                vertical: 'middle',
+                horizontal: "center",
+                wrapText: true,
+            },
+            border: {
+                top: {style: 'thin', color: {argb: '000000'}},
+                left: {style: 'thin', color: {argb: '000000'}},
+                bottom: {style: 'thin', color: {argb: '000000'}},
+                right: {style: 'thin', color: {argb: '000000'}}
+            }
+        }
+
+        const headerRow = [
+        {
+            key: 'id',
+            label: 'id',
+            width: 6.5
+        },
+        {
+            key: 'code',
+            label: '用户Code',
+            width: 20
+        },
+        {
+            key: 'name',
+            label: '姓名',
+            width: 14
+        },
+        {
+            key: 'class',
+            label: '班级',
+            width: 16
+        },
+        {
+            key: 'grade',
+            label: '年级',
+            width: 12
+        },
+        {
+            key: 'group',
+            label: '组别',
+            width: 14
+        },
+        {
+            key: 'reg_time',
+            label: '注册时间',
+            width: 27
+        },
+        {
+            key: 'join_time',
+            label: '加入时间',
+            width: 22
+        },
+        {
+            key: 'password',
+            label: '密码',
+            width: 17
+        },
+        {
+            key: 'share_device',
+            label: '共享设备数',
+            width: 6.5
+        },
+        {
+            key: 'openid',
+            label: '微信openid',
+            width: 18
+        },
+        {
+            key: 'remark',
+            label: '备注',
+            width: 26
+        }
+        ]
+
+        const workbook = new ExcelJS.Workbook();
+        const ws = workbook.addWorksheet("Sheet1")
+        ws.addRow(headerRow.map(it=>it.label))
+            .eachCell((cell) => {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-expect-error
+                cell.style = headerStyle
+            })
+        table_Data.value.forEach(it=> {
+            // 特殊组标记
+            const unUsual = ['老师','保留用户','系统用户']
+            const isUnusual = unUsual.includes((groupOptions.value.find(item => item.value === it.group )?.label ?? ""))
+            const w = ws.addRow(Object.values({
+                id: it.id,
+                code: it.code,
+                name: it.name,
+                class: it.class,
+                grade: it.grade,
+                group: groupOptions.value.find(item => item.value === it.group )?.label ?? "",
+                reg_time: dayjs(it.reg_time).format('YYYY-MM-DD HH:mm:ss'),
+                join_time: dayjs(it.join_time).format('YYYY-MM-DD'),
+                password: it.password,
+                share_device: it.share_device,
+                openid: it.openid,
+                remark: it.remark
+            }))
+            w.height = 40
+            w.eachCell({includeEmpty: true},(cell,colNumber) => {
+                if(colNumber === 1){
+                    cell.style = {
+                        fill: {       
+                            type: 'pattern',
+                            pattern: 'solid',
+                            fgColor: { argb: 'A0C2FA' },
+                        },
+                        ...bodyStyle
+                    }
+                }
+                else if (isUnusual) {
+                    cell.style = {
+                        fill: {       
+                            type: 'pattern',
+                            pattern: 'solid',
+                            fgColor: { argb: 'FFF5EE' },
+                        },
+                        ...bodyStyle
+                    }
+                }
+                else{
+                    cell.style = bodyStyle
+                }
+            })
+        })
+
+        const lastRow = ws.addRow([`本数据表由媒体部管理系统导出，导出时间：${dayjs().format('YYYY-MM-DD HH:mm:ss')}`])
+        lastRow.height = 55
+        lastRow.eachCell({includeEmpty: true},(cell,colNumber) => {
+            cell.style = {
+                fill: {       
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: 'F5DEB3' },
+                },
+                ...bodyStyle
+            }
+        })
+        // 合并最后一行
+        const aToZ = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        ws.mergeCells(`A${ws.rowCount}:${aToZ[headerRow.length-1]}${ws.rowCount}`)
+
+        ws.columns = headerRow.map((header) => ({
+            header: header.label,
+            key: header.label,
+            width: header.width
+        }))
+
+        workbook.xlsx.writeBuffer()
+            .then(buffer => {
+                // 创建 Blob 对象
+                const blob = new Blob([buffer], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+
+                // 创建下载链接
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `媒体部管理系统-人员名单.${dayjs().format("YYMMDD")}.xlsx`;
+                a.click();
+
+                // 清理 URL
+                setTimeout(() => {
+                    window.URL.revokeObjectURL(url);
+                    a.remove();
+                }, 100);
+            })
+            .catch(err => console.error('Error creating file:', err));
+    }
+    createExcel()
 }
 
 /**
