@@ -49,7 +49,6 @@ const routerMap:RouteMaps = [
                 label: "我的任务",
                 icon: "control-platform",
                 permissions: [],
-                hidden: true,
                 component: () => import('../pages/task/myTask.vue')
             },
         ]
@@ -163,7 +162,6 @@ const routerMap:RouteMaps = [
     {
         key: "Message",
         label: "消息中心",
-        hidden: true,
         children: [
             {
                 key: "MessageList",
@@ -240,7 +238,7 @@ const config = {
     version_mode: 'RC',
     systemname: '顺德中专团委媒体部管理系统',
     develop_mode: false,//开发模式
-    login_verify: false,//登陆验证
+    login_verify: true,//登陆验证
     logout_time: 120000,//无操作退登时间,ms
     check_time: 3000,//验证登录态时间,ms
     minWidth: 960,//页面最小宽度

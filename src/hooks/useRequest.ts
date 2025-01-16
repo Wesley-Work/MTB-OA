@@ -19,7 +19,7 @@ function SpliceParameter(DATA:Object) {
 }
 
 export function useRequest(option: RequestHooksOptions) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         try{
             function emitComplete(xhr) {
                 if(option.complete && typeof option.complete === 'function') {
@@ -30,74 +30,70 @@ export function useRequest(option: RequestHooksOptions) {
                 if(option.error && typeof option.error === 'function') {
                     option.error(et, xhr)
                 }
-                else{
-                    console.log(et, xhr)
-                }
+                console.log(et, xhr)
                 emitComplete(xhr)
             }
             function emitSuccess(xhr) {
                 if(option.success && typeof option.success === 'function') {
-                    option.success(xhr.response)
+                    option.success(xhr)
                 }
                 emitComplete(xhr)
             }
             if(Object.prototype.toString.call(option) !== '[object Object]') resolve(false);
             
-            option.methods = option.methods ? option.methods.toUpperCase() : 'GET';
-            option.data = SpliceParameter(option.data) || null;
-            option.header = option.header || {};
-            option.timeout = option.timeout || 60000;
-            option.url = option.useCustomURL ? option.url : getAPIURL() + option.url;
+            // 0116: 改Fetch
             var headers = {};
             // 优先header使用提供的内容 若没提供则使用默认值
-            headers["Content-Type"] = option.header["Content-Type"] || "application/x-www-form-urlencoded; charset=UTF-8";
-            headers["TOKEN"] = option.token || option.header["TOKEN"] || getToken() || null;
+            headers["Content-Type"] = option?.header?.["Content-Type"] ?? "application/x-www-form-urlencoded; charset=UTF-8";
+            headers["TOKEN"] = option?.token ?? option?.header?.["TOKEN"] ?? getToken() ?? null;
             // 合并两个object 排除上面两项
-            var headersMerge = merge(headers,omit(option.header,["Content-Type","TOKEN","token"]));
-            const xhr = new XMLHttpRequest();
-            xhr.open(option.methods, option.url, true);
-            for (const [key, value] of Object.entries(headersMerge)){
-                xhr.setRequestHeader(key, value)
-            }
-            
-            xhr.timeout = option.timeout;
-            xhr.ontimeout = () => {
-                emitError('RequestTimeout',xhr)
-            };
-            xhr.onload = () => {
-                if(xhr.status === 200) {
-                    var RES = JSON.parse(xhr.response);
-                    if(RES.errcode === -1003) {
-                        console.error("Token Timeout!")
-                        emitError("TokenTimeout", xhr)
-                        if (config.login_verify) {
-                            NotifyPlugin("error",{
-                                title: '登录已过期，请重新登录',
-                                duration: 0,
-                            })
-                            setTimeout(() => {
-                                location.href = getLoginURL()
-                            }, 2000)
-                        }
-                    }
-                    else if (RES.errcode === -1005){
-                        NotifyPlugin("error",{ 
-                            title: "操作失败",
-                            content: "无权限！"
-                        })
-                    }
-                    else{
-                        emitSuccess(xhr)
-                    }
+            var headersMerge = merge(headers,omit(option?.header,["Content-Type","TOKEN","token"]));
+            // 中止器
+            await fetch(option?.useCustomURL ? option?.url : getAPIURL() + option?.url, {
+                method: option?.methods ? option?.methods.toUpperCase() : 'GET',
+                headers: {
+                    ...headersMerge,
+                },
+                body: SpliceParameter(option?.data) || null,
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
                 }
                 else{
-                    emitError("RequestError",xhr)
+                    throw new Error('Network response was not ok.');
                 }
-            };
-            xhr.onerror = () => {
-                emitError("RequestError",xhr)
-            };
-            xhr.send(option.data);
+            })
+            .then(data => {
+                if(data.errcode === -1003) {
+                    console.error("Token Timeout!")
+                    emitError("TokenTimeout", data)
+                    if (config.login_verify) {
+                        NotifyPlugin("error",{
+                            title: '登录已过期，请重新登录',
+                            duration: 0,
+                        })
+                        setTimeout(() => {
+                            location.href = getLoginURL()
+                        }, 2000)
+                    }
+                }
+                else if (data.errcode === -1005){
+                    NotifyPlugin("error",{ 
+                        title: "操作失败",
+                        content: "无权限！"
+                    })
+                }
+                else{
+                    emitSuccess(JSON.stringify(data))
+                }
+            })
+            .catch((err) => {
+                emitError("RequestError",err)
+            })
+            .finally(() => {
+                
+            })
         }
         catch(e){
             console.error("XHR Module Error: ",e)

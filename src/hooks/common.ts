@@ -1,6 +1,7 @@
 import { routerMap } from "../components/config";
 import isNumber from 'lodash/isNumber';
 import { RouteMaps, RouteMapItems } from "../types/type";
+import useRequest from "./useRequest";
 
 const applyParmer = (parmer:Object) => {
     const keys:string[] = Object.keys(parmer);
@@ -8,6 +9,69 @@ const applyParmer = (parmer:Object) => {
         return `${key}=${parmer[key]}`
     })
     return kv.join('&')
+}
+
+export function VerifyToken() {
+    return new Promise(async (resolve, reject) => {
+        const TOKEN = localStorage.getItem('token')
+        if (!TOKEN) resolve(false);
+        await useRequest({
+            url: "/checkToken",
+            methods: "POST",
+            header: {
+                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                "token": TOKEN
+            },
+            success: function(res) {
+                var RES = JSON.parse(res)
+                if (RES.errcode == 0) {
+                    if (RES.data.verify === true) {
+                        resolve(true)
+                    }
+                    else{
+                        resolve(false)
+                    }
+                }
+            },
+            error: function(err) {
+                console.error(err)
+                resolve(false)
+            }
+        })
+    })
+}
+
+export function VerifyPermissions(PERMISSIONS){
+    const TOKEN = localStorage.getItem('token')
+    if (!TOKEN) return false;
+    return new Promise(async (resolve, reject) => {
+        await useRequest({
+            url: "/verifyPermissions",
+            methods: "POST",
+            header: {
+                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                "token": TOKEN
+            },
+            data: {
+                permissions: PERMISSIONS
+            },
+            success: function(res) {
+                var RES = JSON.parse(res)
+                if (RES.errcode == 0) {
+                    if (RES.data.verify == true) {
+                        resolve(true)
+                    }
+                    else{
+                        resolve(false)
+                    }
+                }
+            },
+            error: function(err) {
+                console.error(err)
+                resolve(false)
+            }
+        })
+    })
 }
 
 export function getRoutePathObj(map: RouteMaps=routerMap, value: string, deep: number = 0): { parent: RouteMapItems | null, current: RouteMapItems | null } {
@@ -73,7 +137,7 @@ const getOAURL = () => {
 }
 
 const getLoginURL = () => {
-    return import.meta.env.VITE_SSO_URL + `?backUrl=${getOAURL()}/system` || ''
+    return import.meta.env.VITE_SSO_URL + `?backUrl=${getOAURL()}/` || ''
 }
 
 export function Wesley(){
