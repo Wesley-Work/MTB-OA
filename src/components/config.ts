@@ -49,7 +49,6 @@ const routerMap:RouteMaps = [
                 label: "我的任务",
                 icon: "control-platform",
                 permissions: [],
-                hidden: true,
                 component: () => import('../pages/task/myTask.vue')
             },
         ]
@@ -97,14 +96,13 @@ const routerMap:RouteMaps = [
                         key: "EqList",
                         label: "设备列表",
                         permissions: ['equipment.list'],
-                        component: () => import('../pages/equipment/list.vue')
+                        component: () => import('../pages/manage/eqList.vue')
                     },
                     {
                         key: "EqCheck",
                         label: "设备清点",
-                        hidden: true,
                         permissions: ['equipment.check'],
-                        component: () => import('../pages/equipment/check.vue')
+                        component: () => import('../pages/manage/eqCheck.vue')
                     }
                 ]
             },
@@ -153,8 +151,8 @@ const routerMap:RouteMaps = [
                     },
                     {
                         key: "RequestLog",
-                        label: "用户日志",
-                        permissions: ['log.user'],
+                        label: "请求日志",
+                        permissions: ['log.request'],
                         component: () => import('../pages/log/request.vue')
                     }
                 ]
@@ -164,7 +162,6 @@ const routerMap:RouteMaps = [
     {
         key: "Message",
         label: "消息中心",
-        hidden: true,
         children: [
             {
                 key: "MessageList",
@@ -225,8 +222,8 @@ const routerMap:RouteMaps = [
                 component: () => import('../pages/equipment/SuppleRecord.vue')
             },
             {
-                key: "Test",
-                label: "测试页面",
+                key: "Admini",
+                label: "管理页",
                 fatherCrumb: "",
                 icon: "user-checked",
                 component: () => import('../pages/other/CHANGELOG.vue')
@@ -241,7 +238,7 @@ const config = {
     version_mode: 'RC',
     systemname: '顺德中专团委媒体部管理系统',
     develop_mode: false,//开发模式
-    login_verify: false,//登陆验证
+    login_verify: true,//登陆验证
     logout_time: 120000,//无操作退登时间,ms
     check_time: 3000,//验证登录态时间,ms
     minWidth: 960,//页面最小宽度

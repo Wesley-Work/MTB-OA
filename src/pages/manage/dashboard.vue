@@ -1,4 +1,7 @@
 <template>
+  <div style="margin-bottom: 16px;">
+    <t-alert theme="info" message="由于系统迭代，数据表及内容发生变更，会导致表格数据某一项数据异常，可人工修正或等待系统更新！" />
+  </div>
   <div>
     <div style="display: flex; flex-direction: row">
       <!--item 1-->
@@ -256,7 +259,6 @@
 import { themeMode, toggleTheme } from "../../components/function/theme.js";
 import { NotifyPlugin } from "tdesign-vue-next";
 import { config } from "../../components/config";
-import { HTTPRequest } from "../../components/function/hooks";
 import { getCurrentInstance, onBeforeUnmount, onMounted, onUnmounted, reactive, ref } from "vue";
 import useRequest from "../../hooks/useRequest";
 import { getToken } from "../..//hooks/common";

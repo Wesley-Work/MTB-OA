@@ -133,7 +133,7 @@
 import UserFakeData from '../../assets/UserFakeData.json'
 import { NotifyPlugin } from 'tdesign-vue-next'
 import { config } from "../../components/config";
-import { HTTPRequest } from "../../components/function/hooks";
+import useRequest from '../../hooks/useRequest';
 
 
 export default {
@@ -256,7 +256,7 @@ export default {
         initData() {
             var that = this
             var TOKEN = localStorage.getItem("token");
-            HTTPRequest({
+            useRequest({
                 url: config.API_URL.MAIN_URL + "/user/random_GetUserList",
                 methods: "POST",
                 header: {

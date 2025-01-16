@@ -77,7 +77,7 @@
 <script>
 import { NotifyPlugin } from "tdesign-vue-next";
 import { config } from "../../components/config";
-import { HTTPRequest } from "../../components/function/hooks";
+import useRequest from "../../hooks/useRequest";
 
 function sleep(d) {
     for (var t = Date.now(); Date.now() - t <= d; );
@@ -143,7 +143,7 @@ export default {
 
             var TOKEN = localStorage.getItem("token");
             try {
-                HTTPRequest({
+                useRequest({
                     url: config.API_URL.MAIN_URL + "/eqcheck/start",
                     methods: "POST",
                     header: {

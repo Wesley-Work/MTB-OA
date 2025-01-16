@@ -79,8 +79,8 @@
             'loading-change-components-in': MainContent.classIn,
             'loading-change-components-out': MainContent.classOut,
         }" :page="SideMenu.value">
-        <PageTooSmall v-if="pagesmall" />
-        <router-view v-else :handleChangeComponent="handleChangeComponent"></router-view>
+            <PageTooSmall v-if="pagesmall" />
+            <router-view v-else :handleChangeComponent="handleChangeComponent"></router-view>
             <!---->
             <!-- <Component :page="SideMenu.ComponentValue" @mounted="Components_LoadEnd" :UserPermissions="login_info.permissions" :PagePermissions="Page_permissions" :ChangePageUrl="SideMenuValueChange"
                 @Apply-Url-Param="applyUrlParam" @Get-Url-Param="getUrlParam"/> -->
@@ -96,7 +96,7 @@
                 <!-- <div>
                     由 <a href="javaScript:void(0);" we-a-tag>DEBUG-SDZZ</a> 提供技术支持
                 </div> -->
-                <div>Copyright © 2021-2024 MTB All right reserved.</div>
+                <div>Copyright © 2021-2025 MTB All right reserved.</div>
             </div>
         </section>
     </div>
@@ -111,8 +111,7 @@ import { config, routerMap } from "../components/config";
 import Component from "../components/index.tsx";
 import { PoweroffIcon, UserIcon, ChatBubbleHelpIcon } from "tdesign-icons-vue-next";
 import { NotifyPlugin } from "tdesign-vue-next";
-import { HTTPRequest, VerifyToken } from '../components/function/hooks'
-import { getCurrentPage, verifyPath, getSSOURL, getAPIURL, getLoginURL, getRoutePathObj } from '../hooks/common'
+import { getCurrentPage, verifyPath, getSSOURL, getAPIURL, getLoginURL, getRoutePathObj, VerifyToken } from '../hooks/common'
 import { useRequest } from "../hooks/useRequest"
 import PageTooSmall from "../components/pages/PageSmall.vue"
 import router from '../routes'
@@ -480,6 +479,24 @@ const updateUrlParam = (key, value) => {
     }
 }
 
+const removeParam = (key, sourceURL) => {
+    var rtn = sourceURL.split("?")[0],
+        param,
+        params_arr = [],
+        queryString = (sourceURL.indexOf("?") !== -1) ? sourceURL.split("?")[1] : "";
+    if (queryString !== "") {
+        params_arr = queryString.split("&");
+        for (var i = params_arr.length - 1; i >= 0; i -= 1) {
+            param = params_arr[i].split("=")[0];
+            if (param === key) {
+                params_arr.splice(i, 1);
+            }
+        }
+        rtn = rtn + "?" + params_arr.join("&");
+    }
+    return rtn;
+}
+
 
 
 
@@ -487,101 +504,103 @@ onBeforeMount(() => {
     console.log("System Start Running!");
     document.body.style.overflow = "hidden";
     const actionType = getUrlParam("actionType")
-        if (actionType == "Login_Back") {
-            // 登录页面返回
-            var TOKEN = getUrlParam("user_token")
-            localStorage.setItem("token",TOKEN)
-            localStorage.setItem("permissions",getUrlParam("user_permissions"))
-            const USER_INFO = {
-                "code": getUrlParam("user_code"),
-                "name": getUrlParam("user_name"),
-                "class": getUrlParam("user_class"),
-                "login_time": getUrlParam("login_time"),
-            }
-            login_info.code = getUrlParam("user_code");
-            login_info.name = getUrlParam("user_name");
-            login_info.class = getUrlParam("user_class");
-            login_info.login_time = getUrlParam("login_time");
-            localStorage.setItem("user_info",JSON.stringify(USER_INFO))
+    if (actionType == "Login_Back") {
+        // 登录页面返回
+        var TOKEN = getUrlParam("user_token")
+        localStorage.setItem("token",TOKEN)
+        const USER_INFO = {
+            "code": getUrlParam("user_code"),
+            "name": getUrlParam("user_name"),
+            "class": getUrlParam("user_class"),
+            "login_time": getUrlParam("login_time"),
         }
-        // 查询Token
-        const VERIFY_TOKEN = localStorage.getItem("token")
-        console.log((VERIFY_TOKEN == null || !VERIFY_TOKEN) && config.login_verify == true,VERIFY_TOKEN == null, !VERIFY_TOKEN, config.login_verify == true)
-        if ((VERIFY_TOKEN == null || !VERIFY_TOKEN) && config.login_verify == true) {
-            // 没有登录数据，遣返登录页面
-            // location.href = config.API_URL.login_url;
-        }
-        else if (config.login_verify == true){
-            // 验证登录
-            setTimeout(async () => {
-                if (await VerifyToken()) {
-                    // pass
-                    var param_path = getUrlParam("path");
-                    if (param_path) {
-                        console.log("检测到 Path 参数,跳转至指定页面。");
-                        if (VerifyPath(param_path) === true) {
-                            handleChangeComponent(param_path, true);
-                        }
+        login_info.code = getUrlParam("user_code");
+        login_info.name = getUrlParam("user_name");
+        login_info.class = getUrlParam("user_class");
+        login_info.login_time = getUrlParam("login_time");
+        localStorage.setItem("user_info",JSON.stringify(USER_INFO))
+        // 地址栏只保留token但不刷新页面，保证地址栏干净
+        window.history.pushState(null, null, removeParam("actionType",removeParam("login_time",removeParam("user_class",removeParam("user_name",removeParam("user_code",window.location.href))))))
+    }
+    // 查询Token
+    const VERIFY_TOKEN = localStorage.getItem("token")
+    console.log((VERIFY_TOKEN == null || !VERIFY_TOKEN) && config.login_verify == true,VERIFY_TOKEN == null, !VERIFY_TOKEN, config.login_verify == true)
+    if ((VERIFY_TOKEN == null || !VERIFY_TOKEN) && config.login_verify == true) {
+        // 没有登录数据，遣返登录页面
+        console.warn("未登录，跳转统一认证")
+        location.href = getLoginURL()
+    }
+    else if (config.login_verify == true){
+        // 验证登录
+        setTimeout(async () => {
+            if (await VerifyToken()) {
+                // pass
+                var param_path = getUrlParam("path");
+                if (param_path) {
+                    console.log("检测到 Path 参数,跳转至指定页面。");
+                    if (VerifyPath(param_path) === true) {
+                        handleChangeComponent(param_path, true);
                     }
-                    handleChangeComponent(MainContent.lastChoose,true,false)
-                    localStorage.setItem("token",VERIFY_TOKEN)
-                    NotifyPlugin("success", {
-                        title: "温馨提示",
-                        content: ()=> {
-                            return (
-                                <div style="color: var(--text-color);font: var(--td-font-title-medium);letter-spacing: 0.3px;">
-                                    欢迎使用媒体部管理系统，祝您今日工作顺利！
-                                </div>
-                            );
-                        },
-                        duration: 5000
-                    });
-                    getUserInfoByToken(VERIFY_TOKEN)
                 }
-                else{
-                    // location.href = config.API_URL.login_url; 
-                }
-            }, 100);
-        }
-        else{
-            NotifyPlugin("success", {
-                title: "温馨提示",
-                content: ()=> {
-                    return (
-                        <div style="color: var(--text-color);font: var(--td-font-title-medium);letter-spacing: 0.3px;">
-                            当前已关闭登录检测，请确认当前非生产环境！！
-                        </div>
-                    );
-                },
-                duration: 5000
-            });
-            // handleChangeComponent(MainContent.lastChoose,true,false)
-            // var param_path = getUrlParam("path");
-            // if (param_path) {
-            //     console.log("检测到 Path 参数,跳转至指定页面。");
-            //     if (VerifyPath(param_path) === true) {
-            //         handleChangeComponent(param_path, true);
-            //     }
-            // }
-        }
-        LoadUserPermissions()
-        const currentPage = getCurrentPage()
-        if (currentPage) {
-            SideMenu.ComponentValue = currentPage
-            SideMenu.value = currentPage
-        }
+                handleChangeComponent(MainContent.lastChoose,true,false)
+                localStorage.setItem("token",VERIFY_TOKEN)
+                NotifyPlugin("success", {
+                    title: "温馨提示",
+                    content: ()=> {
+                        return (
+                            <div style="color: var(--text-color);font: var(--td-font-title-medium);letter-spacing: 0.3px;">
+                                欢迎使用媒体部管理系统，祝您今日工作顺利！
+                            </div>
+                        );
+                    },
+                    duration: 5000
+                });
+                getUserInfoByToken(VERIFY_TOKEN)
+            }
+            else{
+                location.href = getLoginURL()
+            }
+        }, 100);
+    }
+    else{
+        NotifyPlugin("success", {
+            title: "温馨提示",
+            content: ()=> {
+                return (
+                    <div style="color: var(--text-color);font: var(--td-font-title-medium);letter-spacing: 0.3px;">
+                        当前已关闭登录检测，请确认当前非生产环境！！
+                    </div>
+                );
+            },
+            duration: 5000
+        });
+        // handleChangeComponent(MainContent.lastChoose,true,false)
+        // var param_path = getUrlParam("path");
+        // if (param_path) {
+        //     console.log("检测到 Path 参数,跳转至指定页面。");
+        //     if (VerifyPath(param_path) === true) {
+        //         handleChangeComponent(param_path, true);
+        //     }
+        // }
+    }
+    LoadUserPermissions()
+    const currentPage = getCurrentPage()
+    if (currentPage) {
+        SideMenu.ComponentValue = currentPage
+        SideMenu.value = currentPage
+    }
 })
 
 onMounted(() => {
     document.body.style.overflow = "";
     // document.getElementById("loading").display = "none"
     theme.value = ThemeMode();
-    window.onload = (e) => {
+    window.addEventListener("load", (e) => {
         GetPageWidth(e);
-    };
-    window.onresize = (e) => {
+    });
+    window.addEventListener("resize", (e) => {
         GetPageWidth(e);
-    };
+    });
     // if (__DEBUG_DONTCHECKLOGINSTATUS != "yes"){
     //     // 开始检测
     //     this.startCheckToken()
