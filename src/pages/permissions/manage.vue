@@ -304,7 +304,7 @@ const System_Permissions_List_Columns = computed(() => [
 
 import { NotifyPlugin } from "tdesign-vue-next";
 import { config } from "../../components/config";
-import { HTTPRequest } from "../../components/function/hooks";
+import useRequest from '../../hooks/useRequest';
 
 export default {
     name: "pErmissiosSmanaGe",
@@ -321,7 +321,7 @@ export default {
       GetStsyemPermissionsList() {
         const that = this;
         try {
-          HTTPRequest({
+          useRequest({
               url: config.API_URL.MAIN_URL + "/permissions/systemlist",
               methods: "POST",
               header: {
