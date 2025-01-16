@@ -102,7 +102,6 @@ const routerMap:RouteMaps = [
                     {
                         key: "EqCheck",
                         label: "设备清点",
-                        hidden: true,
                         permissions: ['equipment.check'],
                         component: () => import('../pages/manage/eqCheck.vue')
                     }
@@ -225,8 +224,8 @@ const routerMap:RouteMaps = [
                 component: () => import('../pages/equipment/SuppleRecord.vue')
             },
             {
-                key: "Test",
-                label: "测试页面",
+                key: "Admini",
+                label: "管理页",
                 fatherCrumb: "",
                 icon: "user-checked",
                 component: () => import('../pages/other/CHANGELOG.vue')

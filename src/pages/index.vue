@@ -79,8 +79,8 @@
             'loading-change-components-in': MainContent.classIn,
             'loading-change-components-out': MainContent.classOut,
         }" :page="SideMenu.value">
-        <PageTooSmall v-if="pagesmall" />
-        <router-view v-else :handleChangeComponent="handleChangeComponent"></router-view>
+            <PageTooSmall v-if="pagesmall" />
+            <router-view v-else :handleChangeComponent="handleChangeComponent"></router-view>
             <!---->
             <!-- <Component :page="SideMenu.ComponentValue" @mounted="Components_LoadEnd" :UserPermissions="login_info.permissions" :PagePermissions="Page_permissions" :ChangePageUrl="SideMenuValueChange"
                 @Apply-Url-Param="applyUrlParam" @Get-Url-Param="getUrlParam"/> -->
@@ -96,7 +96,7 @@
                 <!-- <div>
                     由 <a href="javaScript:void(0);" we-a-tag>DEBUG-SDZZ</a> 提供技术支持
                 </div> -->
-                <div>Copyright © 2021-2024 MTB All right reserved.</div>
+                <div>Copyright © 2021-2025 MTB All right reserved.</div>
             </div>
         </section>
     </div>

@@ -53,7 +53,7 @@ export function getCurrentPage() {
 }
 
 export function testTOKEN() {
-    return "34C33DEFC72E380045754D72F8100D213446274E8172F635FBD60A30C4CC7623"
+    return "61E900CA624FE99D129E42F9CC5703334858D75635356591AA3AE866C0E8018B"
 }
 
 export function getToken() {
@@ -61,7 +61,7 @@ export function getToken() {
 }
 
 const getAPIURL = () => {
-    return import.meta.env.VITE_API_URL || ''
+    return "https://oa-api.mtb.wesley.net.cn/v2"
 }
 
 const getSSOURL = () => {

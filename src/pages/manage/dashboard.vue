@@ -1,4 +1,7 @@
 <template>
+  <div style="margin-bottom: 16px;">
+    <t-alert theme="info" message="由于系统迭代，数据表及内容发生变更，会导致表格数据某一项数据异常，可人工修正或等待系统更新！" />
+  </div>
   <div>
     <div style="display: flex; flex-direction: row">
       <!--item 1-->
