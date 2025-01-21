@@ -121,7 +121,7 @@ const routerMap:RouteMaps = [
                         key: "GroupManage",
                         label: "组管理",
                         permissions: ['group.add'],
-                        component: () => import('../pages/manage/UserManage.vue')
+                        component: () => import('../pages/manage/GroupManage.vue')
                     }
                 ]
             },

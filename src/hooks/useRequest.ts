@@ -18,8 +18,25 @@ function SpliceParameter(DATA:Object) {
     return ParameterSRT
 }
 
+/**
+ * 请求后端公共方法
+ * @ 支持传入方法或Promise形式获取结果
+ * @useRequest
+ * @param option
+ * @returns Promise
+ * @example
+ * useRequest({
+ *  url: URL,
+ *  methods: METHODS,
+ *  header: object,
+ *  data: object,
+ *  success: function,
+ *  error: function,
+ * })
+ *  
+ */
 export function useRequest(option: RequestHooksOptions) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise<Boolean|string>(async (resolve, reject) => {
         try{
             function emitComplete(res) {
                 if(option.complete && typeof option.complete === 'function') {
@@ -32,23 +49,24 @@ export function useRequest(option: RequestHooksOptions) {
                 }
                 console.log(et, res)
                 emitComplete(res)
+                reject(res)
             }
             function emitSuccess(res: RequestResponseData) {
                 if(option.success && typeof option.success === 'function') {
                     option.success(JSON.stringify(res))
                 }
                 emitComplete(JSON.stringify(res))
+                resolve(JSON.stringify(res))
             }
             if(Object.prototype.toString.call(option) !== '[object Object]') resolve(false);
             
-            // 0116: 改Fetch
             var headers = {};
             // 优先header使用提供的内容 若没提供则使用默认值
             headers["Content-Type"] = option?.header?.["Content-Type"] ?? "application/x-www-form-urlencoded; charset=UTF-8";
             headers["TOKEN"] = option?.token ?? option?.header?.["TOKEN"] ?? getToken() ?? null;
-            // 合并两个object 排除上面两项
+            // 合并两个object 排除contentType和token
             var headersMerge = merge(headers,omit(option?.header,["Content-Type","TOKEN","token"]));
-            // 中止器
+            // fetch 请求
             await fetch(option?.useCustomURL ? option?.url : getAPIURL() + option?.url, {
                 method: option?.methods ? option?.methods.toUpperCase() : 'GET',
                 headers: {
@@ -100,6 +118,5 @@ export function useRequest(option: RequestHooksOptions) {
         }
     })
 }
-
 
 export default useRequest
