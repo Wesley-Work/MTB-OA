@@ -1,7 +1,7 @@
 import { NotifyPlugin } from "tdesign-vue-next";
 import { getAPIURL, getLoginURL, getToken } from "./common";
 import { config } from "../components/config"
-import { RequestHooksOptions } from "@/types/type";
+import { RequestHooksOptions, RequestResponseData } from "@/types/type";
 import isFunction from "lodash/isFunction"
 import merge from "lodash/merge";
 import { omit } from "lodash";
@@ -21,23 +21,23 @@ function SpliceParameter(DATA:Object) {
 export function useRequest(option: RequestHooksOptions) {
     return new Promise(async (resolve, reject) => {
         try{
-            function emitComplete(xhr) {
+            function emitComplete(res) {
                 if(option.complete && typeof option.complete === 'function') {
-                    option.complete(xhr)
+                    option.complete(res)
                 }
             }
-            function emitError(et, xhr) {
+            function emitError(et, res) {
                 if(option.error && typeof option.error === 'function') {
-                    option.error(et, xhr)
+                    option.error(et, res)
                 }
-                console.log(et, xhr)
-                emitComplete(xhr)
+                console.log(et, res)
+                emitComplete(res)
             }
-            function emitSuccess(xhr) {
+            function emitSuccess(res: RequestResponseData) {
                 if(option.success && typeof option.success === 'function') {
-                    option.success(xhr)
+                    option.success(JSON.stringify(res))
                 }
-                emitComplete(xhr)
+                emitComplete(JSON.stringify(res))
             }
             if(Object.prototype.toString.call(option) !== '[object Object]') resolve(false);
             
@@ -85,7 +85,7 @@ export function useRequest(option: RequestHooksOptions) {
                     })
                 }
                 else{
-                    emitSuccess(JSON.stringify(data))
+                    emitSuccess(data)
                 }
             })
             .catch((err) => {

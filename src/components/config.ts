@@ -251,4 +251,6 @@ const config = {
 
 export default config
 
+export const routerPrefix = config.routerPrefix;
+
 export { routerMap, config }

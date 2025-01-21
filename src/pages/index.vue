@@ -31,10 +31,14 @@
             <a href="javascript:void(1);" title="重载页面" class="guide_refresh" style="display: flex;margin-right: 8px;" @click="PageReload">
                 <t-icon class="t-menu__operations-icon" name="refresh" style="width: 36px; height: 36px" />
             </a>
-            <!-- <a href="javascript:void(2);" title="返回上页" class="guide_pagerollback" style="display: flex">
-                <t-icon class="t-menu__operations-icon" name="rollback" style="width: 36px; height: 36px"
-                    @click="PageRollBack" />
-            </a> -->
+            <t-popup>
+                <t-badge dot :count="hasMessageNotRead ? 1 : 0" :offset="[-7, 0]">
+                    <a href="javascript:void(2);" title="消息列表" class="guide_mail" style="display: flex">
+                        <t-icon class="t-menu__operations-icon" name="mail" style="width: 36px; height: 36px" />
+                    </a>
+                </t-badge>
+                <template #content></template>
+            </t-popup>
             <div style="display: flex;min-width: 120px;">
                 <t-dropdown :options="MainContent.AccountMenuOptions" trigger="click" @click="handleAccountMenu"
                     :popupProps="{
@@ -105,7 +109,7 @@
 <script setup lang="tsx">
 import SideMenus from "../hooks/useMenu.tsx"
 import BreadCurmb from "../hooks/useBreadcrumb.tsx"
-import { onBeforeMount, onMounted, reactive, ref, watch } from "vue";
+import { computed, onBeforeMount, onMounted, reactive, ref, watch } from "vue";
 import { themeMode, toggleTheme } from "../components/function/theme.js";
 import { config, routerMap } from "../components/config";
 import Component from "../components/index.tsx";
@@ -166,6 +170,11 @@ const timer = reactive({
 })
 const theme = ref(false)
 const pagesmall = ref(false)
+const messageList = ref([])
+const hasMessageNotRead = computed(() => {
+    return messageList.value.filter(item => item.onread === 0).length > 0
+})
+console.log(messageList.value.filter(item => item.onread === 0))
 
 
 const getComponentPermissions = (componentName) => {
@@ -177,6 +186,31 @@ const getComponentPermissions = (componentName) => {
 watch(() => SideMenu.value, (val, oldVal) => {
     componentPermissions.value = getComponentPermissions(val)
 })
+
+const getMessage = () => {
+    useRequest({
+        url: `/message/MyMessage`,
+        methods: "POST",
+        success: function (res) {
+            const result = JSON.parse(res)
+            if (result.errcode != 0) {
+                NotifyPlugin.error({
+                    title: "获取消息内容失败",
+                    content: result.errmsg,
+                })
+                return;
+            }
+            messageList.value = result.data
+        },
+        error: function (err) {
+            console.error(err)
+            NotifyPlugin.error({
+                title: "获取消息内容失败",
+                content: err,
+            })
+        }
+    })
+}
 
 // 获取用户权限
 const LoadUserPermissions = (TOKEN:string=localStorage.getItem("token")) => {
@@ -330,7 +364,7 @@ const getpath = () =>{
     return path
 }
 
-const handleChangeComponent = (componentName:string,doNotToggleSideMenu:boolean=false,forcePush:boolean=false) => {
+const handleChangeComponent = (componentName:string,doNotToggleSideMenu:boolean=false,forcePush:boolean=false,query: object|null = {}) => {
     // 与上次选择一样且不是强制刷新、验证地址失败
     // (MainContent.lastChoose === componentName && !forcePush) || // 与当前页面相同或
     if (!VerifyPath(componentName)) {
@@ -348,7 +382,10 @@ const handleChangeComponent = (componentName:string,doNotToggleSideMenu:boolean=
     // 应用动画
     MainContent.classOut = true;
     setTimeout(() => {
-        router.push(`${config.routerPrefix}/${componentName}`)
+        router.push({
+            path: `${config.routerPrefix}/${componentName}`,
+            query: query
+        })
         MainContent.ComponentValue = componentName;
         MainContent.classOut = false;
         MainContent.classIn = true;
@@ -583,6 +620,8 @@ onBeforeMount(() => {
         //     }
         // }
     }
+    // load message
+    getMessage()
     LoadUserPermissions()
     const currentPage = getCurrentPage()
     if (currentPage) {

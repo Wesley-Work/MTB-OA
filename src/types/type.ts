@@ -56,6 +56,12 @@ export type RequestHooksOptions = {
   complete?: Function
 }
 
+export interface RequestResponseData {
+  errcode: number | string,
+  errmsg: string,
+  data?: string | Array<any> | object | null
+}
+
 export interface PermissionsObject {
   id?: number,
   object?: string,
