@@ -215,7 +215,7 @@ export default defineComponent({
             return (
                 <div class="Table--view">
                     { 
-                        h(Table, { class: renderTable.length !== 0 ? 'hidden--body' : null, columns: TableColumns[item], bordered: true }, {
+                        h(Table, { class: renderTable.length !== 0 ? 'hidden--body' : null, columns: TableColumns[item], bordered: true, loading: renderTable.length === 0 }, {
                             empty: () => "暂时没有任务哦！",
                         })
                     }

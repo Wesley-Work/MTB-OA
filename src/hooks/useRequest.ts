@@ -1,7 +1,7 @@
 import { NotifyPlugin } from "tdesign-vue-next";
 import { getAPIURL, getLoginURL, getToken } from "./common";
 import { config } from "../components/config"
-import { RequestHooksOptions } from "@/types/type";
+import { RequestHooksOptions, RequestResponseData } from "@/types/type";
 import isFunction from "lodash/isFunction"
 import merge from "lodash/merge";
 import { omit } from "lodash";
@@ -18,37 +18,55 @@ function SpliceParameter(DATA:Object) {
     return ParameterSRT
 }
 
+/**
+ * 请求后端公共方法
+ * @ 支持传入方法或Promise形式获取结果
+ * @useRequest
+ * @param option
+ * @returns Promise
+ * @example
+ * useRequest({
+ *  url: URL,
+ *  methods: METHODS,
+ *  header: object,
+ *  data: object,
+ *  success: function,
+ *  error: function,
+ * })
+ *  
+ */
 export function useRequest(option: RequestHooksOptions) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise<Boolean|string>(async (resolve, reject) => {
         try{
-            function emitComplete(xhr) {
+            function emitComplete(res) {
                 if(option.complete && typeof option.complete === 'function') {
-                    option.complete(xhr)
+                    option.complete(res)
                 }
             }
-            function emitError(et, xhr) {
+            function emitError(et, res) {
                 if(option.error && typeof option.error === 'function') {
-                    option.error(et, xhr)
+                    option.error(et, res)
                 }
-                console.log(et, xhr)
-                emitComplete(xhr)
+                console.log(et, res)
+                emitComplete(res)
+                reject(res)
             }
-            function emitSuccess(xhr) {
+            function emitSuccess(res: RequestResponseData) {
                 if(option.success && typeof option.success === 'function') {
-                    option.success(xhr)
+                    option.success(JSON.stringify(res))
                 }
-                emitComplete(xhr)
+                emitComplete(JSON.stringify(res))
+                resolve(JSON.stringify(res))
             }
             if(Object.prototype.toString.call(option) !== '[object Object]') resolve(false);
             
-            // 0116: 改Fetch
             var headers = {};
             // 优先header使用提供的内容 若没提供则使用默认值
             headers["Content-Type"] = option?.header?.["Content-Type"] ?? "application/x-www-form-urlencoded; charset=UTF-8";
             headers["TOKEN"] = option?.token ?? option?.header?.["TOKEN"] ?? getToken() ?? null;
-            // 合并两个object 排除上面两项
+            // 合并两个object 排除contentType和token
             var headersMerge = merge(headers,omit(option?.header,["Content-Type","TOKEN","token"]));
-            // 中止器
+            // fetch 请求
             await fetch(option?.useCustomURL ? option?.url : getAPIURL() + option?.url, {
                 method: option?.methods ? option?.methods.toUpperCase() : 'GET',
                 headers: {
@@ -85,7 +103,7 @@ export function useRequest(option: RequestHooksOptions) {
                     })
                 }
                 else{
-                    emitSuccess(JSON.stringify(data))
+                    emitSuccess(data)
                 }
             })
             .catch((err) => {
@@ -100,6 +118,5 @@ export function useRequest(option: RequestHooksOptions) {
         }
     })
 }
-
 
 export default useRequest

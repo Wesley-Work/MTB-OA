@@ -137,7 +137,7 @@ const getOAURL = () => {
 }
 
 const getLoginURL = () => {
-    return import.meta.env.VITE_SSO_URL + `?backUrl=${getOAURL()}/` || ''
+    return import.meta.env.VITE_SSO_URL + `?backUrl=${getOAURL()}` || ''
 }
 
 export function Wesley(){

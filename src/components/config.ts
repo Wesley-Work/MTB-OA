@@ -121,7 +121,7 @@ const routerMap:RouteMaps = [
                         key: "GroupManage",
                         label: "组管理",
                         permissions: ['group.add'],
-                        component: () => import('../pages/manage/UserManage.vue')
+                        component: () => import('../pages/manage/GroupManage.vue')
                     }
                 ]
             },
@@ -250,5 +250,7 @@ const config = {
 }
 
 export default config
+
+export const routerPrefix = config.routerPrefix;
 
 export { routerMap, config }
