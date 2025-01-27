@@ -1000,9 +1000,13 @@ const onPageChange = (pageInfo, context) => {
 }
 
 onMounted(() => {
+    // 用户权限
     loadUserPermissions()
+    // 系统权限
     loadSystemPermissionsList()
+    // 用户列表
     loadTableData()
+    // 组数据
     loadGroupData()
 })
 
