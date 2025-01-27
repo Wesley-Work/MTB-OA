@@ -18,7 +18,7 @@
             <template #footer>
               <t-row :align="'middle'" justify="center" style="gap: 24px">
                 <t-col flex="auto" style="display: inline-flex; justify-content: center">
-                  <t-button variant="text" shape="square">
+                  <t-button variant="text" shape="square" @click="showEditDrawer(item)">
                     <Edit2Icon />
                   </t-button>
                 </t-col>
@@ -50,42 +50,49 @@
         </template>
     </t-dialog>
     <!---->
-    <t-drawer v-model:visible="drawerVisible" :onClose="() => { drawerVisible = false }" size="30%">
+    <t-drawer v-model:visible="drawerVisible" :onClose="() => { drawerVisible = false }" size="36%">
       <template #header>{{ drawerData.mode === "add" ? '添加' : '编辑' }}组</template>
-        <t-form ref="form" :rules="FORM_RULES" :data="formData" :colon="true" @reset="onReset" @submit="onSubmit">
-            <t-form-item label="姓名" name="name">
-              <t-input v-model="formData.name" placeholder="请输入内容" @enter="onEnter"></t-input>
+        <t-form ref="form" :rules="drawerRule" :data="drawerData" :colon="true" @reset="onReset" @submit="onSubmit">
+            <t-form-item label="id" name="id" v-if="drawerData.mode === 'edit'">
+                <t-input v-model="drawerData.id" placeholder="请输入内容"></t-input>
+            </t-form-item>
+
+            <t-form-item label="组名" name="name">
+                <t-input v-model="drawerData.name" placeholder="请输入内容"></t-input>
             </t-form-item>
           
-            <t-form-item label="手机号码" name="tel">
-              <t-input v-model="formData.tel" placeholder="请输入内容" @enter="onEnter"></t-input>
+            <t-form-item label="组类型" name="type">
+                <t-select v-model="drawerData.type" :options="groupType" placeholder="请选择"></t-select>
             </t-form-item>
           
-            <t-form-item label="接收短信" name="status">
-              <t-switch v-model="formData.status"></t-switch>
+            <t-form-item label="描述（备注）" name="desc">
+              <t-input v-model="drawerData.desc" placeholder="请输入内容"></t-input>
             </t-form-item>
           
-            <t-form-item label="性别" name="gender">
-              <t-radio-group v-model="formData.gender">
-                <t-radio value="1">男</t-radio>
-                <t-radio value="2">女</t-radio>
-              </t-radio-group>
+            <t-form-item label="更新到用户" name="updateToUser" v-if="drawerData.mode === 'add'">
+                <t-transfer
+                    :data="transferUserSource"
+                    :value="drawerData.updateToUser"
+                    :search="true"
+                >
+                    <template #title="props">
+                        <div>{{ props.type === 'target' ? '目标' : '来源' }}</div>
+                    </template>
+                </t-transfer>
             </t-form-item>
-          
-            <t-form-item label="课程" name="course">
-              <t-checkbox-group v-model="formData.course" :options="courseOptions"></t-checkbox-group>
+
+            <t-form-item label="组权限" name="permission">
+                <t-transfer
+                    class="transfer-horizontal transfer-item--width-fit-content"
+                    :data="transferPermissionSource"
+                    :value="drawerData.permission"
+                >
+                    <template #title="props">
+                        <div>{{ props.type === 'target' ? '目标' : '来源' }}</div>
+                    </template>
+                </t-transfer>
             </t-form-item>
-          
-            <t-form-item>
-              <t-space size="small">
-                <t-button theme="primary" type="submit">提交</t-button>
-                <t-button theme="default" variant="base" type="reset">重置</t-button>
-                <!-- 下方示例代码，有效，勿删 -->
-                <!--<t-button theme="default" @click="submitForm">实例方法提交</t-button>-->
-                <!--<t-button theme="default" variant="base" @click="resetForm">实例方法重置</t-button>-->
-                <!--<t-button theme="default" variant="base" @click="validateOnly">仅校验</t-button>-->
-              </t-space>
-            </t-form-item>
+            
         </t-form>
     </t-drawer>
 </template>
@@ -93,27 +100,74 @@
 <script setup lang="ts">
 import { Edit2Icon, ListIcon, DeleteIcon, AddRectangleIcon } from 'tdesign-icons-vue-next';
 import useRequest from '../../hooks/useRequest';
-import { onMounted, reactive, ref } from 'vue';
-import { NotifyPlugin } from 'tdesign-vue-next';
+import { computed, onMounted, reactive, ref } from 'vue';
+import { MessagePlugin, NotifyPlugin } from 'tdesign-vue-next';
+import { GroupItem, GroupList, GroupPermissionList, GroupUserList, UserList } from '../../types/type';
 
-const groupList = ref([]);
-const userGroupList = ref([]);
-const userList = ref([]);
+const groupList = ref(<GroupList>[]);
+const userGroupList = ref(<GroupUserList>[]);
+const userList = ref(<UserList>[]);
+const transferUserSource = computed(() => {
+    return userList.value.map((item) => {
+        return {
+            label: item.name,
+            value: item.id,
+        };
+    });
+});
+const permissionList = ref([]);
+const transferPermissionSource = computed(() => {
+    return permissionList.value.map((item) => {
+        return {
+            label: item.object,
+            value: item.val,
+        };
+    });
+});
+const groupType = [
+    {
+        label: "正常",
+        value: "normal",
+    },
+    {
+        label: "特殊（不可参与一些功能）",
+        value: "display",
+    },
+    {
+        label: "注销",
+        value: "close",
+    },
+];
+const groupPermission = ref(<GroupPermissionList>[]);
 const dialogVisible = ref(false);
 const dialogData = reactive({
     title: "",
     content: [],
 });
 const drawerVisible = ref(false);
-const drawerData = reactive({
+const drawerData = ref({
+    id: -1,
     mode: "",
-    type: "",
-    user: [],
-    desc: "",
     name: "",
-    id: "",
+    type: "",
+    desc: "",
+    updateToUser: [],
     permission: [],
 });
+const drawerRule = {
+    name: [
+        {
+            required: true,
+            message: '组名必填',
+        },
+    ],
+    type: [
+        {
+            required: true,
+            message: '组类型必填',
+        },
+    ],
+}
 const props = defineProps({
     handleChangeComponent: Function,
 });
@@ -193,6 +247,57 @@ const getUserList = () => {
     })
 };
 
+const getSystemPermission = () => {
+    useRequest({
+        url: "/permissions/systemlist",
+        methods: "POST",
+        success: function (res) {
+            const result = JSON.parse(res)
+            if (result.errcode != 0) {
+                NotifyPlugin.error({
+                    title: "获取系统权限失败",
+                    content: result.errmsg,
+                })
+                return;
+            }
+            permissionList.value = result.data
+        },
+        error: function (err) {
+            console.error(err)
+            NotifyPlugin.error({
+                title: "获取系统权限失败",
+                content: err
+            })
+        }
+    })
+
+}
+
+const getGroupPermission = () => {
+    useRequest({
+        url: "/permissions/Allgrouplist",
+        methods: "POST",
+        success: function (res) {
+            const result = JSON.parse(res)
+            if (result.errcode != 0) {
+                NotifyPlugin.error({
+                    title: "获取组权限失败",
+                    content: result.errmsg,
+                })
+                return;
+            }
+            groupPermission.value = result.data
+        },
+        error: function (err) {
+            console.error(err)
+            NotifyPlugin.error({
+                title: "获取组权限失败",
+                content: err
+            })
+        }
+    })
+}
+
 const showWhoInGroup = (groupItem) => {
     const { id } = groupItem
     const userList = userGroupList.value[id]
@@ -205,16 +310,51 @@ const showWhoInGroup = (groupItem) => {
 
 const showAddDrawer = () => {
     drawerVisible.value = true
-    drawerData.mode = "add"
+    drawerData.value.mode = "add"
 }
 
+const showEditDrawer = (groupItem: GroupItem) => {
+    const { id, type, name, desc } = groupItem
+    const permission = groupPermission.value.filter(item => {
+        return item?.id === id
+    })[0]?.permissionsList
+    console.log(permission)
+    drawerData.value = {
+        mode: "edit",
+        id,
+        type,
+        name,
+        desc,
+        updateToUser: [],
+        permission: [],
+    }
+    drawerVisible.value = true
+}
+
+const onReset = () => {
+  MessagePlugin.success('重置成功');
+};
+
+const onSubmit = ({ validateResult, firstError }) => {
+  if (validateResult === true) {
+    MessagePlugin.success('提交成功');
+  } else {
+    console.log('Validate Errors: ', firstError, validateResult);
+    MessagePlugin.warning(firstError);
+  }
+};
+
 onMounted(() => {
+    // 用户列表
+    getUserList()
+    // 权限列表
+    getSystemPermission()
+    // 组权限
+    getGroupPermission()
     // 组列表
     getGroupList()
     // 组内用户列表
     getUserGroupList()
-    // 用户列表
-    getUserList()
 });
 </script>
 
@@ -243,6 +383,33 @@ export default {
         border: 1px solid var(--td-text-color-primary);
         font: var(--td-font-body-large);
         color: var(--td-text-color-primary);
+    }
+}
+
+.transfer-horizontal {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    width: 100%;
+    gap: 16px;
+    .t-transfer__list {
+        width: 100%;
+        .t-transfer__list-header {
+            width: calc(100% - var(--td-comp-margin-s) * 2) !important;
+        }
+    }
+    .t-transfer__operations {
+        flex-direction: row !important;
+    }
+    &.transfer-item--width-fit-content {
+        .t-checkbox-group {
+            flex-direction: row !important;
+            gap: 0px !important;
+        }
+        .t-transfer__list-item {
+            width: fit-content !important;
+            margin-left: 0px !important;
+        }
     }
 }
 

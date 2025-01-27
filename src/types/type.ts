@@ -43,7 +43,7 @@ export type ReturnTableDataItem = {
 
 interface LendTableData extends Array<LendTableDataItem> {}
 
-export type RequestHooksOptions = {
+export interface RequestHooksOptions {
   url: string,
   token?: string,
   methods?: string,
@@ -77,7 +77,7 @@ export interface equipmentStatusTips {
   [key: number | string]: string | HTMLElement
 }
 
-export type equipmentStatus = {
+export interface equipmentStatus {
   id: number,
   label: string,
   theme: string,
@@ -85,7 +85,7 @@ export type equipmentStatus = {
   tips?: equipmentStatusTips[]
 }[]
 
-export type userListObject = {
+export interface userListObject {
   id?: number,
   name: string,
   class: string,
@@ -97,3 +97,35 @@ export type userListObject = {
   reg_time: string | Date,
   join_time: string | Date,
 }
+
+export type UserList = userListObject[]
+
+export interface GroupItem {
+  id: number,
+  name: string,
+  desc: string,
+  type: "normal" | "display" | "close"
+}
+
+export type GroupList = GroupItem[]
+
+export interface GroupUserList {
+  [key:number]: UserList
+}
+
+export type GroupPermissionItem = {
+  id: number,
+  object: string,
+  open: number,
+  remark: string | null,
+  type: string,
+  val: string
+}
+
+export interface GroupPermissionObject {
+  id?: number,
+  name?: string,
+  permissionsList?: GroupPermissionItem[]
+}
+
+export type GroupPermissionList = GroupPermissionObject[]
