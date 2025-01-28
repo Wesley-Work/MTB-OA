@@ -50,9 +50,9 @@
         </template>
     </t-dialog>
     <!---->
-    <t-drawer v-model:visible="drawerVisible" :onClose="() => { drawerVisible = false }" size="36%">
+    <t-drawer v-model:visible="drawerVisible" :onClose="() => { drawerVisible = false }" size="36%" :onConfirm="handleSubmit">
       <template #header>{{ drawerData.mode === "add" ? '添加' : '编辑' }}组</template>
-        <t-form ref="form" :rules="drawerRule" :data="drawerData" :colon="true" @reset="onReset" @submit="onSubmit">
+        <t-form ref="drawerFormEl" :rules="drawerRule" :data="drawerData" :colon="true">
             <t-form-item label="id" name="id" v-if="drawerData.mode === 'edit'">
                 <t-input v-model="drawerData.id" placeholder="请输入内容"></t-input>
             </t-form-item>
@@ -74,6 +74,8 @@
                     :data="transferUserSource"
                     :value="drawerData.updateToUser"
                     :search="true"
+                    :operation="['移除', '添加']"
+                    class="transfer-custom"
                 >
                     <template #title="props">
                         <div>{{ props.type === 'target' ? '目标' : '来源' }}</div>
@@ -83,9 +85,10 @@
 
             <t-form-item label="组权限" name="permission">
                 <t-transfer
-                    class="transfer-horizontal transfer-item--width-fit-content"
+                    class="transfer-horizontal transfer-item--width-fit-content transfer-custom"
                     :data="transferPermissionSource"
                     :value="drawerData.permission"
+                    :operation="['移除', '添加']"
                 >
                     <template #title="props">
                         <div>{{ props.type === 'target' ? '目标' : '来源' }}</div>
@@ -104,6 +107,7 @@ import { computed, onMounted, reactive, ref } from 'vue';
 import { MessagePlugin, NotifyPlugin } from 'tdesign-vue-next';
 import { GroupItem, GroupList, GroupPermissionList, GroupUserList, UserList } from '../../types/type';
 
+const drawerFormEl = ref(null);
 const groupList = ref(<GroupList>[]);
 const userGroupList = ref(<GroupUserList>[]);
 const userList = ref(<UserList>[]);
@@ -330,18 +334,84 @@ const showEditDrawer = (groupItem: GroupItem) => {
     drawerVisible.value = true
 }
 
-const onReset = () => {
-  MessagePlugin.success('重置成功');
-};
+// 抽屉提交
+const handleSubmit = () => {
+    drawerFormEl.value.validate().then((validateResult) => {
+        if (validateResult && Object.keys(validateResult).length) {
+            // 有错误
+            console.log("表单校验失败",validateResult)
+            return;
+        }
+        // 提交数据
+        drawerData.value.mode === "add" ? addGroupSubmit() : editGroupSubmit()
+    });
+}
 
-const onSubmit = ({ validateResult, firstError }) => {
-  if (validateResult === true) {
-    MessagePlugin.success('提交成功');
-  } else {
-    console.log('Validate Errors: ', firstError, validateResult);
-    MessagePlugin.warning(firstError);
-  }
-};
+// 添加提交
+const addGroupSubmit = () => {
+    const { name, desc, type, updateToUser, permission } = drawerData.value
+    useRequest({
+        url: "/group/add",
+        methods: "POST",
+        data: {
+            name,
+            desc,
+            type,
+            push: updateToUser,
+            permission,
+        },
+        success: function (res) {
+            const result = JSON.parse(res)
+            if (result.errcode != 0) {
+                NotifyPlugin.error({
+                    title: "添加组失败",
+                   content: result.errmsg,
+                })
+                return;
+            }
+        },
+        error: function (err) {
+            console.error(err)
+            NotifyPlugin.error({
+                title: "添加组失败",
+                content: err
+            })
+        }
+    })
+}
+
+// 编辑提交
+const editGroupSubmit = () => {
+    const { id, name, desc, type, permission } = drawerData.value
+    useRequest({
+        url: "/group/edit",
+        methods: "POST",
+        data: {
+            id,
+            name,
+            type,
+            desc,
+            permission,
+        },
+        success: function (res) {
+            const result = JSON.parse(res)
+            if (result.errcode != 0) {
+                NotifyPlugin.error({
+                    title: "编辑组失败",
+                   content: result.errmsg,
+                })
+                return;
+            }
+        },
+        error: function (err) {
+            console.error(err)
+            NotifyPlugin.error({
+                title: "编辑组失败",
+                content: err
+            })
+        }
+    })
+}
 
 onMounted(() => {
     // 用户列表
@@ -385,6 +455,13 @@ export default {
     }
 }
 
+.transfer-custom .t-button .t-icon {
+    display: none;
+    & + .t-button__text:not(:empty) {
+        margin-left: 0;
+    }
+}
+
 .transfer-horizontal {
     display: flex;
     flex-direction: column-reverse;
@@ -403,7 +480,8 @@ export default {
     &.transfer-item--width-fit-content {
         .t-checkbox-group {
             flex-direction: row !important;
-            gap: 0px !important;
+            gap: 8px 0px !important;
+            padding: 0px 8px;
         }
         .t-transfer__list-item {
             width: fit-content !important;
