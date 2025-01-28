@@ -324,8 +324,8 @@ const showEditDrawer = (groupItem: GroupItem) => {
         type,
         name,
         desc,
+        permission,
         updateToUser: [],
-        permission: [],
     }
     drawerVisible.value = true
 }
