@@ -318,7 +318,6 @@ const showEditDrawer = (groupItem: GroupItem) => {
     const permission = groupPermission.value.filter(item => {
         return item?.id === id
     })[0]?.permissionsList
-    console.log(permission)
     drawerData.value = {
         mode: "edit",
         id,
