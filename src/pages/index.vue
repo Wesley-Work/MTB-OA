@@ -24,7 +24,7 @@
             }}</span>
         </template>
         <template #operations>
-            <t-popup>
+            <t-popup trigger="click">
                 <t-badge dot :count="hasMessageNotRead ? 1 : 0" :offset="[-7, 0]">
                     <a href="javascript:void(2);" title="消息列表" class="guide_mail" style="display: flex">
                         <t-icon class="t-menu__operations-icon" name="mail" style="width: 36px; height: 36px" />
