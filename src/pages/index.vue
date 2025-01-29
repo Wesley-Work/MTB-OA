@@ -84,7 +84,7 @@
             'loading-change-components-out': MainContent.classOut,
         }" :page="SideMenu.value">
             <PageTooSmall v-if="pagesmall" />
-            <router-view v-else :handleChangeComponent="handleChangeComponent" :userPermissions="['task.*']" :componentPermissions="componentPermissions" :component="SideMenu.value"></router-view>
+            <router-view v-else :handleChangeComponent="handleChangeComponent" :userPermissions="login_info.permissions" :componentPermissions="componentPermissions" :component="SideMenu.value"></router-view>
             <!---->
             <!-- <Component :page="SideMenu.ComponentValue" @mounted="Components_LoadEnd" :UserPermissions="login_info.permissions" :PagePermissions="Page_permissions" :ChangePageUrl="SideMenuValueChange"
                 @Apply-Url-Param="applyUrlParam" @Get-Url-Param="getUrlParam"/> -->
