@@ -84,7 +84,7 @@
             'loading-change-components-out': MainContent.classOut,
         }" :page="SideMenu.value">
             <PageTooSmall v-if="pagesmall" />
-            <router-view v-else :handleChangeComponent="handleChangeComponent"></router-view>
+            <router-view v-else :handleChangeComponent="handleChangeComponent" :userPermissions="['task.*']" :componentPermissions="componentPermissions" :component="SideMenu.value"></router-view>
             <!---->
             <!-- <Component :page="SideMenu.ComponentValue" @mounted="Components_LoadEnd" :UserPermissions="login_info.permissions" :PagePermissions="Page_permissions" :ChangePageUrl="SideMenuValueChange"
                 @Apply-Url-Param="applyUrlParam" @Get-Url-Param="getUrlParam"/> -->
@@ -164,7 +164,6 @@ const login_info = reactive({
     permissions: [],
     login_time: "",
 })
-const Page_permissions = ref([])
 const timer = reactive({
     token:null,
 })
@@ -179,7 +178,6 @@ console.log(messageList.value.filter(item => item.onread === 0))
 
 const getComponentPermissions = (componentName) => {
     const { current } = getRoutePathObj(routerMap,componentName)
-    console.log(current)
     return current?.permissions ?? []
 }
 
@@ -225,7 +223,7 @@ const LoadUserPermissions = (TOKEN:string=localStorage.getItem("token")) => {
             success: function (res) {
                 var RES = JSON.parse(res);
                 if (RES.errcode == 0){
-                    login_info.permissions = RES.data.permissions;
+                    login_info.permissions = RES.data;
                 }
             },
             error: function (err) {
