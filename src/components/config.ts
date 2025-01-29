@@ -6,6 +6,9 @@
 
 import { GetAPIUrl, GetSSOUrl, GetOAUrl } from './function/hooks.js'
 import { RouteMaps } from '@/types/type.js'
+import { version } from "../../package.json"
+
+const packageVersion = version
 
 const routerMap:RouteMaps = [
     {
@@ -191,6 +194,12 @@ const routerMap:RouteMaps = [
                 component: () => import('../pages/other/CHANGELOG.vue')
             },
             {
+                key: "SystemInfo",
+                label: "系统信息",
+                icon: "system-components",
+                component: () => import('../pages/other/system.vue')
+            },
+            {
                 key: "Feedback",
                 label: "问题反馈",
                 icon: "help-circle",
@@ -236,7 +245,9 @@ const routerMap:RouteMaps = [
 const config = {
     version: '3.0.3',
     version_mode: 'RC',
+    packageVersion: packageVersion,
     systemname: '顺德中专团委媒体部管理系统',
+    systemnameEn: 'MTB OA',
     develop_mode: false,//开发模式
     login_verify: true,//登陆验证
     logout_time: 120000,//无操作退登时间,ms
@@ -253,4 +264,9 @@ export default config
 
 export const routerPrefix = config.routerPrefix;
 
-export { routerMap, config }
+export { routerMap, config, packageVersion }
+
+export const VERSION = config.version
+export const VersionMode = config.version_mode
+export const SystemName = config.systemname
+export const SystemNameEn = config.systemnameEn
