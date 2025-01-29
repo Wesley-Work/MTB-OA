@@ -2,6 +2,8 @@ import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router
 import RenderComponents from './components/index.tsx';
 import { routerMap } from './components/config';
 import { config } from './components/config'
+import NProgress from 'nprogress'
+
 function getRoutes(docs, type) {
   let docsRoutes = [];
   let docRoute;
@@ -52,20 +54,20 @@ const routerConfig = {
 
 const router = createRouter(routerConfig);
 
-// router.beforeEach((to, from, next) => {
-//   if (typeof NProgress !== 'undefined') {
-//     // eslint-disable-next-line no-undef
-//     NProgress.start();
-//   }
-//   next();
-// });
+router.beforeEach((to, from, next) => {
+  // 进度条
+  if (typeof NProgress !== 'undefined') {
+    // eslint-disable-next-line no-undef
+    NProgress.start();
+  }
+  next();
+});
 
-// router.afterEach(() => {
-//   if (typeof NProgress !== 'undefined') {
-//     // eslint-disable-next-line no-undef
-//     NProgress.done();
-//   }
-//   document.querySelector('td-stats')?.track?.();
-// });
+router.afterEach(() => {
+  if (typeof NProgress !== 'undefined') {
+    // eslint-disable-next-line no-undef
+    NProgress.done();
+  }
+});
 
 export default router;
