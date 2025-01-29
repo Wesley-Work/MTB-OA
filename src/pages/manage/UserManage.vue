@@ -141,7 +141,7 @@
 <script setup lang="tsx">
 import { computed, onMounted, reactive, ref } from "vue";
 import dayjs from 'dayjs';
-import { NotifyPlugin } from "tdesign-vue-next";
+import { NotifyPlugin, TableProps } from "tdesign-vue-next";
 import { config } from "../../components/config";
 import sha256 from 'crypto-js/sha256'
 import useRequest from "../../hooks/useRequest";
@@ -150,7 +150,7 @@ import { PermissionsArray, PermissionsObject, userListObject, UserSelectData } f
 import { TransferProps } from 'tdesign-vue-next';
 import ExcelJS from 'exceljs';
 
-const table_Columns = [
+const table_Columns:TableProps['columns'] = [
     {
         colKey: "row-select",
         type: "multiple",
@@ -616,8 +616,8 @@ const exportToXlsx = () => {
                 bold: true,
             },
             alignment: {
-                vertical: 'middle',
-                horizontal: "center",
+                vertical: 'middle' as const,
+                horizontal: 'center' as const,
                 wrapText: true,
             },
             border: {
@@ -625,7 +625,7 @@ const exportToXlsx = () => {
                 left: {style: 'thin', color: {argb: '000000'}},
                 bottom: {style: 'thin', color: {argb: '000000'}},
                 right: {style: 'thin', color: {argb: '000000'}}
-            }
+            } as const
         }
 
         const headerRow = [
