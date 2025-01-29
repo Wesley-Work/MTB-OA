@@ -100,6 +100,10 @@ export interface userListObject {
 
 export type UserList = userListObject[]
 
+export interface UserSelectData extends Array<userListObject> {
+  [key:number]: userListObject
+}
+
 export interface GroupItem {
   id: number,
   name: string,
