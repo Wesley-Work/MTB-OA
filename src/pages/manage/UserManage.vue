@@ -8,7 +8,7 @@
                     </template>
                     添加账号
                 </t-button>
-                <t-popconfirm theme="danger" content="确认删除？删除后不可恢复！" placement="bottom" :onConfirm="DeleteEquipment">
+                <t-popconfirm theme="danger" content="确认删除？删除后不可恢复！" placement="bottom" :onConfirm="DeleteAccount">
                     <t-button :disabled="SelectData.length === 0" theme="danger">
                         <template #icon>
                             <t-icon name="delete" />
@@ -42,23 +42,23 @@
                 <t-space direction="vertical" size="12px" style="width: 100%">
                     <div style="font-size: 20px;font-weight: 700;color: var(--td-text-color-primary);">基本信息</div>
                     <div>
-                        <t-input v-model="EditUserDialogFrom.name" label="用户名称：" type="text" required />
+                        <t-input v-model="EditUserDialogForm.name" label="用户名称：" type="text" required />
                     </div>
                     <div>
-                        <t-input v-model="EditUserDialogFrom.code" label="用户Code：" type="text" required />
+                        <t-input v-model="EditUserDialogForm.code" label="用户Code：" type="text" required />
                     </div>
                     <div>
-                        <t-input v-model="EditUserDialogFrom.class" label="班级：" type="text" unrequired />
+                        <t-input v-model="EditUserDialogForm.class" label="班级：" type="text" unrequired />
                     </div>
                     <div>
-                        <t-input-number v-model="EditUserDialogFrom.grade" theme="column" :max="2099" :min="2021"
+                        <t-input-number v-model="EditUserDialogForm.grade" theme="column" :max="2099" :min="2021"
                             label="年级：" unrequired style="width: 100%;"></t-input-number>
                     </div>
                     <div>
                         <div style="display: flex">
-                            <t-input v-if="actionMode === 'add'" required v-model="EditUserDialogFrom.password" label="账户密码：" type="text" />
-                            <t-input v-else unrequired v-model="EditUserDialogFrom.password" label="账户密码：" type="text" />
-                            <t-button variant="dashed" @click="EditUserDialogFrom.password = '123456'">默认密码</t-button>
+                            <t-input v-if="actionMode === 'add'" required v-model="EditUserDialogForm.password" label="账户密码：" type="text" />
+                            <t-input v-else unrequired v-model="EditUserDialogForm.password" label="账户密码：" type="text" />
+                            <t-button variant="dashed" @click="EditUserDialogForm.password = '123456'">默认密码</t-button>
                         </div>
                     </div>
                 </t-space>
@@ -68,25 +68,25 @@
                         <t-button variant="dashed" block @click="showPermissionsDialog">配置权限</t-button>
                     </div>
                     <div>
-                        <t-select :value="EditUserDialogFrom.group" :options="groupOptions" label="组别：" placeholder="请选择"
-                            :onChange="(e) => { EditUserDialogFrom.group = e }" />
+                        <t-select :value="EditUserDialogForm.group" :options="groupOptions" label="组别：" placeholder="请选择"
+                            :onChange="(e) => { EditUserDialogForm.group = e }" />
                     </div>
                     <div>
-                        <t-input-number v-model="EditUserDialogFrom.share_device" theme="column" :max="99" :min="0"
+                        <t-input-number v-model="EditUserDialogForm.share_device" theme="column" :max="99" :min="0"
                             label="共享设备数：" style="width: 100%;"></t-input-number>
                     </div>
                     <div style="display: flex;align-items: center;">
                         <span
                             style="width: 25%;z-index: 2;height: 100%;text-align: center;display: flex;align-items: center;font-size: var(--td-font-size-body-medium);color: var(--td-text-color-primary);">加入时间：</span>
                         <t-date-picker style="width: 100%;" :allowInput="true" placeholder="请选择"
-                            :value="EditUserDialogFrom.join_time"></t-date-picker>
+                            :value="EditUserDialogForm.join_time"></t-date-picker>
                     </div>
                     <div style="display: flex;align-items: center;">
                         <span
                             style="width: 25%;z-index: 2;height: 100%;text-align: center;display: flex;align-items: center;font-size: var(--td-font-size-body-medium);color: var(--td-text-color-primary);">注册时间：</span>
                         <t-date-picker style="width: 100%;" :allowInput="true" placeholder="请选择"
                             format="YYYY-MM-DD HH:mm:ss" :enableTimePicker="true"
-                            :value="EditUserDialogFrom.reg_time"></t-date-picker>
+                            :value="EditUserDialogForm.reg_time"></t-date-picker>
                     </div>
                 </t-space>
             </t-space>
@@ -141,16 +141,16 @@
 <script setup lang="tsx">
 import { computed, onMounted, reactive, ref } from "vue";
 import dayjs from 'dayjs';
-import { NotifyPlugin } from "tdesign-vue-next";
+import { NotifyPlugin, TableProps } from "tdesign-vue-next";
 import { config } from "../../components/config";
 import sha256 from 'crypto-js/sha256'
 import useRequest from "../../hooks/useRequest";
 import { loadSystemPermissions, loadUserPermissionsList } from "../../hooks/usePermission.ts";
-import { PermissionsArray, PermissionsObject, userListObject } from "../../types/type.ts";
+import { PermissionsArray, PermissionsObject, userListObject, UserSelectData } from "../../types/type.ts";
 import { TransferProps } from 'tdesign-vue-next';
 import ExcelJS from 'exceljs';
 
-const table_Columns = [
+const table_Columns:TableProps['columns'] = [
     {
         colKey: "row-select",
         type: "multiple",
@@ -233,7 +233,7 @@ const table_Sort = ref({
     descending: false,
 })
 const table_Loading = ref(false)
-const SelectData = ref([])
+const SelectData = ref<UserSelectData>([])
 const Dialog_Model = reactive({
     permissions: false,
     edit: false,
@@ -251,7 +251,10 @@ const defaultDialogData = {
     reg_time: new Date(),
     join_time: new Date(),
 }
-const EditUserDialogFrom = ref<userListObject>({...defaultDialogData})
+const EditUserDialogForm = ref<userListObject>({...defaultDialogData})
+const ResetDialogForm = (use: userListObject = null) => {
+    EditUserDialogForm.value =  use ? {...use} : {...defaultDialogData}
+};
 const upload_file_data = ref([])
 const groupOptions = ref([])// 组列表
 const permissionsValue = ref([])
@@ -314,8 +317,8 @@ const loadUserPermissions = () => {
 const handleAdd = () => {
     actionMode.value = "add"
     initPermissionsTransfer()
-    EditUserDialogFrom.value = {...defaultDialogData}
-    Dialog_Model.edit = true
+    ResetDialogForm()
+    setEditDialogVisible(true)
 }
 
 const handleEdit = (e:Event, row) => {
@@ -324,9 +327,13 @@ const handleEdit = (e:Event, row) => {
     const { id, group } = row
     activeUserPermissions.value = userPermissionsList.value?.users[id] ?? []
     activeGroupPermissions.value = userPermissionsList.value?.group[group] ?? []
-    EditUserDialogFrom.value = {...row}
+    ResetDialogForm(row)
     initPermissionsTransfer()
-    Dialog_Model.edit = true
+    setEditDialogVisible(true)
+}
+
+const setEditDialogVisible = (visible: boolean) => {
+    Dialog_Model.edit = visible
 }
 
 // 初始权限穿梭框
@@ -345,7 +352,7 @@ const initPermissionsTransfer = () => {
 
 const showPermissionsDialog = () => {
     Dialog_Model.permissions = true
-    actionMode.value === "add" ? (activeGroupPermissions.value = userPermissionsList.value?.group[EditUserDialogFrom.value["group"]] ?? []) : null
+    actionMode.value === "add" ? (activeGroupPermissions.value = userPermissionsList.value?.group[EditUserDialogForm.value["group"]] ?? []) : null
     initPermissionsTransfer()
 }
 
@@ -369,8 +376,8 @@ const setPermissionsStatus = (val:string, open:boolean) => {
 }
 
 const handlePermissionDialogClose = () => {
-    // T-Transfer组件不会改变data数据，所以下方的代码是不必要的，但仍然保留。
     // 因为没有开启 点击蒙层关闭、关闭按钮关闭、esc关闭，所以只要关闭了都要还原permissionTransfer组件的数据
+    // T-Transfer组件不会改变data数据，所以下方的代码是不必要的，但下方代码有效，故仍然保留。
     // permissionsTransfer.data = systemPermissionsList.value.map(item => {
     //         return {
     //             label: item.object,
@@ -482,186 +489,51 @@ const loadTableData = () => {
 }
 
 /**
- * @VerifyAddForm
- * @提交添加账号验证表单
+ * @DeleteAccount
+ * @删除账号
  */
-// const VerifyAddForm = () => {
-//     var FORMDATA = this.$data.AddUserDialogFrom;
-//     if (!FORMDATA.name || !FORMDATA.code || !FORMDATA.password || FORMDATA.permissions_sum == 0) {
-//         NotifyPlugin("error", {
-//             title: "添加用户失败",
-//             content: "请填写必填信息",
-//             duration: 5000,
-//         });
-//         return false;
-//     }
-//     // PASS
-//     var that = this;
-//     var TOKEN = localStorage.getItem("token");
-//     HTTPRequest({
-//         url: config.API_URL.MAIN_URL + "/user/add",
-//         methods: "POST",
-//         data: {
-//             name: FORMDATA.name,
-//             code: FORMDATA.code,
-//             class: FORMDATA.class,
-//             password: sha256(FORMDATA.password),
-//             permissions: FORMDATA.permissions_sum,
-//             group: FORMDATA.group,
-//             grade: FORMDATA.grade,
-//             reg_time: new Date(FORMDATA.reg_time).getTime().toString(),
-//             join_time: new Date(FORMDATA.join_time).getTime().toString(),
-//         },
-//         header: {
-//             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-//             token: TOKEN,
-//         },
-//         success: function (res) {
-//             var RES = JSON.parse(res);
-//             if (RES.errcode === 0) {
-//                 var U_id = RES.data.id;
-//                 NotifyPlugin("success", {
-//                     title: "添加账号成功",
-//                     content: `成功添加了id为${U_id}的用户`,
-//                     duration: 5000,
-//                 });
-//                 console.log(`添加了id为${U_id}的用户`);
-//                 // 刷新数据
-//                 that.InitTableData();
-//             }
-//         },
-//         error: function (err) {
-//             NotifyPlugin("error", {
-//                 title: "添加账号失败",
-//                 content: err,
-//                 duration: 5000,
-//             });
-//             console.error(err);
-//         },
-//     });
-//     // 关闭dialog
-//     this.$data.Dialog_Model.AddUser = false;
-//     // 还原表单
-//     FORMDATA = {
-//         name: "",
-//         code: "",
-//         class: "",
-//         password: "",
-//         permissions: [16777216, 8388608, 1048576, 524288],
-//         permissions_sum: 0,
-//         group: 0,
-//         grade: 2023,
-//         reg_time: new Date(),
-//         join_time: new Date(),
-//     };
-// }
-
-
-/**
- * @DeleteEquipment
- * @删除设备
- */
-// const DeleteEquipment = () => {
-//     var that = this;
-//     var list = this.$data.SelectData;
-//     var TOKEN = localStorage.getItem("token");
-//     for (const index in list) {
-//         if (Object.hasOwnProperty.call(list, index)) {
-//             const element = list[index];
-//             HTTPRequest({
-//                 url: config.API_URL.MAIN_URL + "/user/del",
-//                 methods: "POST",
-//                 data: {
-//                     id: element.id,
-//                 },
-//                 header: {
-//                     "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-//                     token: TOKEN,
-//                 },
-//                 success: function (res) {
-//                     var RES = JSON.parse(res);
-//                     if (RES.errcode === 0) {
-//                         var U_id = RES.data.id;
-//                         console.log(`删除了id为${U_id}的用户`);
-//                     }
-//                     NotifyPlugin("success", {
-//                         title: "删除账号成功",
-//                         content: `成功删除了id为${U_id}的用户`,
-//                         duration: 5000,
-//                     });
-//                     // 刷新数据
-//                     this.InitTableData();
-//                 },
-//                 error: function (err) {
-//                     NotifyPlugin("error", {
-//                         title: "删除账号失败",
-//                         content: err,
-//                         duration: 5000,
-//                     });
-//                     console.error(err);
-//                 },
-//             });
-//             if (index == list.length - 1) {
-//                 // 清空选择
-//                 this.$data.SelectData = [];
-//                 this.InitTableData();
-//             }
-//         }
-//     }
-// }
-
-/**
- * @EditForm
- * @编辑账号
- */
-const EditForm = () => {
-    var FORMDATA = EditUserDialogFrom.value
-    useRequest({
-        url: "/user/edit",
-        methods: "POST",
-        data: {
-            id: FORMDATA.id,
-            name: FORMDATA.name,
-            code: FORMDATA.code,
-            class: FORMDATA.class,
-            password: FORMDATA.password ? sha256(FORMDATA.password) : null,
-            share_device: FORMDATA.share_device,
-            permissions: that.$data.AddUserDialogFrom.permissions,
-            group: FORMDATA.group,
-            grade: FORMDATA.grade,
-            reg_time: new Date(FORMDATA.reg_time).getTime(),
-            join_time: new Date(FORMDATA.join_time).getTime(),
-        },
-        success: function (res) {
-            var RES = JSON.parse(res);
-            if (RES.errcode === 0) {
-                var E_id = RES.data.id;
-                NotifyPlugin("success", {
-                    title: "编辑账号信息成功",
-                    content: `成功编辑了id为${E_id}的账号信息`,
-                    duration: 5000,
-                });
-                console.log(`编辑了id为${E_id}的账号信息`);
-                // 刷新数据
-                loadTableData()
-            }
-        },
-        error: function (err) {
-            NotifyPlugin("error", {
-                title: "编辑账号信息失败",
-                content: err,
-                duration: 5000,
+const DeleteAccount = () => {
+    var list = SelectData.value;
+    for (const index in list) {
+        if (Object.hasOwnProperty.call(list, index)) {
+            const element = list[index];
+            useRequest({
+                url: "/user/del",
+                methods: "POST",
+                data: {
+                    id: element.id,
+                },
+                success: function (res) {
+                    var RES = JSON.parse(res);
+                    if (RES.errcode === 0) {
+                        var U_id = RES.data.id;
+                        console.log(`删除了id为${U_id}的用户`);
+                    }
+                    NotifyPlugin("success", {
+                        title: "删除账号成功",
+                        content: `成功删除了id为${U_id}的用户`,
+                        duration: 5000,
+                    });
+                    // 刷新数据
+                    this.InitTableData();
+                },
+                error: function (err) {
+                    NotifyPlugin("error", {
+                        title: "删除账号失败",
+                        content: err,
+                        duration: 5000,
+                    });
+                    console.error(err);
+                },
             });
-            console.error(err);
-        },
-    });
-    // 关闭dialog
-    Dialog_Model.edit = false;
-    SelectData = []
-    // 还原表单
-    EditUserDialogFrom.value = {...defaultDialogData}
+            if (parseInt(index) == list.length - 1) {
+                // 清空选择
+                SelectData.value = [];
+                loadTableData();
+            }
+        }
+    }
 }
-
 
 async function readExcel(file) {
     // 忽略前几行
@@ -744,8 +616,8 @@ const exportToXlsx = () => {
                 bold: true,
             },
             alignment: {
-                vertical: 'middle',
-                horizontal: "center",
+                vertical: 'middle' as const,
+                horizontal: 'center' as const,
                 wrapText: true,
             },
             border: {
@@ -753,7 +625,7 @@ const exportToXlsx = () => {
                 left: {style: 'thin', color: {argb: '000000'}},
                 bottom: {style: 'thin', color: {argb: '000000'}},
                 right: {style: 'thin', color: {argb: '000000'}}
-            }
+            } as const
         }
 
         const headerRow = [
@@ -926,49 +798,92 @@ const submitForm = () => {
     const isEditMode = actionMode.value === "edit"
 
     // 提交的数据->只有模式为编辑模式时才会有id
-    const FORMDATA = {
-        id: isEditMode ? EditUserDialogFrom.value.id : null,
-        name: EditUserDialogFrom.value.name,
-        code: EditUserDialogFrom.value.code,
-        class: EditUserDialogFrom.value.class,
-        password: EditUserDialogFrom.value.password ? sha256(EditUserDialogFrom.value.password) : null,
-        share_device: EditUserDialogFrom.value.share_device,
-        group: EditUserDialogFrom.value.group,
-        grade: EditUserDialogFrom.value.grade,
-        reg_time: dayjs(EditUserDialogFrom.value.reg_time).toString(),
-        join_time: dayjs(EditUserDialogFrom.value.join_time).toString(),
+    const SUBDATA = {
+        name: EditUserDialogForm.value.name,
+        code: EditUserDialogForm.value.code,
+        class: EditUserDialogForm.value.class,
+        password: EditUserDialogForm.value.password ? sha256(EditUserDialogForm.value.password) : null,
+        share_device: EditUserDialogForm.value.share_device,
+        group: EditUserDialogForm.value.group,
+        grade: EditUserDialogForm.value.grade,
+        reg_time: dayjs(EditUserDialogForm.value.reg_time).toString(),
+        join_time: dayjs(EditUserDialogForm.value.join_time).toString(),
         permissions_open: Object.keys(permissionsTransfer.proxyStatus).filter(key => permissionsTransfer.proxyStatus[key].open),
         permissions_close: Object.keys(permissionsTransfer.proxyStatus).filter(key => !permissionsTransfer.proxyStatus[key].open),
     }
+    const FORMDATA = isEditMode ? {
+        id: isEditMode ? EditUserDialogForm.value.id : null,
+        ...SUBDATA
+    } : SUBDATA
     console.log(FORMDATA)
-
-    // useRequest({
-    //     url: "/user/edit",
-    //     methods: "POST",
-    //     data: FORMDATA,
-    //     success: function (res) {
-    //         var RES = JSON.parse(res);
-    //         if (RES.errcode === 0) {
-    //             var E_id = RES.data.id;
-    //             NotifyPlugin("success", {
-    //                 title: "编辑账号信息成功",
-    //                 content: `成功编辑了id为${E_id}的账号信息`,
-    //                 duration: 5000,
-    //             });
-    //             console.log(`编辑了id为${E_id}的账号信息`);
-    //             // 刷新数据
-    //             loadTableData()
-    //         }
-    //     },
-    //     error: function (err) {
-    //         NotifyPlugin("error", {
-    //             title: "编辑账号信息失败",
-    //             content: err,
-    //             duration: 5000,
-    //         });
-    //         console.error(err);
-    //     },
-    // });
+    const editFunction = () => {
+        useRequest({
+            url: "/user/edit",
+            methods: "POST",
+            data: FORMDATA,
+            success: function (res) {
+                var RES = JSON.parse(res);
+                if (RES.errcode === 0) {
+                    var E_id = RES.data.id;
+                    NotifyPlugin("success", {
+                        title: "编辑账号信息成功",
+                        content: `成功编辑了id为${E_id}的账号信息`,
+                        duration: 5000,
+                    });
+                    console.log(`编辑了id为${E_id}的账号信息`);
+                    // 关闭对话框
+                    setEditDialogVisible(false)
+                    // 重置对话框数据
+                    ResetDialogForm()
+                    // 刷新数据
+                    loadTableData()
+                }
+            },
+            error: function (err) {
+                NotifyPlugin("error", {
+                    title: "编辑账号信息失败",
+                    content: err,
+                    duration: 5000,
+                });
+                console.error(err);
+            },
+        });
+    };
+    const addFunction = () => {
+        useRequest({
+            url: "/user/add",
+            methods: "POST",
+            data: FORMDATA,
+            success: function (res) {
+                var RES = JSON.parse(res);
+                if (RES.errcode === 0) {
+                    var E_id = RES.data.id;
+                    NotifyPlugin("success", {
+                        title: "添加账号成功",
+                        content: `成功添加了id为${E_id}的账号`,
+                        duration: 5000,
+                    });
+                    console.log(`添加了id为${E_id}的账号`);
+                    // 关闭对话框
+                    setEditDialogVisible(false)
+                    // 重置对话框数据
+                    ResetDialogForm()
+                    // 刷新数据
+                    loadTableData()
+                }
+            },
+            error: function (err) {
+                NotifyPlugin("error", {
+                    title: "添加账号失败",
+                    content: err,
+                    duration: 5000,
+                });
+                console.error(err);
+            },
+        });
+    };
+    // 操作
+    isEditMode ? editFunction() : addFunction();
 }
 
 const sortChange = (e) => {
