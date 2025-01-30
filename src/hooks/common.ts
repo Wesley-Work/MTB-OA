@@ -2,6 +2,12 @@ import { routerMap } from "../components/config";
 import isNumber from 'lodash/isNumber';
 import { RouteMaps, RouteMapItems } from "../types/type";
 import useRequest from "./useRequest";
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+
+dayjs.extend(relativeTime);
+dayjs.extend(customParseFormat);
 
 const applyParmer = (parmer:Object) => {
     const keys:string[] = Object.keys(parmer);
@@ -197,6 +203,54 @@ export function findObjectByValueAndKeyInArray(arr: Array<any>, key: string, val
         if (obj[key] === value) {
             return obj;
         }
+    }
+}
+
+export function taskTimeConvert(time: string): string;
+export function taskTimeConvert(time: string[]): [string, string];
+export function taskTimeConvert(time: string | string[]): string | [string, string] {
+    // 辅助函数：将单个时间从'YYYY-MM-DD HH:mm'转换为指定格式
+    function convertSingleTime(timeStr: string): string {
+        const date = dayjs(timeStr, "YYYY-MM-DD HH:mm");
+        const YY = date.format("YY");
+        const MM = date.format("MM");
+        const DD = date.format("DD");
+        const HH = date.format("HH");
+        const mm = date.format("mm");
+
+        return `${YY}年${MM}月${DD}日 ${HH}时${mm}分`;
+    }
+
+    // 主逻辑开始
+    if (typeof time === "string") {
+        return convertSingleTime(time);
+    } else if (Array.isArray(time) && time.length >= 2) {
+        const firstDate = dayjs(time[0], "YYYY-MM-DD HH:mm");
+        const secondDate = dayjs(time[1], "YYYY-MM-DD HH:mm");
+
+        const daysDiff = secondDate.diff(firstDate, "day");
+
+        const firstFormatted = convertSingleTime(time[0]);
+
+        if (daysDiff === 0) {
+            // 如果与第一个值一天没差，那么只显示时间
+            const secondFormatted = secondDate.format("HH时mm分");
+            return [firstFormatted, secondFormatted];
+        } else if (daysDiff < 30) {
+            // 相差不到一个月
+            const secondFormatted = secondDate.format("DD日 HH时mm分");
+            return [firstFormatted, secondFormatted];
+        } else if (daysDiff < 365 && firstDate.isSame(secondDate, "year")) {
+            // 相差不到一年但超过一个月，且是同一年
+            const secondFormatted = secondDate.format("MM月DD日 HH时mm分");
+            return [firstFormatted, secondFormatted];
+        } else {
+            // 相差一年以上
+            const secondFormatted = convertSingleTime(time[1]);
+            return [firstFormatted, secondFormatted];
+        }
+    } else {
+        throw new Error("Invalid input type");
     }
 }
 
