@@ -65,7 +65,16 @@ export default defineComponent({
                         )
                     }
                 },
-                { colKey: "finally_time", title: "预期完成时间", minWidth: 80 },
+                {
+                    colKey: "finally_time",
+                    title: "预期完成时间",
+                    width: 200,
+                    cell: (h, {row}) => {
+                        return (
+                            taskTimeConvert(row.finally_time)
+                        )
+                    }
+                },
                 { colKey: "place", title: "工作地点", minWidth: 80 },
                 { colKey: "content", title: "工作内容", minWidth: 80 },
                 {
@@ -113,8 +122,26 @@ export default defineComponent({
             status: [
                 { colKey: "id", title: "Tid", width: 55 },
                 { colKey: "name", title: "任务名称", minWidth: 80 },
-                { colKey: "work_time", title: "工作时间", width: 200 },
-                { colKey: "finally_time", title: "预期完成时间", minWidth: 80 },
+                {
+                    colKey: "work_time",
+                    title: "工作时间",
+                    width: 200,
+                    cell: (h, {row}) => {
+                        return (
+                            taskTimeConvert((row.work_time as string).split(','))?.join(' 至 ')
+                        )
+                    }
+                },
+                {
+                    colKey: "finally_time",
+                    title: "预期完成时间",
+                    width: 200,
+                    cell: (h, {row}) => {
+                        return (
+                            taskTimeConvert(row.finally_time)
+                        )
+                    }
+                },
                 { colKey: "place", title: "工作地点", minWidth: 80 },
                 { colKey: "content", title: "工作内容", minWidth: 80 },
                 {

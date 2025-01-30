@@ -11,7 +11,18 @@
                         <t-tag variant="light-outline" :theme="getTypeOrStatus(taskType,item.type)?.theme" :color="getTypeOrStatus(taskType,item.type)?.color">{{ getTypeOrStatus(taskType,item.type)?.label }}</t-tag>
                         <t-tag variant="light-outline" :theme="getTypeOrStatus(taskStatus,item.status)?.theme" :color="getTypeOrStatus(taskStatus,item.status)?.color">{{ getTypeOrStatus(taskStatus,item.status)?.label }}</t-tag>
                     </div>
-                    {{ item.name }}
+                    {{ item.id }}# {{ item.name }}
+                </div>
+                <div class="task-content">
+                    <div>工作内容：{{ item.content }}</div>
+                    <div>工作地点：{{ item.place }}</div>
+                    <div>使用设备：{{ item.equipment }}</div>
+                    <div>工作时间：{{ taskTimeConvert((item.work_time as string)?.split(','))?.join(' 至 ') }}</div>
+                    <div>完成时间：{{ taskTimeConvert(item.finally_time) }}</div>
+                    <div>安排人员：{{ item.user }}</div>
+                    <div>权重：{{ item.weight }}</div>
+                    <div>发布人：{{ item.create_user }}</div>
+                    <div>备注：{{ item.remark }}</div>
                 </div>
             </div>
         </div>
@@ -22,25 +33,8 @@
 import { NotifyPlugin } from 'tdesign-vue-next';
 import useRequest from '../../hooks/useRequest';
 import { computed, onMounted, ref } from 'vue';
-import { taskStatus, taskType } from "../../hooks/common";
+import { taskStatus, taskTimeConvert, taskType } from "../../hooks/common";
 
-
-// {
-//     "change_time": "Sat, 23 Nov 2024 21:25:06 GMT",
-//     "content": "\u65b0\u751f\u6821\u5361\u7167\u540e\u671f\u5904\u7406",
-//     "create_user": "\u90ed\u6587\u6770",
-//     "equipment": "",
-//     "finally_time": "2024-09-30 00:00",
-//     "id": 21,
-//     "name": "\u65b0\u751f\u6821\u5361\u7167\u540e\u671f\u5904\u7406",
-//     "place": "\u5a92\u4f53\u90e8",
-//     "remark": "",
-//     "status": 6,
-//     "type": 1,
-//     "user": "\u9648\u90c5\u821c,\u66fe\u6d69\u5cf0,\u6587\u4fca\u4eae",
-//     "weight": 4,
-//     "work_time": "2024-09-04 18:00,2024-09-30 23:59"
-// },
 const props = defineProps({
     handleChangeComponent: Function,
 })
