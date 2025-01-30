@@ -15,7 +15,7 @@
                                     <t-badge dot :count="item.onread ? 0 : 1" :offset="[91.5, 0]">
                                         <t-tag :theme="item.type === 0 ? 'primary' : 'danger'" variant="outline">{{ item.title }}</t-tag>
                                     </t-badge>
-                                    <span class>{{ item.d }}</span>
+                                    <span class>{{ item.d }} [{{ item.tid }}#]  {{ item.content }}</span>
                                 </p>
                                 <template #action>
                                     <span class="msg-date">{{ item.post_time }}</span>

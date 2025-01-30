@@ -24,6 +24,38 @@
             }}</span>
         </template>
         <template #operations>
+            <t-popup trigger="click">
+                <t-badge dot :count="hasMessageNotRead ? 1 : 0" :offset="[-7, 0]">
+                    <a href="javascript:void(2);" title="消息列表" class="guide_mail" style="display: flex">
+                        <t-icon class="t-menu__operations-icon" name="mail" style="width: 36px; height: 36px" />
+                    </a>
+                </t-badge>
+                <template #content>
+                    <div class="header-msg">
+                        <div class="header-msg-top">
+                            <p>通知</p>
+                            <!-- <t-button variant="text" theme="primary" style="position: absolute; top: 12px; right: 24px;">清空</t-button> -->
+                        </div>
+                        <t-list :split="true" class="narrow-scrollbar">
+                          <t-list-item v-for="(item, index) in messageList" v-key="item">
+                            <template #content>
+                                <div>
+                                    <p class="msg-content">{{ item.d }} [{{ item.tid }}#]</p>
+                                    <p class="msg-type">{{ item.title }}</p>
+                                </div>
+                                <p class="msg-time">{{ item.post_time }}</p>
+                            </template>
+                            <template #action>
+                                <t-button size="small" variant="outline">标为已读</t-button>
+                            </template>
+                          </t-list-item>
+                        </t-list>
+                        <div class="header-msg-bottom">
+                            <t-button class="header-msg-bottom-link" variant="text" theme="primary" @click="viewAllMessage">查看全部</t-button>
+                        </div>
+                    </div>
+                </template>
+            </t-popup>
             <a href="javascript:void(0);" title="切换样式" class="guide_toggletheme" style="display: flex;margin-right: 8px;">
                 <t-icon class="t-menu__operations-icon" :name="theme ? 'sunny' : 'moon'" @click="ToggleTheme()"
                     style="width: 36px; height: 36px" />
@@ -31,14 +63,6 @@
             <a href="javascript:void(1);" title="重载页面" class="guide_refresh" style="display: flex;margin-right: 8px;" @click="PageReload">
                 <t-icon class="t-menu__operations-icon" name="refresh" style="width: 36px; height: 36px" />
             </a>
-            <t-popup>
-                <t-badge dot :count="hasMessageNotRead ? 1 : 0" :offset="[-7, 0]">
-                    <a href="javascript:void(2);" title="消息列表" class="guide_mail" style="display: flex">
-                        <t-icon class="t-menu__operations-icon" name="mail" style="width: 36px; height: 36px" />
-                    </a>
-                </t-badge>
-                <template #content></template>
-            </t-popup>
             <div style="display: flex;min-width: 120px;">
                 <t-dropdown :options="MainContent.AccountMenuOptions" trigger="click" @click="handleAccountMenu"
                     :popupProps="{
@@ -84,7 +108,7 @@
             'loading-change-components-out': MainContent.classOut,
         }" :page="SideMenu.value">
             <PageTooSmall v-if="pagesmall" />
-            <router-view v-else :handleChangeComponent="handleChangeComponent"></router-view>
+            <router-view v-else :handleChangeComponent="handleChangeComponent" :userPermissions="login_info.permissions" :componentPermissions="componentPermissions" :component="SideMenu.value"></router-view>
             <!---->
             <!-- <Component :page="SideMenu.ComponentValue" @mounted="Components_LoadEnd" :UserPermissions="login_info.permissions" :PagePermissions="Page_permissions" :ChangePageUrl="SideMenuValueChange"
                 @Apply-Url-Param="applyUrlParam" @Get-Url-Param="getUrlParam"/> -->
@@ -92,7 +116,7 @@
             <div id="copyright">
                 <div>
                     Powered By
-                    <a href="https://www.wesley08.top/" we-a-tag target="_blank" @click.prevent="NotClick">Wesley</a>
+                    <a href="https://www.wesley.net.cn/" we-a-tag target="_blank" @click.prevent="NotClick">Wesley</a>
                     | Designed By
                     <a href="https://tdesign.tencent.com/" we-a-tag target="_blank" @click.prevent="NotClick">Tencent.</a>
                 </div>
@@ -119,9 +143,6 @@ import { getCurrentPage, verifyPath, getSSOURL, getAPIURL, getLoginURL, getRoute
 import { useRequest } from "../hooks/useRequest"
 import PageTooSmall from "../components/pages/PageSmall.vue"
 import router from '../routes'
-
-var Version
-
 
 watch(() => router.currentRoute.value.path, (val, oldVal) =>{
     const v = val.replace(config.routerPrefix+"/","")
@@ -164,7 +185,6 @@ const login_info = reactive({
     permissions: [],
     login_time: "",
 })
-const Page_permissions = ref([])
 const timer = reactive({
     token:null,
 })
@@ -179,13 +199,16 @@ console.log(messageList.value.filter(item => item.onread === 0))
 
 const getComponentPermissions = (componentName) => {
     const { current } = getRoutePathObj(routerMap,componentName)
-    console.log(current)
     return current?.permissions ?? []
 }
 
 watch(() => SideMenu.value, (val, oldVal) => {
     componentPermissions.value = getComponentPermissions(val)
 })
+
+const viewAllMessage = () => {
+    handleChangeComponent('MessageList',true)
+}
 
 const getMessage = () => {
     useRequest({
@@ -225,7 +248,7 @@ const LoadUserPermissions = (TOKEN:string=localStorage.getItem("token")) => {
             success: function (res) {
                 var RES = JSON.parse(res);
                 if (RES.errcode == 0){
-                    login_info.permissions = RES.data.permissions;
+                    login_info.permissions = RES.data;
                 }
             },
             error: function (err) {
@@ -1226,6 +1249,84 @@ a:has(.t-menu__operations-icon):not(.guide_refresh) {
     100% {
         opacity: 1;
         transform: rotateY(90deg) translateZ(96px);
+    }
+}
+
+figure, h1, h2, h3, h4, h5, h6, p {
+    margin: 0;
+}
+
+.header-msg {
+    width: 400px;
+    height: 500px;
+    .header-msg-top {
+        position: relative;
+        height: 56px;
+        font-size: 16px;
+        color: var(--td-text-color-primary);
+        text-align: center;
+        line-height: 56px;
+        border-bottom: 1px solid var(--td-component-border);
+    }
+    .t-list {
+        height: calc(100% - 104px);
+    }
+    .t-list-item {
+        overflow: hidden;
+        padding: 16px 24px;
+        border-radius: var(--td-radius-default);
+        font-size: 14px;
+        color: var(--td-text-color-primary);
+        line-height: 22px;
+        cursor: pointer;
+        &:hover {
+            transition: background .2s ease;
+            background: var(--td-bg-color-container-hover);
+            .msg-content {
+                color: var(--td-brand-color);
+            }
+            .msg-time {
+                bottom: -6px;
+                opacity: 0;
+            }
+            .t-list-item__action button {
+                bottom: 16px;
+                opacity: 1;
+            }
+        }
+        .msg-content {
+            margin-bottom: 16px;
+        }
+        .msg-type {
+            color: var(--td-text-color-secondary);
+        }
+        .msg-time {
+            transition: all .2s ease;
+            opacity: 1;
+            position: absolute;
+            right: 24px;
+            bottom: 16px;
+            color: var(--td-text-color-secondary);
+        }
+        .t-list-item__action button {
+            opacity: 0;
+            position: absolute;
+            right: 24px;
+            bottom: -6px;
+        }
+    }
+    .header-msg-bottom {
+        height: 48px;
+        align-items: center;
+        display: flex;
+        justify-content: center;
+        .header-msg-bottom-link {
+            text-decoration: none;
+            font-size: 14px;
+            color: var(--td-brand-color);
+            line-height: 48px;
+            cursor: pointer;
+        }
     }
 }
 </style>

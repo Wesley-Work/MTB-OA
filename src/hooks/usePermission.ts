@@ -5,21 +5,10 @@ import isArray from "lodash/isArray";
 
 export var userPermissions = []
 
-export function getUserPermissions() {
-    return new Promise((resolve, reject) => {
-        if (userPermissions.length > 0) {
-            resolve(userPermissions)
-        }
-        else {
-            loadUserPermissions().then(res => {
-                resolve(res)
-            }).catch(err => {
-                reject(err)
-            })
-        }
-    })
-}
-
+/**
+ * @loadUserPermissions
+ * @获取登录的用户权限
+ */
 export function loadUserPermissions(): Promise<Array<string>|string> {
     return new Promise((resolve, reject) => {
         useRequest({
@@ -41,6 +30,10 @@ export function loadUserPermissions(): Promise<Array<string>|string> {
     })
 }
 
+/**
+ * @loadSystemPermissions
+ * @获取系统权限
+ */
 export function loadSystemPermissions() {
     return new Promise((resolve, reject) => {
         useRequest({
@@ -63,6 +56,10 @@ export function loadSystemPermissions() {
     })
 }
 
+/**
+ * @loadUserPermissionsList
+ * @获取全部用户权限
+ */
 export function loadUserPermissionsList() {
     return new Promise((resolve, reject) => {
         useRequest({
@@ -86,11 +83,80 @@ export function loadUserPermissionsList() {
 }
 
 /**
- * @param needPermissions 
+ * @VerifyPermissions
+ * @判断用户是否具有指定权限
+ * @param hasPermission 用户拥有的权限列表
+ * @param needPermission 需要的权限（可以是单个字符串或字符串数组）
+ * @returns 是否拥有所有需要的权限
+*/
+export function VerifyPermissions(
+    hasPermission: string[],
+    needPermission: string | string[]
+): boolean {
+    // 将needPermission转换为数组
+    const needs = Array.isArray(needPermission) ? needPermission : [needPermission];
+    // 定义一个函数来检查单个权限是否满足
+    function matches(permission: string, requiredPermission: string): boolean {
+        const permissionParts = permission.split('.');
+        const requiredParts = requiredPermission.split('.');
+        // 特殊处理 *.*
+        if (permission === '*.*') {
+            return true;
+        }
+        // 处理通配符 *
+        for (let i = 0; i < requiredParts.length; i++) {
+            if (permissionParts[i] === '*' || requiredParts[i] === '*') {
+                // 如果当前部分是'*'，则继续比较后续部分
+                continue;
+            }
+            if (permissionParts[i] !== requiredParts[i]) {
+                return false;
+            }
+        }
+        // 如果所有部分都匹配，则返回true
+        return true;
+    }
+    // 检查每个需要的权限
+    for (const need of needs) {
+        let hasMatch = false;
+        for (const perm of hasPermission) {
+            if (matches(perm, need)) {
+                hasMatch = true;
+                break;
+            }
+        }
+        // 如果有任何一个need没有匹配到，则返回false
+        if (!hasMatch) {
+            return false;
+        }
+    }
+    // 所有需要的权限都匹配上了
+    return true;
+}
+
+export function TEST__VerifyPermissions() {
+    console.log('[PermissionTEST]',VerifyPermissions(['*.*'],['a.b'])) // true
+    console.log('[PermissionTEST]',VerifyPermissions(['*.*'],['a.b.c'])) // true
+    console.log('[PermissionTEST]',VerifyPermissions(['a.b.c'],['a.b.c'])) // true
+    console.log('[PermissionTEST]',VerifyPermissions(['a.b.*'],['a.b.c'])) // true
+    console.log('[PermissionTEST]',VerifyPermissions(['a.b.*'],['a.b.d'])) // true
+    console.log('[PermissionTEST]',VerifyPermissions(['a.*.*'],['a.c.b'])) // true
+    console.log('[PermissionTEST]',VerifyPermissions(['*.*.*'],['a.c.b'])) // true
+    console.log('[PermissionTEST]',VerifyPermissions(['*.*.*'],['a.c'])) // true
+    console.log('[PermissionTEST]',VerifyPermissions(['a.b.c'],['a.c.b'])) // false
+    console.log('[PermissionTEST]',VerifyPermissions(['a.*'],['f.g.h'])) // false
+    console.log('[PermissionTEST]',VerifyPermissions(['a.*'],['f.h'])) // false
+}
+
+
+/**
+ * @param needPermissions
+ * @缓存版校验权限，限制：需要调用过loadUserPermissions才能用
  * 检查用户权限、匹配用户权限
  * 传入值为Array则会判断用户权限是否包含在该数组内，包含其一就会返回true
  * 权限合法值：a.b a.b.c
  * @returns boolean
+ * @deprecated 请使用 VerifyPermissions 替代
  */
 export function checkPermission(needPermissions: string | Array<string>) {
     if (isString(needPermissions)) {

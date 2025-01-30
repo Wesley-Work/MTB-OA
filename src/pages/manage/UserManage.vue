@@ -150,6 +150,17 @@ import { PermissionsArray, PermissionsObject, userListObject, UserSelectData } f
 import { TransferProps } from 'tdesign-vue-next';
 import ExcelJS from 'exceljs';
 
+const vipMaps = [
+    { value: 'VIP_Normal', label: 'VIP', class: 'normal-vip' },
+    { value: 'VIP_Super', label: 'SVIP', class: 'svip-vip' },
+    { value: 'VIP_Admin', label: 'Admin', class: 'admin-vip' },
+    { value: 'VIP_Owner', label: 'Owner', class: 'owner-vip' },
+]
+// 查找vip标签
+const renderVip = (remark: string) => {
+    var vipObj = vipMaps.find(item => item.value === remark || remark?.split(',').includes(item.value))
+    return vipObj ? vipObj : null
+}
 const table_Columns:TableProps['columns'] = [
     {
         colKey: "row-select",
@@ -173,6 +184,21 @@ const table_Columns:TableProps['columns'] = [
     {
         colKey: "name",
         title: "姓名",
+        cell: (h, { row }) => {
+            const v = renderVip(row.remark)
+            const _commonClass = 'vip-tag'
+            return (
+                <div style="display: flex;flex-direction: row;align-items: center;">
+                    <span>{ row.name }</span>
+                    {v ? (
+                        <div class={`${_commonClass} ${v?.class}`}>
+                            <span>{ v?.label }</span>
+                            <div class='scan-light'></div>
+                        </div>
+                    ) : null}
+                </div>
+            )
+        }
     },
     { colKey: "class", title: "班级", sortType: "all", sorter: true },
     {
@@ -1022,6 +1048,83 @@ div[unrequired] {
                 transform: rotate(-90deg);
             }
         }
+    }
+}
+
+.vip-tag {
+    margin-left: 8px;
+    padding: 3px 5px;
+    border: 1px solid var(--td-component-border);
+    font: var(--td-font-body-small);
+    border-radius: var(--td-radius-default);
+    position: relative;
+    transform: skewX(-5deg);
+    line-height: 10px;
+    font-size: 10px;
+    user-select: none;
+    overflow: hidden;
+    span {
+        transform: skewX(-5deg);
+        display: inline-block;
+        font-weight: bold;
+    }
+    &.normal-vip {
+        background-color: #007bd3;
+        span {
+            background: linear-gradient(70deg, #33ffe8, #bcffd3);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+        }
+    }
+    &.svip-vip {
+        background-color: #353535;
+        span {
+            background: linear-gradient(70deg, #ffbb3f, #ffdea1);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+        }
+    }
+    &.admin-vip {
+        background-color: #ffffff;
+        span {
+            background: linear-gradient(70deg, #0097ff, #ff471e);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+        }
+    }
+    &.owner-vip {
+        background-color: #353535;
+        span {
+            background: linear-gradient(70deg, #ffbb3f, #ffdea1);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+        }
+    }
+    /* 动态扫光效果 */
+    .scan-light {
+        position: absolute;
+        top: -4px;
+        left: 0;
+        bottom: 0;
+        width: 10px;
+        height: 130%;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.3));
+        filter: blur(2px);
+        animation: scan 20s ease-in-out infinite;
+        transform: skewX(-10deg);
+    }
+
+    @keyframes scan {
+        0%,90% { left: -15px; }
+        100% { left: calc( 100% + 15px ); }
     }
 }
 
