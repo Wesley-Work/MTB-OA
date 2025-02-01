@@ -23,6 +23,7 @@
 ### 🚧 Others
 - `UserManage`:  `选择数据`编辑 改为 点击最后一列的`编辑`文字编辑 @Wesley-0808 ([#19](https://github.com/Wesley-0808/MTB-OA/pull/19))
 - `LendReturnRecord`:  借出、归还人由借出人id变更为借出人名字 @Wesley-0808 ([#19](https://github.com/Wesley-0808/MTB-OA/pull/19))
+
 ## 🌈 0.0.1 `2024-11-25` 
 ### 🚀 Features
 - `Lend`: 使用`组合式API`重构 @Wesley-0808 ([#7](https://github.com/Wesley-0808/MTB-OA/pull/7))
