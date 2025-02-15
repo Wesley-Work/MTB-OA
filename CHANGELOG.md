@@ -1,5 +1,5 @@
 
-## 🌈 3.1.0 `2025-02-15` 
+## 🌈 3.1.0 `2025-02-16` 
 ### 🚨 Breaking Changes
 - `MyTask`: 待完善状态。 @Wesley-0808 ([#32](https://github.com/Wesley-0808/MTB-OA/pull/32))
 ### 🚀 Features
