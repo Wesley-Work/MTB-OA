@@ -38,12 +38,12 @@ const codeTagConvert = (htmlString: string, includeDate: boolean = false) => {
     while ((match = codeTag.exec(htmlString)) !== null) {
         const textBeforeCode = htmlString.slice(lastIndex, match.index);
         if (textBeforeCode) {
-            result.push(aTagConvert(textBeforeCode) ?? textBeforeCode);
+            result.push(aTagConvert(textBeforeCode));
         }
         const innerText = match[1];
         result.push(
             includeDate ? (
-                <Tag size="large">{innerText.replace(/-/g,'/')}</Tag>
+                <Tag size="large">{innerText.replace(/-/g, '/')}</Tag>
             ) : (
                 <Tag size="small" theme="danger" variant="light">
                     {innerText}
@@ -53,14 +53,9 @@ const codeTagConvert = (htmlString: string, includeDate: boolean = false) => {
         lastIndex = codeTag.lastIndex;
     }
     if (lastIndex < htmlString.length) {
-        result.push(aTagConvert(htmlString.slice(lastIndex)) ?? htmlString.slice(lastIndex));
+        result.push(aTagConvert(htmlString.slice(lastIndex)));
     }
     return result.length === 0 ? htmlString : result;
-};
-
-// 正则获取字符串中的内容
-const regExpGetContent = (REGEXP: RegExp, souceStr: string) => {
-    return REGEXP.exec(souceStr);
 };
 
 const parseListItem = (li: Element) => {
@@ -90,99 +85,86 @@ const parseListItem = (li: Element) => {
 };
 
 const ulTagConvert = (str: string) => {
-    console.log(str);
     const parser = new DOMParser();
     const doc = parser.parseFromString(str, "text/html");
     const ulElement = doc.querySelector("ul");
     if (!ulElement) {
-        return "No <ul> element found in the provided HTML string.";
+        return [];
     }
-    return Array.from(ulElement.children).map((li) => parseListItem(li));
+    return Array.from(ulElement.children).map(parseListItem);
+};
+
+const treeMarkdown = (str: string) => {
+    const h2SpList = str
+        .split(/<h2>/)
+        .splice(1)
+        .map((item) => {
+            const [version, rest] = item.split(/<\/h2>/);
+            const children = rest
+                .split(/<h3>/)
+                .splice(1)
+                .map((item) => {
+                    const [type, content] = item.split(/<\/h3>/);
+                    return {
+                        type,
+                        children: ulTagConvert(content),
+                    };
+                });
+            return {
+                version,
+                children,
+            };
+        });
+    return h2SpList;
+};
+
+const renderLogItem = (items, deep = 0) => {
+    return items.map((vi, index) => {
+        if (vi?.children) {
+            return (
+                <ul style={{ listStyleType: deep % 2 === 0 ? "disc" : "circle" }}>
+                    <li key={index}>
+                        {codeTagConvert(vi.text)}
+                        {renderLogItem(vi.children, deep + 1)}
+                    </li>
+                </ul>
+            );
+        }
+        return (
+            <ul style={{ listStyleType: deep % 2 === 0 ? "disc" : "circle" }}>
+                <li key={index}>
+                    {codeTagConvert(vi.text)}
+                </li>
+            </ul>
+        );
+    });
+};
+
+const renderLogTag = (items) => {
+    return items.map((vi, index) => (
+        <Fragment key={index}>
+            <h3 id={vi.type.replace(/ /g, '-')}>{vi.type}</h3>
+            {renderLogItem(vi.children)}
+        </Fragment>
+    ));
+};
+
+const renderAll = () => {
+    const log = treeMarkdown(html);
+    return log.map((vi, index) => {
+        const { version, children } = vi;
+        return (
+            <TimelineItem key={index} dot-color="primary" class="blueline">
+                <h2>{codeTagConvert(version, true)}</h2>
+                {renderLogTag(children)}
+            </TimelineItem>
+        );
+    });
 };
 
 export default defineComponent({
     name: "CHANGELOGTsx",
     setup(props) {
-        // 树形解析md
-        const treeMarkdown = (str: string) => {
-            // h2是版本+更新日期
-            // h3是更新分类
-            // 先以h2标签拆分
-            console.log(regExpGetContent(h2Tag, str));
-            const h2SpList = str
-                .split(/<h2>/)
-                .splice(1)
-                .map((item) => {
-                    let vi = item.split(/<\/h2>/);
-                    return {
-                        version: vi[0],
-                        children: vi[1]
-                            .split(/<h3>/)
-                            .splice(1)
-                            .map((item) => {
-                                let vi = item.split(/<\/h3>/);
-                                // ul比较特殊，要使用递归计算
-                                return {
-                                    type: vi[0],
-                                    children: ulTagConvert(vi[1]),
-                                };
-                            }),
-                    };
-                });
-            console.log(h2SpList);
-            return h2SpList
-        };
-
-
-        const renderLogItem = (item,deep:number=0) => {
-            console.log(item)
-            return item.map(vi => {
-                if (vi?.children) {
-                    return (
-                        <ul style={ deep % 2 === 0 ? "list-style-type: disc;" : "list-style-type: circle;" }>
-                            <li>
-                                {codeTagConvert(vi.text)}
-                                {renderLogItem(vi.children,deep+1)}
-                            </li>
-                        </ul>
-                    )
-                }
-                return (
-                    <ul style={ deep % 2 === 0 ? "list-style-type: disc;" : "list-style-type: circle;" }>
-                        <li>
-                            {codeTagConvert(vi.text)}
-                        </li>
-                    </ul>
-                )
-            })
-        };
-
-        const renderLogTag = (item) => {
-            return item.map(vi => {
-                return (
-                    <Fragment>
-                        <h3 id={vi.type.replace(/ /g,'-')}>{vi.type}</h3>
-                        {renderLogItem(vi.children)}
-                    </Fragment>
-                )
-            })
-        }
-
-        const renderAll = () => {
-            const log = treeMarkdown(html);
-            const CHANGELOGEl = log.map(vi => {
-                const { version, children } = vi
-                console.log(children)
-                return (
-                    <TimelineItem dot-color="primary" class="blueline">
-                        <h2>{codeTagConvert(version,true)}</h2>
-                        { renderLogTag(children) }
-                    </TimelineItem>
-                )
-            })
-            return CHANGELOGEl;
-        };
-
         return () => <Timeline mode="same">{renderAll()}</Timeline>;
     },
 });
