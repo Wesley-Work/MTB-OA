@@ -1,6 +1,6 @@
 <template>
   <div style="margin-bottom: 16px;">
-    <t-alert theme="info" message="由于系统迭代，数据表及内容发生变更，会导致表格数据某一项数据异常，可人工修正或等待系统更新！" />
+    <t-alert theme="info" message="由于系统迭代升级，数据表及内容产生变更，导致数据表其中某些数据异常（已进行兼容处理），异常数据可人工修正或等待系统自动覆盖！" />
   </div>
   <div>
     <div style="display: flex; flex-direction: row">
