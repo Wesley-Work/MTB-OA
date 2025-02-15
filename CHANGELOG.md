@@ -1,4 +1,13 @@
 
+## 🌈 3.1.0 `2025-02-16` 
+### 🚨 Breaking Changes
+- `MyTask`: 待完善状态。 @Wesley-0808 ([#32](https://github.com/Wesley-0808/MTB-OA/pull/32))
+### 🚀 Features
+- `CHANGELOG`: 从目录的`CHANGELOG.md`获取`更新日志`内容。 @Wesley-0808 ([#32](https://github.com/Wesley-0808/MTB-OA/pull/32))
+- `GroupManage`: 优化`列表`弹窗`以及`抽屉编辑`功能。 @Wesley-0808 ([#32](https://github.com/Wesley-0808/MTB-OA/pull/32))
+### 🚧 Others
+- `MultiLanguage`:  多语言功能配置。 @Wesley-0808 ([#32](https://github.com/Wesley-0808/MTB-OA/pull/32))
+
 ## 🌈 3.0.3 `2025-02-01` 
 ### 🚨 Breaking Changes
 - `footer`链接指向。 @Wesley-0808 ([#24](https://github.com/Wesley-0808/MTB-OA/pull/24))
