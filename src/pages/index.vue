@@ -14,7 +14,7 @@
                     margin-left: 13px;
                     display: flex;
                     align-items: center;
-                " class="guide_sidemenus">
+                ">
                 <t-button shape="square" variant="text" style="border: none; width: 40px; height: 40px"
                     :onClick="ToggleSideMenu">
                     <template #icon><t-icon name="bulletpoint" style="width: 25px; height: 25px" /></template>
@@ -26,7 +26,7 @@
         <template #operations>
             <t-popup trigger="click">
                 <t-badge dot :count="hasMessageNotRead ? 1 : 0" :offset="[-7, 0]">
-                    <a href="javascript:void(2);" title="消息列表" class="guide_mail" style="display: flex">
+                    <a href="javascript:void(2);" title="消息列表" style="display: flex;margin-right: 8px;">
                         <t-icon class="t-menu__operations-icon" name="mail" style="width: 36px; height: 36px" />
                     </a>
                 </t-badge>
@@ -56,11 +56,11 @@
                     </div>
                 </template>
             </t-popup>
-            <a href="javascript:void(0);" title="切换样式" class="guide_toggletheme" style="display: flex;margin-right: 8px;">
+            <a href="javascript:void(0);" title="切换样式" style="display: flex;margin-right: 8px;">
                 <t-icon class="t-menu__operations-icon" :name="theme ? 'sunny' : 'moon'" @click="ToggleTheme()"
                     style="width: 36px; height: 36px" />
             </a>
-            <a href="javascript:void(1);" title="重载页面" class="guide_refresh" style="display: flex;margin-right: 8px;" @click="PageReload">
+            <a href="javascript:void(1);" title="重载页面" style="display: flex;margin-right: 8px;" @click="PageReload">
                 <t-icon class="t-menu__operations-icon" name="refresh" style="width: 36px; height: 36px" />
             </a>
             <div style="display: flex;min-width: 120px;">
@@ -70,7 +70,7 @@
                             width: `${triggerElem.offsetWidth}px`,
                         }),
                     }">
-                    <t-button variant="text" class="we-tag-headmenu-operations-account guide_accountdropdown" block>
+                    <t-button variant="text" class="we-tag-headmenu-operations-account" block>
                         <t-icon name="user-circle" style="min-width: 20px; min-height: 20px" />
                         <span style="
                                 text-overflow: ellipsis;
@@ -874,11 +874,6 @@ a[we-a-tag]:hover {
 .t-menu__operations-icon {
     margin-right: 0px !important;
 }
-
-a:has(.t-menu__operations-icon):not(.guide_refresh) {
-    margin-right: var(--td-comp-margin-l);
-}
-
 
 .we-tag-headmenu-operations-account .t-button__text {
     display: flex;

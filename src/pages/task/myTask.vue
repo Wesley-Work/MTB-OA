@@ -1,4 +1,7 @@
 <template>
+    <div style="margin-bottom: 16px;">
+        <t-alert theme="info" message="当前页面只完成部分功能，请耐心等待迭代！" />
+    </div>
     <div class="view">
         <div class="calendar">
             <t-calendar />

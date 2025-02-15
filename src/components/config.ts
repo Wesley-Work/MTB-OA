@@ -105,6 +105,7 @@ const routerMap:RouteMaps = [
                         key: "EqCheck",
                         label: "设备清点",
                         permissions: ['equipment.check'],
+                        hidden: true,
                         component: () => import('../pages/manage/eqCheck.vue')
                     }
                 ]
