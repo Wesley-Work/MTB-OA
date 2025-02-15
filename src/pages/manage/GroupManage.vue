@@ -45,7 +45,7 @@
         </template>
         <template #body>
             <div class="groupUserList-dialog-content">
-                <div class="groupUserList-dialog-content--item" v-for="(item) in dialogData.content">{{ item }}</div>
+                <t-button v-for="(item) in dialogData.content" variant="dashed" theme="primary">{{ item }}</t-button>
             </div>
         </template>
     </t-dialog>
@@ -75,6 +75,7 @@
                     :value="drawerData.updateToUser"
                     :search="true"
                     :operation="['移除', '添加']"
+                    :onChange="userTransferChange"
                     class="transfer-custom"
                 >
                     <template #title="props">
@@ -89,6 +90,7 @@
                     :data="transferPermissionSource"
                     :value="drawerData.permission"
                     :operation="['移除', '添加']"
+                    :onChange="permissionTransferChange"
                 >
                     <template #title="props">
                         <div>{{ props.type === 'target' ? '目标' : '来源' }}</div>
@@ -321,7 +323,7 @@ const showEditDrawer = (groupItem: GroupItem) => {
     const { id, type, name, desc } = groupItem
     const permission = groupPermission.value.filter(item => {
         return item?.id === id
-    })[0]?.permissionsList
+    })[0]?.permissionsList.map(item => item.val)
     drawerData.value = {
         mode: "edit",
         id,
@@ -413,6 +415,14 @@ const editGroupSubmit = () => {
     })
 }
 
+const permissionTransferChange = (targetValue, context) => {
+    drawerData.value.permission = targetValue
+}
+
+const userTransferChange = (targetValue, context) => {
+    drawerData.value.updateToUser = targetValue
+}
+
 onMounted(() => {
     // 用户列表
     getUserList()
@@ -447,12 +457,6 @@ export default {
     flex-direction: row;
     gap: 4px;
     flex-wrap: wrap;
-    .groupUserList-dialog-content--item {
-        padding: 14px;
-        border: 1px solid var(--td-text-color-primary);
-        font: var(--td-font-body-large);
-        color: var(--td-text-color-primary);
-    }
 }
 
 .transfer-custom .t-button .t-icon {
