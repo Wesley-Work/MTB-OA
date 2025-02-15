@@ -11,11 +11,11 @@ export default {
       "target": "esnext",
       "module": "esnext",
       "lib": ["esnext", "dom"],
-      "baseUrl": ".",
+      "baseUrl": "./",
       "paths": {
         "@/*": ["src/*"]
       },
-      "types": ["vite/client"]
+      "types": ["vite/client","vite-plugin-md"]
     },
     "include": ["vite-env.d.ts", "src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"],
     "exclude": ["node_modules"]

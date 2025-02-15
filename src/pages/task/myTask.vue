@@ -13,16 +13,17 @@
                     </div>
                     {{ item.id }}# {{ item.name }}
                 </div>
-                <div class="task-content">
-                    <div>工作内容：{{ item.content }}</div>
-                    <div>工作地点：{{ item.place }}</div>
-                    <div>使用设备：{{ item.equipment }}</div>
-                    <div>工作时间：{{ taskTimeConvert((item.work_time as string)?.split(','))?.join(' 至 ') }}</div>
-                    <div>完成时间：{{ taskTimeConvert(item.finally_time) }}</div>
-                    <div>安排人员：{{ item.user }}</div>
-                    <div>权重：{{ item.weight }}</div>
-                    <div>发布人：{{ item.create_user }}</div>
-                    <div>备注：{{ item.remark }}</div>
+                <div class="taskItem">
+                    <div class="taskItem--content">工作内容：{{ item.content }}</div>
+                    <div class="taskItem--place">工作地点：{{ item.place }}</div>
+                    <div class="taskItem--equipment">使用设备：{{ item.equipment }}</div>
+                    <div class="taskItem--workTime">工作时间：{{ taskTimeConvert((item.work_time as string)?.split(','))?.join(' 至 ') }}</div>
+                    <div class="taskItem--finallyTime">完成时间：{{ taskTimeConvert(item.finally_time) }}</div>
+                    
+                    <div class="taskItem--user">安排人员：{{ item.user }}</div>
+                    <div class="taskItem--weight">权重：{{ item.weight }}</div>
+                    <div class="taskItem--createUser">发布人：{{ item.create_user }}</div>
+                    <div class="taskItem--remark">备注：{{ item.remark }}</div>
                 </div>
             </div>
         </div>
@@ -33,7 +34,7 @@
 import { NotifyPlugin } from 'tdesign-vue-next';
 import useRequest from '../../hooks/useRequest';
 import { computed, onMounted, ref } from 'vue';
-import { taskStatus, taskTimeConvert, taskType } from "../../hooks/common";
+import { taskStatus, taskTimeConvert, taskType, getTagPriority } from "../../hooks/common";
 
 const props = defineProps({
     handleChangeComponent: Function,
@@ -49,11 +50,6 @@ const getTypeOrStatus = computed(() => (Obj: any,val: number | string) => {
 })
 const taskList = ref([])
 const filteredTaskList = computed(() => taskList.value.filter(item => item.status !== 6));
-
-const getTagPriority = (item) => {
-    // 优先级：2 > 1 > 0 > 3
-    return item == 2 ? 0 : item == 1 ? 1 : item == 3 ? 3 : 2;
-};
 
 const getMyTask = () => {
     useRequest({

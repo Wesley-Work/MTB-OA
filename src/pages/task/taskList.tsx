@@ -1,5 +1,5 @@
 import { defineComponent, ref, toRefs, watch, computed, h } from "vue";
-import { taskStatus, taskTimeConvert, taskType } from "../../hooks/common";
+import { taskStatus, taskTimeConvert, taskType, getTagPriority } from "../../hooks/common";
 import { Table } from "tdesign-vue-next";
 
 export default defineComponent({
@@ -203,11 +203,6 @@ export default defineComponent({
                     {div}
                 </div>
             );
-        };
-
-        const getTagPriority = (item) => {
-            // 优先级：2 > 1 > 0 > 3
-            return item == 2 ? 0 : item == 1 ? 1 : item == 3 ? 3 : 2;
         };
 
         const findVal = (val: string | number, mode) => {

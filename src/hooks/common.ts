@@ -198,6 +198,11 @@ export const taskStatus = [
     { label: "暂缓", value: 8, theme: "default" }
 ];
 
+export function getTagPriority(item) {
+    // 优先级：2 > 1 > 0 > 3
+    return item == 2 ? 0 : item == 1 ? 1 : item == 3 ? 3 : 2;
+};
+
 export function findObjectByValueAndKeyInArray(arr: Array<any>, key: string, value: string | number): object | undefined {
     for (const obj of arr) {
         if (obj[key] === value) {

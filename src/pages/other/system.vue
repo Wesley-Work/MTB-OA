@@ -9,7 +9,7 @@
         </div>
         <div class="content">
             <div> 系统版本 [System Version]: {{ VERSION }} </div>
-            <div> 包版本 [Package Version]: {{ packageVersion }} </div>
+            <div> 包版本 [Package Version]: {{ packageVersion ?? '无法获取' }} </div>
             <div> API版本 [WESLEY SDK Version]: {{ lastetVersion }} </div>
             <div> TDesign版本: {{ TdesignVueNextVersion }} </div>
         </div>
