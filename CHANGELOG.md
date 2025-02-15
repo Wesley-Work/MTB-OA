@@ -14,8 +14,11 @@
 - 新增`无实际操作权限`账号字段，用于系统功能展示等场景下使用。 @Wesley-0808 ([#24](https://github.com/Wesley-0808/MTB-OA/pull/24))
 - 新增`特殊标识彩蛋`。 @Wesley-0808 ([#24](https://github.com/Wesley-0808/MTB-OA/pull/24))
 - 首页支持跳转`信息详情`。 @Wesley-0808 ([#24](https://github.com/Wesley-0808/MTB-OA/pull/24))
+- `Theme-Toggle`: 切换样式的动画 @Wesley
 ### 🐞 Bug Fixes
 - `Record`: 修复判断用户是否存在的逻辑错误 @Wesley-0808 ([#19](https://github.com/Wesley-0808/MTB-OA/pull/19))
+- `Lend`: 修复借出后未清空输入框内容的问题。@Wesley
+- `Return`: 修复归还后未清空输入框内容的问题。@Wesley
 ### 📈 Performance
 - `GroupManage`: `组`选项卡更大，结构优化。 @Wesley-0808 ([#23](https://github.com/Wesley-0808/MTB-OA/pull/23))
 - `VerifyPermissions`: 重构`页面权限校验`功能。 @Wesley-0808 ([#24](https://github.com/Wesley-0808/MTB-OA/pull/24))
