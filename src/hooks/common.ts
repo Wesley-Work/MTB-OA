@@ -47,39 +47,6 @@ export function VerifyToken() {
     })
 }
 
-export function VerifyPermissions(PERMISSIONS){
-    const TOKEN = localStorage.getItem('token')
-    if (!TOKEN) return false;
-    return new Promise(async (resolve, reject) => {
-        await useRequest({
-            url: "/verifyPermissions",
-            methods: "POST",
-            header: {
-                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-                "token": TOKEN
-            },
-            data: {
-                permissions: PERMISSIONS
-            },
-            success: function(res) {
-                var RES = JSON.parse(res)
-                if (RES.errcode == 0) {
-                    if (RES.data.verify == true) {
-                        resolve(true)
-                    }
-                    else{
-                        resolve(false)
-                    }
-                }
-            },
-            error: function(err) {
-                console.error(err)
-                resolve(false)
-            }
-        })
-    })
-}
-
 export function getRoutePathObj(map: RouteMaps=routerMap, value: string, deep: number = 0): { parent: RouteMapItems | null, current: RouteMapItems | null } {
     for (const item of map) {
         if (item?.key === value) {

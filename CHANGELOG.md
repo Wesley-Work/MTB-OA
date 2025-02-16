@@ -2,9 +2,16 @@
 ## 🌈 3.1.0 `2025-02-16` 
 ### 🚨 Breaking Changes
 - `MyTask`: 待完善状态。 @Wesley-0808 ([#32](https://github.com/Wesley-0808/MTB-OA/pull/32))
+- `LR RECORD`: `BACKEND_v2.6.10`，`借出人id`变更为`借出人名字`。 @Wesley-0808
 ### 🚀 Features
 - `CHANGELOG`: 从目录的`CHANGELOG.md`获取`更新日志`内容。 @Wesley-0808 ([#32](https://github.com/Wesley-0808/MTB-OA/pull/32))
 - `GroupManage`: 优化`列表`弹窗`以及`抽屉编辑`功能。 @Wesley-0808 ([#32](https://github.com/Wesley-0808/MTB-OA/pull/32))
+- `CONFIG`: 新增`页面权限验证`、`菜单权限验证`配置 @Wesley-0808 ([#36](https://github.com/Wesley-0808/MTB-OA/pull/36))
+- `Menu`: 新增`页面权限验证`、`菜单权限验证`配置 @Wesley-0808 ([#36](https://github.com/Wesley-0808/MTB-OA/pull/36))
+- `PAGE`: 新增`页面权限验证`、`菜单权限验证`配置 @Wesley-0808 ([#36](https://github.com/Wesley-0808/MTB-OA/pull/36))
+### 🐞 Bug Fixes
+- `PERMISSION`: 修复`后端`,权限验证异常。@Wesley-0808
+- `Lend`: 修复`后端`,`借出人code`为空时，会判断借出为`访客借出`的问题。@Wesley-0808
 ### 🚧 Others
 - `MultiLanguage`:  多语言功能配置。 @Wesley-0808 ([#32](https://github.com/Wesley-0808/MTB-OA/pull/32))
 
@@ -26,8 +33,8 @@
 - `Theme-Toggle`: 切换样式的动画 @Wesley
 ### 🐞 Bug Fixes
 - `Record`: 修复判断用户是否存在的逻辑错误 @Wesley-0808 ([#19](https://github.com/Wesley-0808/MTB-OA/pull/19))
-- `Lend`: 修复借出后未清空输入框内容的问题。@Wesley
-- `Return`: 修复归还后未清空输入框内容的问题。@Wesley
+- `Lend`: 修复借出后未清空输入框内容的问题。@Wesley-0808
+- `Return`: 修复归还后未清空输入框内容的问题。@Wesley-0808
 ### 📈 Performance
 - `GroupManage`: `组`选项卡更大，结构优化。 @Wesley-0808 ([#23](https://github.com/Wesley-0808/MTB-OA/pull/23))
 - `VerifyPermissions`: 重构`页面权限校验`功能。 @Wesley-0808 ([#24](https://github.com/Wesley-0808/MTB-OA/pull/24))

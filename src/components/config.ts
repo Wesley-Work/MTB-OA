@@ -258,7 +258,9 @@ const config = {
     aTag_DontNav: true,//A标签不允许跳转
     menuUseCollapsed: true,//菜单是否使用折叠模式
     routerPrefix: '/system',//路由前缀
-    routerMap
+    routerMap,
+    pagePermissionVerify: true,//是否开启页面权限验证
+    menuPermissionVerify: false,//是否开启菜单权限验证
 }
 
 export default config
@@ -271,3 +273,5 @@ export const VERSION = config.version
 export const VersionMode = config.version_mode
 export const SystemName = config.systemname
 export const SystemNameEn = config.systemnameEn
+export const pagePermissionVerify = config.pagePermissionVerify
+export const menuPermissionVerify = config.menuPermissionVerify

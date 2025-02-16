@@ -86,7 +86,7 @@
         </template>
     </t-head-menu>
     <!--侧边菜单-->
-    <SideMenus :theme="theme ? 'dark' : 'light'" :value="SideMenu.value" height="550px" :visiable="SideMenu.show" :value-change="handleChangeComponent"></SideMenus>
+    <SideMenus :theme="theme ? 'dark' : 'light'" :value="SideMenu.value" :userPermissions="login_info.permissions" height="550px" :visiable="SideMenu.show" :value-change="handleChangeComponent"></SideMenus>
     <!--BackTop-->
     <div style="
             box-sizing: border-box;

@@ -83,7 +83,7 @@ export interface equipmentStatus {
   theme: string,
   n?: Array<number | "start"> | undefined,
   tips?: equipmentStatusTips[]
-}[]
+}
 
 export interface userListObject {
   id?: number,
