@@ -21,7 +21,7 @@ function getRoutes(docs, type) {
       docsRoutes.push(docRoute);
     }
   });
-  console.log(docsRoutes);
+  // console.log(docsRoutes);
   return docsRoutes;
 }
 

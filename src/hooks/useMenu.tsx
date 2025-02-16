@@ -90,7 +90,6 @@ export default defineComponent({
             return items.map(item => {
                 const isSubMenu = item?.children && item?.children.length > 0;
                 const isHidden = item?.hidden === true;
-                console.log(userPermissions.value,item?.permissions)
                 const isPermission = VerifyPermissions(userPermissions.value,item?.permissions)
 
                 if ((isHidden || !isPermission) && menuPermissionVerify) return null;
