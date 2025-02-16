@@ -2,6 +2,7 @@ import { defineComponent, h } from "vue";
 import { VerifyPermissions } from "../hooks/usePermission";
 import Error from "./pages/Error.vue";
 import NoPermissions from "./pages/NoPermissions.vue";
+import { pagePermissionVerify } from "./config";
 
 export default defineComponent({
   props:{
@@ -25,7 +26,7 @@ export default defineComponent({
     console.log(`页面: ${props.component} 校验权限：`, vPermission, props.userPermissions, props.componentPermissions)
     try{
       return (
-        vPermission ? <router-view handleChangeComponent={props.handleChangeComponent}></router-view> : <NoPermissions/>
+        (vPermission && pagePermissionVerify) ? <router-view handleChangeComponent={props.handleChangeComponent}></router-view> : <NoPermissions/>
       )
     }
     catch(err){

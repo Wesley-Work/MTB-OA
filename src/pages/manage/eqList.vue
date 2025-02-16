@@ -1,4 +1,7 @@
 <template>
+    <div style="margin-bottom: 16px;">
+        <t-alert theme="info" message="当前页面只完成部分功能，请耐心等待迭代！" />
+    </div>
     <div>
         <div style="display: flex; flex-direction: row">
             <t-space size="small">
@@ -103,7 +106,7 @@
                             :value-display="TYPEvalueDisplay"
                             required>
                             <t-option
-                                v-for="item in Add_Dialog_EqType"
+                                v-for="item in equipmentType"
                                 :key="item.id"
                                 :value="item.id"
                                 :label="item.label">
@@ -118,12 +121,12 @@
                             :value-display="STATUSvalueDisplay"
                             required>
                             <t-option
-                                v-for="item in Add_Dialog_EqStatus"
+                                v-for="item in equipmentStatus"
                                 :key="item.id"
                                 :value="item.id"
                                 :label="item.label"
-                                :disabled="item.notchoose ? true : false"
-                                :title="item.notchoose ? '不能将初始状态设为该值' : false">
+                                :disabled="item.n.includes('start')"
+                                :title="item.n.includes('start') ? '不能将初始状态设为该值' : null">
                                 <t-tag :theme="item.theme" variant="light-outline">{{ item.label }}</t-tag>
                             </t-option>
                         </t-select>
@@ -171,7 +174,7 @@
                             :value-display="TYPEvalueDisplay"
                             required>
                             <t-option
-                                v-for="item in Add_Dialog_EqType"
+                                v-for="item in equipmentType"
                                 :key="item.id"
                                 :value="item.id"
                                 :label="item.label">
@@ -186,12 +189,12 @@
                             :value-display="STATUSvalueDisplay"
                             required>
                             <t-option
-                                v-for="item in Edit_Dialog_EqStatus"
+                                v-for="item in equipmentStatus"
                                 :key="item.id"
                                 :value="item.id"
                                 :label="item.label"
-                                :disabled="item.not.indexOf(EditEqDialogFrom.status) === -1 ? false : true"
-                                :title="item.not.indexOf(EditEqDialogFrom.status) === -1 ? false : '当前状态不能变更为该状态'">
+                                :disabled="item.n.indexOf(EditEqDialogFrom.status) === -1 ? false : true"
+                                :title="item.n.indexOf(EditEqDialogFrom.status) === -1 ? false : '当前状态不能变更为该状态'">
                                 <t-tag :theme="item.theme" variant="light-outline">{{ item.label }}</t-tag>
                             </t-option>
                         </t-select>
@@ -224,7 +227,7 @@ const equipmentType = [
     },
 ];
 
-const equipmentStatus:equipmentStatus = [
+const equipmentStatus:equipmentStatus[] = [
     {
         id: 0,
         label: "正常",
@@ -362,16 +365,16 @@ const tablePagination = computed(() => {
 
 const TYPEvalueDisplay = (h, { value }) => {
     return (
-        <t-tag theme={Add_Dialog_EqType[value].theme} variant="light-outline">
-            {Add_Dialog_EqType[value].label}
+        <t-tag theme={equipmentType[value].theme} variant="light-outline">
+            {equipmentType[value].label}
         </t-tag>
     );
 };
 
 const STATUSvalueDisplay = (h, { value }) => {
     return (
-        <t-tag theme={Add_Dialog_EqStatus[value].theme} variant="light-outline">
-            {Add_Dialog_EqStatus[value].label}
+        <t-tag theme={equipmentStatus[value].theme} variant="light-outline">
+            {equipmentStatus[value].label}
         </t-tag>
     );
 };

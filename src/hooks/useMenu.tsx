@@ -1,10 +1,13 @@
 
 import { defineComponent, ref, computed, toRefs, watch, toRef } from 'vue';
-import config, { routerMap } from '../components/config';
+import config, { menuPermissionVerify, routerMap } from '../components/config';
 import packageFile from '../../package.json';
 import { h } from 'vue';
 import { MenuGroup, Submenu, MenuItem, Icon } from 'tdesign-vue-next';
 import { getRoutePathObj } from './common';
+import { VerifyPermissions } from './usePermission';
+
+var upe = Array<string> 
 
 export default defineComponent({
     name: "Menu",
@@ -22,10 +25,14 @@ export default defineComponent({
         },
         valueChange: {
             type: Function
-        }
+        },
+        userPermissions: {
+            type: upe,
+            default: [],
+        },
     },
     setup(props) {
-        var { theme, visiable, value } = toRefs(props);
+        var { theme, visiable, value, userPermissions } = toRefs(props);
         var version = "-.-.-"
 
         try {
@@ -83,9 +90,10 @@ export default defineComponent({
             return items.map(item => {
                 const isSubMenu = item?.children && item?.children.length > 0;
                 const isHidden = item?.hidden === true;
-            
-                if (isHidden) return null;
-            
+                const isPermission = VerifyPermissions(userPermissions.value,item?.permissions)
+
+                if ((isHidden || !isPermission) && menuPermissionVerify) return null;
+
                 if (isSubMenu) {
                     const subMenu = renderMenu(item.children);
                     if (arrayAllItemIsNull(subMenu)) return null;

@@ -86,7 +86,7 @@
         </template>
     </t-head-menu>
     <!--侧边菜单-->
-    <SideMenus :theme="theme ? 'dark' : 'light'" :value="SideMenu.value" height="550px" :visiable="SideMenu.show" :value-change="handleChangeComponent"></SideMenus>
+    <SideMenus :theme="theme ? 'dark' : 'light'" :value="SideMenu.value" :userPermissions="login_info.permissions" height="550px" :visiable="SideMenu.show" :value-change="handleChangeComponent"></SideMenus>
     <!--BackTop-->
     <div style="
             box-sizing: border-box;
@@ -194,7 +194,7 @@ const messageList = ref([])
 const hasMessageNotRead = computed(() => {
     return messageList.value.filter(item => item.onread === 0).length > 0
 })
-console.log(messageList.value.filter(item => item.onread === 0))
+console.log('消息列表：',messageList.value.filter(item => item.onread === 0))
 
 
 const getComponentPermissions = (componentName) => {
@@ -584,11 +584,12 @@ onBeforeMount(() => {
     }
     // 查询Token
     const VERIFY_TOKEN = localStorage.getItem("token")
-    console.log((VERIFY_TOKEN == null || !VERIFY_TOKEN) && config.login_verify == true,VERIFY_TOKEN == null, !VERIFY_TOKEN, config.login_verify == true)
     if ((VERIFY_TOKEN == null || !VERIFY_TOKEN) && config.login_verify == true) {
         // 没有登录数据，遣返登录页面
         console.warn("未登录，跳转统一认证")
-        location.href = getLoginURL()
+        setTimeout(() => {
+            location.href = getLoginURL()
+        }, 1500);
     }
     else if (config.login_verify == true){
         // 验证登录

@@ -97,8 +97,15 @@ export function VerifyPermissions(
     const needs = Array.isArray(needPermission) ? needPermission : [needPermission];
     // 定义一个函数来检查单个权限是否满足
     function matches(permission: string, requiredPermission: string): boolean {
-        const permissionParts = permission.split('.');
-        const requiredParts = requiredPermission.split('.');
+        try {
+            var permissionParts = permission.split('.');
+            var requiredParts = requiredPermission.split('.');
+        }
+        catch {
+            if (!requiredPermission) {
+                return true;
+            }
+        }
         // 特殊处理 *.*
         if (permission === '*.*') {
             return true;
