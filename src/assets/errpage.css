@@ -19822,5 +19822,6 @@ figure,h1,h2,h3,h4,h5,h6,p {
 .result-tip {
     margin: var(--td-comp-margin-s) 0 var(--td-comp-margin-xxxl);
     font: var(--td-font-body-medium);
-    color: var(--td-text-color-secondary)
+    color: var(--td-text-color-secondary);
+    text-align: center;
 }
