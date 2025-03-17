@@ -10,7 +10,7 @@ export default {
     target: 'esnext',
     module: 'esnext',
     lib: ['esnext', 'dom'],
-    baseUrl: './',
+    baseUrl: '.',
     paths: {
       '@/*': ['src/*'],
       '@utils/*': ['src/utils/*'],
@@ -18,7 +18,7 @@ export default {
       '@pages/*': ['src/pages/*'],
       '@components/*': ['src/components/*'],
     },
-    types: ['vite/client', 'vite-plugin-md'],
+    types: ['vite/client', 'vite-plugin-md', 'node'],
   },
   include: ['vite-env.d.ts', 'src/**/*.ts', 'src/**/*.tsx', 'src/**/*.vue'],
   exclude: ['node_modules'],
