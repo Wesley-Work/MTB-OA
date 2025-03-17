@@ -1,0 +1,11 @@
+node_modules
+temp*
+
+esm
+es
+lib
+dist
+cjs
+usage
+
+src/pages/shareNetdisk.vue

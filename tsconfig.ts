@@ -1,22 +1,25 @@
 export default {
-    "compilerOptions": {
-      "jsx": "preserve",
-      "jsxFactory": "h",
-      "jsxFragmentFactory": "Fragment",
-      "moduleResolution": "node",
-      "esModuleInterop": true,
-      "skipLibCheck": true,
-      "forceConsistentCasingInFileNames": true,
-      "strict": true,
-      "target": "esnext",
-      "module": "esnext",
-      "lib": ["esnext", "dom"],
-      "baseUrl": "./",
-      "paths": {
-        "@/*": ["src/*"]
-      },
-      "types": ["vite/client","vite-plugin-md"]
+  compilerOptions: {
+    jsx: 'preserve',
+    jsxFactory: 'h',
+    moduleResolution: 'node',
+    esModuleInterop: true,
+    skipLibCheck: true,
+    forceConsistentCasingInFileNames: true,
+    strict: true,
+    target: 'esnext',
+    module: 'esnext',
+    lib: ['esnext', 'dom'],
+    baseUrl: './',
+    paths: {
+      '@/*': ['src/*'],
+      '@utils/*': ['src/utils/*'],
+      '@hooks/*': ['src/hooks/*'],
+      '@pages/*': ['src/pages/*'],
+      '@components/*': ['src/components/*'],
     },
-    "include": ["vite-env.d.ts", "src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"],
-    "exclude": ["node_modules"]
-}
+    types: ['vite/client', 'vite-plugin-md'],
+  },
+  include: ['vite-env.d.ts', 'src/**/*.ts', 'src/**/*.tsx', 'src/**/*.vue'],
+  exclude: ['node_modules'],
+};
