@@ -143,7 +143,7 @@ const renderLogItem = (items, deep = 0) => {
 const renderLogTag = (items) => {
     return items.map((vi, index) => (
         <Fragment key={index}>
-            <h3 id={vi.type.replace(/ /g, '-')}>{vi.type}</h3>
+            <h3 id={vi.type.replace(/ /g, '-')} style="margin: 1em 0;">{vi.type}</h3>
             {renderLogItem(vi.children)}
         </Fragment>
     ));

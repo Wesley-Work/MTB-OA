@@ -1,13 +1,13 @@
 
-import { defineComponent, ref, computed, toRefs, watch, toRef } from 'vue';
+import { defineComponent, toRefs, watch } from 'vue';
 import config, { menuPermissionVerify, routerMap } from '../components/config';
 import packageFile from '../../package.json';
 import { h } from 'vue';
 import { MenuGroup, Submenu, MenuItem, Icon } from 'tdesign-vue-next';
-import { getRoutePathObj } from './common';
+// import { getRoutePathObj } from './common';
 import { VerifyPermissions } from './usePermission';
 
-var upe = Array<string> 
+var upe = Array<string>
 
 export default defineComponent({
     name: "Menu",
@@ -50,7 +50,7 @@ export default defineComponent({
         //         const isSubMenu = item?.children ? true : false
         //         const isHidden = item?.hidden === true
         //         return isSubMenu ? (
-        //             isHidden ? null : 
+        //             isHidden ? null :
         //             <t-submenu value={item.key} title={item.label} v-slots={{
         //                     icon: () => (
         //                         <>
@@ -61,7 +61,7 @@ export default defineComponent({
         //                 { renderSubmenu(item.children) }
         //             </t-submenu>
         //         ) : (
-        //             isHidden ? null : 
+        //             isHidden ? null :
         //             <t-menu-item value={item.key} v-slots={{
         //                     icon: () => (
         //                         <>
@@ -97,13 +97,13 @@ export default defineComponent({
                 if (isSubMenu) {
                     const subMenu = renderMenu(item.children);
                     if (arrayAllItemIsNull(subMenu)) return null;
-                
+
                     return h(Submenu, { value: item.key, title: item.label }, {
                         default: () => subMenu,
                         icon: () => item.icon ? h(Icon, { name: item.icon }) : null
                     });
                 }
-            
+
                 return h(MenuItem, { value: item.key }, {
                     default: () => item.label,
                     icon: () => item.icon ? h(Icon, { name: item.icon }) : null
