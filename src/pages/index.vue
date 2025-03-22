@@ -727,7 +727,7 @@ onMounted(() => {
 
 <script lang="tsx">
 export default {
-  name: 'InDex',
+  name: 'Index',
 };
 </script>
 
