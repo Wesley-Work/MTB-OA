@@ -1,4 +1,9 @@
 
+## 🌈 3.2.0 `2025-03-24` 
+### 🚀 Features
+- `OfficialManage`: 支持管理官网页面内容（顶部菜单、中部轮播框及共享网盘等内容） @Wesley-0808 ([#39](https://github.com/Wesley-0808/MTB-OA/pull/39))
+### 🚧 Others
+- `chore`: 规范格式化 @Wesley-0808 ([#39](https://github.com/Wesley-0808/MTB-OA/pull/39))
 ## 🌈 3.1.0 `2025-02-16` 
 ### 🚨 Breaking Changes
 - `MyTask`: 待完善状态。 @Wesley-0808 ([#32](https://github.com/Wesley-0808/MTB-OA/pull/32))
