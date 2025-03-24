@@ -1,8 +1,8 @@
-import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router';
+import { createRouter, createWebHashHistory } from 'vue-router';
 import RenderComponents from './components/index.tsx';
 import { routerMap } from './components/config';
-import { config } from './components/config'
-import NProgress from 'nprogress'
+import { config } from './components/config';
+import NProgress from 'nprogress';
 
 function getRoutes(docs, type) {
   let docsRoutes = [];
@@ -14,10 +14,10 @@ function getRoutes(docs, type) {
     if (children) {
       docsRoutes = docsRoutes.concat(getRoutes(children, docType));
     } else {
-      docRoute = { 
-        path: config.routerPrefix + "/" + item.key,
-        ...item
-    };
+      docRoute = {
+        path: config.routerPrefix + '/' + item.key,
+        ...item,
+      };
       docsRoutes.push(docRoute);
     }
   });

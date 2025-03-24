@@ -1,15 +1,15 @@
 /// <reference types="vite/client" />
 
-declare module "*.vue" {
-    import type { DefineComponent } from "vue";
-    const component: DefineComponent<{}, {}, any>;
-    export default component;
+declare module '*.vue' {
+  import type { DefineComponent } from 'vue';
+  const component: DefineComponent<{}, {}, any>;
+  export default component;
 }
 
-import React from "react";
-import { ComponentOptions, Component } from "vue";
+import React from 'react';
+import { ComponentOptions, Component } from 'vue';
 
-declare module "*.md" {
+declare module '*.md' {
   const attributes: Record<string, unknown>;
   const toc: { level: string; content: string }[];
   const html: string;
@@ -19,4 +19,12 @@ declare module "*.md" {
   const VueComponentWith: (components: Record<string, Component>) => ComponentOptions;
 
   export { attributes, toc, html, ReactComponent, VueComponent, VueComponentWith };
+}
+
+declare global {
+  namespace JSX {
+    interface IntrinsicAttributes {
+      [emit: string]: any;
+    }
+  }
 }

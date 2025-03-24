@@ -1,49 +1,56 @@
 <template>
-    <t-tabs v-model="Tabs_Value">
-      <t-tab-panel :value="1" :destroy-on-hide="false">
-        <template #label> <t-icon name="system-2" style="margin-right: 4px;"/> 权限设置管理 </template>
-        <template #panel>
-          <div style="display: flex;justify-content: flex-end;margin-bottom: 16px;">
-            <t-space size="small">
-                <t-button variant="outline" theme="primary" ghost style="--ripple-color: #fff" size="large" @click="AddNewPermissionsItem">
-                    <template #icon>
-                        <t-icon name="add-rectangle" />
-                    </template>
-                    添加新的数据项
-                </t-button>
-                <!-- <t-button :disabled="SelectData.length > 1 || SelectData.length === 0">
+  <t-tabs v-model="Tabs_Value">
+    <t-tab-panel :value="1" :destroy-on-hide="false">
+      <template #label> <t-icon name="system-2" style="margin-right: 4px" /> 权限设置管理 </template>
+      <template #panel>
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 16px">
+          <t-space size="small">
+            <t-button
+              variant="outline"
+              theme="primary"
+              ghost
+              style="--ripple-color: #fff"
+              size="large"
+              @click="AddNewPermissionsItem"
+            >
+              <template #icon>
+                <t-icon name="add-rectangle" />
+              </template>
+              添加新的数据项
+            </t-button>
+            <!-- <t-button :disabled="SelectData.length > 1 || SelectData.length === 0">
                     <template #icon>
                         <t-icon name="edit-1" />
                     </template>
                     编辑
                 </t-button> -->
-            </t-space>
-          </div>
-          <!---->
-          <div>
-            <t-table
-              ref="System_Permissions"
-              row-key="id"
-              :data="System_Permissions_List_Data"
-              :columns="System_Permissions_List_Columns"
-              :stripe="true"
-              :bordered="true"
-              :hover="true"
-              cell-empty-content="-"
-              resizable
-              :editable-row-keys="editableRowKeys"
-              @row-edit="onRowEdit"
-              @row-validate="onRowValidate"
-              @validate="onValidate"
-            >
-            </t-table>
-          </div>
-        </template>
-      </t-tab-panel>
-      <t-tab-panel :value="2" :destroy-on-hide="false">
-        <template #label> <t-icon name="user" style="margin-right: 4px;"/> 页面权限管理 </template>
-        <template #panel>
+          </t-space>
+        </div>
+        <!---->
+        <div>
           <t-table
+            ref="System_Permissions"
+            row-key="id"
+            :data="System_Permissions_List_Data"
+            :columns="System_Permissions_List_Columns"
+            :stripe="true"
+            :bordered="true"
+            :hover="true"
+            cell-empty-content="-"
+            resizable
+            :editable-row-keys="editableRowKeys"
+            @row-edit="onRowEdit"
+            @row-validate="onRowValidate"
+            @validate="onValidate"
+          >
+          </t-table>
+        </div>
+      </template>
+    </t-tab-panel>
+    <t-tab-panel :value="2" :destroy-on-hide="false">
+      <template #label> <t-icon name="user" style="margin-right: 4px" /> 页面权限管理 </template>
+      <template #panel>
+        <t-table
           id="Page_Permissions"
           row-key="index"
           :data="data"
@@ -56,18 +63,16 @@
           resizable
         >
         </t-table>
-        </template>
-      </t-tab-panel>
-    </t-tabs>
+      </template>
+    </t-tab-panel>
+  </t-tabs>
 </template>
 
-
-<script setup lang="jsx">
+<script setup lang="tsx">
 import { ref, computed, getCurrentInstance } from 'vue';
-import { Input, Select, DatePicker, MessagePlugin } from 'tdesign-vue-next';
+import { Input, MessagePlugin } from 'tdesign-vue-next';
 
 const System_Permissions = ref();
-const align = ref('left');
 
 const editableRowKeys = ref([]);
 const currentSaveId = ref('');
@@ -84,21 +89,21 @@ const AddNewPermissionsItem = (e) => {
   if (!AlAdd.value) {
     AlAdd.value = true;
     let NewAddData = {
-      id: "NewItem",
-      object: "",
-      remark: "",
-      type: "system",
-      val: "",
-    }
+      id: 'NewItem',
+      object: '',
+      remark: '',
+      type: 'system',
+      val: '',
+    };
     TData.data.System_Permissions_List_Data.unshift(NewAddData);
-    editableRowKeys.value = ["NewItem"]
+    editableRowKeys.value = ['NewItem'];
   }
-}
+};
 
 const onEdit = (e) => {
   const { id } = e.currentTarget.dataset;
-  const ids = Number(id) ? Number(id) : id
-  console.log(ids)
+  const ids = Number(id) ? Number(id) : id;
+  console.log(ids);
   if (!editableRowKeys.value.includes(ids)) {
     editableRowKeys.value.push(ids);
   }
@@ -120,18 +125,17 @@ const onCancel = (e) => {
   System_Permissions.value.clearValidateData();
 };
 
-var OnSaveNeedEvent = ''
+var OnSaveNeedEvent = '';
 
 const onSaveFather = (e) => {
-  OnSaveNeedEvent = e.currentTarget.dataset
-}
+  OnSaveNeedEvent = e.currentTarget.dataset;
+};
 
 const onSave = (e) => {
   // const { ids } = e.currentTarget.dataset;
   // const id = Number(ids)
   let { id } = OnSaveNeedEvent;
-  id = Number(id)
-
+  id = Number(id);
 
   currentSaveId.value = id;
   // 触发内部校验，而后也可在 onRowValidate 中接收异步校验结果
@@ -146,7 +150,7 @@ const onSave = (e) => {
     if (params.trigger === 'parent' && !params.result.length) {
       const current = editMap[currentSaveId.value];
       if (current) {
-        console.log(current.rowIndex, current.editedRow)
+        console.log(current.rowIndex, current.editedRow);
         data.value.splice(current.rowIndex, 1, current.editedRow);
         MessagePlugin.success('保存成功');
       }
@@ -208,9 +212,7 @@ const System_Permissions_List_Columns = computed(() => [
         clearable: true,
       },
       // 校验规则，此处同 Form 表单
-      rules: [
-        { required: true, message: '不能为空' },
-      ],
+      rules: [{ required: true, message: '不能为空' }],
       showEditIcon: false,
     },
   },
@@ -220,12 +222,12 @@ const System_Permissions_List_Columns = computed(() => [
     width: '100',
     align: 'center',
     cell: (h, { row }) => {
-    return (
-      <t-tag theme="success" variant="outline">
-        {row.type}
-      </t-tag>
-    );
-    }
+      return (
+        <t-tag theme="success" variant="outline">
+          {row.type}
+        </t-tag>
+      );
+    },
   },
   {
     colKey: 'object',
@@ -236,9 +238,7 @@ const System_Permissions_List_Columns = computed(() => [
         clearable: true,
       },
       // 校验规则，此处同 Form 表单
-      rules: [
-        { required: true, message: '不能为空' },
-      ],
+      rules: [{ required: true, message: '不能为空' }],
       showEditIcon: false,
     },
   },
@@ -251,9 +251,7 @@ const System_Permissions_List_Columns = computed(() => [
         clearable: true,
       },
       // 校验规则，此处同 Form 表单
-      rules: [
-        { required: true, message: '不能为空' },
-      ],
+      rules: [{ required: true, message: '不能为空' }],
       showEditIcon: false,
     },
   },
@@ -297,68 +295,61 @@ const System_Permissions_List_Columns = computed(() => [
     },
   },
 ]);
-
 </script>
 
-<script lang="jsx">
-
-import { NotifyPlugin } from "tdesign-vue-next";
-import { config } from "../../components/config";
+<script lang="tsx">
+import { NotifyPlugin } from 'tdesign-vue-next';
+import { config } from '../../components/config';
 import useRequest from '../../hooks/useRequest';
 
 export default {
-    name: "pErmissiosSmanaGe",
-    data() {
-      return {
-        Tabs_Value: 1,
-        System_Permissions_List_Data: [],
+  name: 'PermissionManage',
+  data() {
+    return {
+      Tabs_Value: 1,
+      System_Permissions_List_Data: [],
+    };
+  },
+  mounted() {
+    this.GetStsyemPermissionsList();
+  },
+  methods: {
+    GetStsyemPermissionsList() {
+      const that = this;
+      try {
+        useRequest({
+          url: config.API_URL.MAIN_URL + '/permissions/systemlist',
+          methods: 'POST',
+          header: {
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+          },
+          success: function (res) {
+            var RES = JSON.parse(res);
+            if (RES.errcode == 0) {
+              that.$data.System_Permissions_List_Data = RES.data;
+            }
+          },
+          error: function (err) {
+            console.error(err);
+            NotifyPlugin('error', {
+              title: '获取权限列表失败',
+              content: err,
+              duration: 5000,
+            });
+          },
+        });
+      } catch (e) {
+        console.log(e);
       }
     },
-    mounted() {
-      this.GetStsyemPermissionsList()
+
+    /**
+     * 编辑
+     */
+    System_Edit_Permissions(e, e2) {
+      console.log(e, e2);
     },
-    methods: {
-      GetStsyemPermissionsList() {
-        const that = this;
-        try {
-          useRequest({
-              url: config.API_URL.MAIN_URL + "/permissions/systemlist",
-              methods: "POST",
-              header: {
-                  "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-              },
-              success: function (res) {
-                  var RES = JSON.parse(res);
-                  if (RES.errcode == 0){
-                      that.$data.System_Permissions_List_Data = RES.data
-                  }
-              },
-              error: function (err) {
-                  console.error(err);
-                  NotifyPlugin("error", {
-                      title: "获取权限列表失败",
-                      content: err,
-                      duration: 5000,
-                  });
-              },
-          });
-        } catch (e) {
-            console.log(e);
-        }
-      },
-
-
-
-
-
-
-      /**
-       * 编辑
-       */
-      System_Edit_Permissions(e,e2){
-        console.log(e,e2)
-      },
-    },
+  },
 };
 </script>
 
