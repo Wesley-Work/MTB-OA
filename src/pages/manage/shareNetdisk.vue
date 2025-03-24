@@ -101,7 +101,7 @@
 
 <script setup lang="tsx">
 import { onMounted, reactive, ref } from 'vue';
-import { shareNetdiskAPIHost } from '@components/config';
+import { getInternetAPI } from '@utils/index';
 import useRequest from '@hooks/useRequest';
 import { AssignmentCodeIcon } from 'tdesign-icons-vue-next';
 import { NotifyPlugin } from 'tdesign-vue-next';
@@ -167,7 +167,6 @@ const vaiVerify = () => {
   pickUpCodeURLInputStatus.status = 'default';
   pickUpCodeURLInputStatus.value = '';
   const value = pickUpCodeFormData.extra;
-  console.log(pickUpCodeFormData.isRouter);
   if (pickUpCodeFormData.isRouter) {
     if (isURL(value)) {
       pickUpCodeURLInputStatus.status = 'error';
@@ -184,7 +183,7 @@ const vaiVerify = () => {
 
 const getPickupCodeList = () => {
   useRequest({
-    url: `${shareNetdiskAPIHost}/netdisk/pick-up/getList`,
+    url: `${getInternetAPI()}/netdisk/pick-up/getList`,
     useCustomURL: true,
     methods: 'GET',
     success: function (res) {
@@ -218,7 +217,7 @@ const AddPickUpCode = () => {
     });
   }
   useRequest({
-    url: `${shareNetdiskAPIHost}/netdisk/pick-up/add`,
+    url: `${getInternetAPI()}/netdisk/pick-up/add`,
     useCustomURL: true,
     methods: 'POST',
     data: {
@@ -228,7 +227,6 @@ const AddPickUpCode = () => {
     },
     success: function (res) {
       const json = JSON.parse(res);
-      console.log(json);
       if (json.errcode !== 0) {
         NotifyPlugin.error({
           title: '新增『取件码』列表失败[Main]',
@@ -255,7 +253,7 @@ const AddPickUpCode = () => {
 const DeletePickUpCode = (item: pickUpCodeListItem) => {
   const { id, value } = item;
   useRequest({
-    url: `${shareNetdiskAPIHost}/netdisk/pick-up/delete`,
+    url: `${getInternetAPI()}/netdisk/pick-up/delete`,
     useCustomURL: true,
     methods: 'POST',
     data: {

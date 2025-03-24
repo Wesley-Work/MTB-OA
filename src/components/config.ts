@@ -284,7 +284,6 @@ const config = {
   routerMap,
   pagePermissionVerify: true, //是否开启页面权限验证
   menuPermissionVerify: false, //是否开启菜单权限验证
-  shareNetdiskAPIHost: 'http://192.168.67.14/api', // 共享网盘API地址
 };
 
 export default config;
@@ -299,4 +298,3 @@ export const SystemName = config.systemname;
 export const SystemNameEn = config.systemnameEn;
 export const pagePermissionVerify = config.pagePermissionVerify;
 export const menuPermissionVerify = config.menuPermissionVerify;
-export const shareNetdiskAPIHost = config.shareNetdiskAPIHost;

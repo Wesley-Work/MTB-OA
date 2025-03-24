@@ -117,8 +117,8 @@
                               ? '当前菜单位置不支持选择该类型'
                               : ''
                           "
-                        ></t-option
-                      ></t-select>
+                        />
+                      </t-select>
                     </t-form-item>
                   </div>
                 </div>
@@ -188,7 +188,6 @@
 <script setup lang="tsx">
 import { computed, onMounted, reactive, ref } from 'vue';
 import useRequest from '@hooks/useRequest';
-import { shareNetdiskAPIHost } from '@components/config';
 import {
   DialogPlugin,
   MessagePlugin,
@@ -199,6 +198,7 @@ import {
 } from 'tdesign-vue-next';
 import dayjs from 'dayjs';
 import { isNumber } from 'lodash-es';
+import { getInternetAPI } from '@utils/index';
 
 interface HeaderItemChildren {
   id?: number;
@@ -659,7 +659,7 @@ const onHandlerTreeSubmit = async () => {
   const isValid = await headerTreeVerify(TREEDATA);
   if (isValid) {
     useRequest({
-      url: `${shareNetdiskAPIHost}/setHeader/coverAdd`,
+      url: `${getInternetAPI()}/setHeader/coverAdd`,
       useCustomURL: true,
       methods: 'POST',
       data: {
@@ -694,7 +694,7 @@ const onHandlerTreeSubmit = async () => {
 
 const getheaderList = () => {
   useRequest({
-    url: `${shareNetdiskAPIHost}/getHeaderList`,
+    url: `${getInternetAPI()}/getHeaderList`,
     useCustomURL: true,
     methods: 'GET',
     success: function (res) {

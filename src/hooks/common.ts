@@ -9,13 +9,13 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 dayjs.extend(relativeTime);
 dayjs.extend(customParseFormat);
 
-const applyParmer = (parmer: Object) => {
+export function applyParmer(parmer: Object) {
   const keys: string[] = Object.keys(parmer);
   const kv: string[] = keys.map((key) => {
     return `${key}=${parmer[key]}`;
   });
   return kv.join('&');
-};
+}
 
 export function VerifyToken() {
   return new Promise(async (resolve, reject) => {
@@ -29,7 +29,7 @@ export function VerifyToken() {
         token: TOKEN,
       },
       success: function (res) {
-        var RES = JSON.parse(res);
+        const RES = JSON.parse(res);
         if (RES.errcode == 0) {
           if (RES.data.verify === true) {
             resolve(true);
@@ -49,7 +49,7 @@ export function VerifyToken() {
 export function getRoutePathObj(
   map: RouteMaps = routerMap,
   value: string,
-  deep: number = 0,
+  deep = 0,
 ): { parent: RouteMapItems | null; current: RouteMapItems | null } {
   for (const item of map) {
     if (item?.key === value) {
@@ -71,7 +71,7 @@ export function getRoutePathObj(
   return { parent: null, current: null };
 }
 
-export function verifyPath(path: string, map = routerMap, deep: number = 0) {
+export function verifyPath(path: string, map = routerMap, deep = 0) {
   for (const item of map) {
     if (item?.key === path) {
       console.warn(item);
@@ -92,12 +92,8 @@ export function getCurrentPage() {
   return path;
 }
 
-export function testTOKEN() {
-  return '61E900CA624FE99D129E42F9CC5703334858D75635356591AA3AE866C0E8018B';
-}
-
 export function getToken() {
-  return localStorage.getItem('token') ?? testTOKEN() ?? null;
+  return localStorage.getItem('token') ?? null;
 }
 
 const getAPIURL = () => {
@@ -122,10 +118,9 @@ export function Wesley() {
     const nowTime = Date.now();
     // 获取内存中记录的时间
     const welseyTime = isNumber(localStorage.getItem('welseyTime')) ? Number(localStorage.getItem('welseyTime')) : 0;
-    var willRequest = false;
     // 若时间差大于180秒，则将发起请求
     if (nowTime - welseyTime > 180000 || welseyTime === 0) {
-      willRequest = true;
+      resolve(true);
     }
     fetch(`https://static.wesley.net.cn/sdzz/mtb/verify`, {
       method: 'POST',

@@ -1,51 +1,63 @@
-import { defineComponent, h, PropType } from "vue";
-import { VerifyPermissions } from "../hooks/usePermission";
-import Error from "./pages/Error.vue";
-import NoPermissions from "./pages/NoPermissions.vue";
-import { pagePermissionVerify } from "./config";
-import { useRoute } from "vue-router";
-import { isInternet as isSdzzInternet, isMTBInternet } from "@/utils";
-import OnlyInternet from "./pages/onlyInternet.vue";
+import { defineComponent, h, PropType } from 'vue';
+import { VerifyPermissions } from '../hooks/usePermission';
+import Error from './pages/Error.vue';
+import NoPermissions from './pages/NoPermissions.vue';
+import { pagePermissionVerify } from './config';
+import { useRoute } from 'vue-router';
+import { isInternet as isSdzzInternet, isMTBInternet } from '@/utils';
+import OnlyInternet from './pages/onlyInternet.vue';
 import { throttle } from 'lodash-es';
 
 export default defineComponent({
-  props:{
+  props: {
     handleChangeComponent: {
       type: Function as PropType<(...args: any[]) => any>,
     },
     userPermissions: {
-      type: Array,
+      type: Array<string>,
       default: [],
     },
     componentPermissions: {
-      type: Array,
+      type: Array<string>,
       default: [],
     },
     component: {
-      type: String
+      type: String,
     },
   },
   render: function (props) {
-    const vPermission = VerifyPermissions(props.userPermissions,props.componentPermissions)
-    const route = useRoute()
-    var isInternet = false
+    const vPermission = VerifyPermissions(props.userPermissions, props.componentPermissions);
+    const route = useRoute();
+    let isInternet = false;
     const cons = () => {
-      console.info(`页面: ${props.component} 校验权限：`, vPermission, props.userPermissions, props.componentPermissions)
-    }
-    throttle(cons, 500)?.()
-    const needInternet = !!route.meta?.needInternet
+      console.info(
+        `页面: ${props.component} 校验权限：`,
+        vPermission,
+        props.userPermissions,
+        props.componentPermissions,
+      );
+    };
+    throttle(cons, 500)?.();
+    const needInternet = !!route.meta?.needInternet;
     if (needInternet) {
-      isInternet = isSdzzInternet() || isMTBInternet()
+      isInternet = isSdzzInternet() || isMTBInternet();
     }
-    try{
-      const RouterView = <router-view handleChangeComponent={this.throttledHandleChange}></router-view>
-      return (
-        needInternet ? isInternet ? RouterView : <OnlyInternet /> : (vPermission && pagePermissionVerify) ? RouterView : <NoPermissions/>
-      )
-    }
-    catch(err){
-      console.error(err)
-      return <Error msg={err}></Error>
+    try {
+      const RouterView = <router-view handleChangeComponent={props?.handleChangeComponent}></router-view>;
+      return needInternet ? (
+        isInternet ? (
+          RouterView
+        ) : (
+          <OnlyInternet />
+        )
+      ) : vPermission && pagePermissionVerify ? (
+        RouterView
+      ) : (
+        <NoPermissions />
+      );
+    } catch (err) {
+      console.error(err);
+      return <Error msg={err}></Error>;
     }
   },
 });

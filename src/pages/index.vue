@@ -16,7 +16,7 @@
           shape="square"
           variant="text"
           style="border: none; width: 40px; height: 40px"
-          :onClick="ToggleSideMenu"
+          :on-click="ToggleSideMenu"
         >
           <template #icon><t-icon name="bulletpoint" style="width: 25px; height: 25px" /></template>
         </t-button>
@@ -37,7 +37,7 @@
               <!-- <t-button variant="text" theme="primary" style="position: absolute; top: 12px; right: 24px;">清空</t-button> -->
             </div>
             <t-list :split="true" class="narrow-scrollbar">
-              <t-list-item v-for="(item, index) in messageList" v-key="item">
+              <t-list-item v-for="(item, index) in messageList" :key="index">
                 <template #content>
                   <div>
                     <p class="msg-content">{{ item.d }} [{{ item.tid }}#]</p>
@@ -62,8 +62,8 @@
         <t-icon
           class="t-menu__operations-icon"
           :name="theme ? 'sunny' : 'moon'"
-          @click="ToggleTheme()"
           style="width: 36px; height: 36px"
+          @click="ToggleTheme()"
         />
       </a>
       <a href="javascript:void(1);" title="重载页面" style="display: flex; margin-right: 8px" @click="PageReload">
@@ -73,12 +73,12 @@
         <t-dropdown
           :options="MainContent.AccountMenuOptions"
           trigger="click"
-          @click="handleAccountMenu"
-          :popupProps="{
+          :popup-props="{
             overlayInnerStyle: (triggerElem) => ({
               width: `${triggerElem.offsetWidth}px`,
             }),
           }"
+          @click="handleAccountMenu"
         >
           <t-button variant="text" class="we-tag-headmenu-operations-account" block>
             <t-icon name="user-circle" style="min-width: 20px; min-height: 20px" />
@@ -95,7 +95,7 @@
   <SideMenus
     :theme="theme ? 'dark' : 'light'"
     :value="SideMenu.value"
-    :userPermissions="login_info.permissions"
+    :user-permissions="login_info.permissions"
     height="550px"
     :visiable="SideMenu.show"
     :value-change="handleChangeComponent"
@@ -141,9 +141,9 @@
       <PageTooSmall v-if="pagesmall" />
       <router-view
         v-else
-        :handleChangeComponent="handleChangeComponent"
-        :userPermissions="login_info.permissions"
-        :componentPermissions="componentPermissions"
+        :handle-change-component="handleChangeComponent"
+        :user-permissions="login_info.permissions"
+        :component-permissions="componentPermissions"
         :component="SideMenu.value"
       ></router-view>
       <!---->
@@ -170,11 +170,10 @@
 <script setup lang="tsx">
 import SideMenus from '../hooks/useMenu.tsx';
 import BreadCurmb from '../hooks/useBreadcrumb.tsx';
-import { computed, onBeforeMount, onMounted, reactive, ref, watch } from 'vue';
+import { computed, onBeforeMount, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { themeMode, toggleTheme } from '../components/function/theme.js';
 import { config, routerMap } from '../components/config';
-import Component from '../components/index.tsx';
-import { PoweroffIcon, UserIcon, ChatBubbleHelpIcon } from 'tdesign-icons-vue-next';
+import { PoweroffIcon, ChatBubbleHelpIcon } from 'tdesign-icons-vue-next';
 import { NotifyPlugin } from 'tdesign-vue-next';
 import {
   getCurrentPage,
@@ -191,7 +190,7 @@ import router from '../routes';
 
 watch(
   () => router.currentRoute.value.path,
-  (val, oldVal) => {
+  (val) => {
     const v = val.replace(config.routerPrefix + '/', '');
     SideMenu.ComponentValue = v;
     SideMenu.value = v;
@@ -242,7 +241,7 @@ const messageList = ref([]);
 const hasMessageNotRead = computed(() => {
   return messageList.value.filter((item) => item.onread === 0).length > 0;
 });
-console.log(
+console.info(
   '消息列表：',
   messageList.value.filter((item) => item.onread === 0),
 );
@@ -254,7 +253,7 @@ const getComponentPermissions = (componentName) => {
 
 watch(
   () => SideMenu.value,
-  (val, oldVal) => {
+  (val) => {
     componentPermissions.value = getComponentPermissions(val);
   },
 );
@@ -332,7 +331,7 @@ const checkToken = () => {
     }
   };
   xhr.onerror = () => {
-    console.log('请求错误', xhr);
+    console.error('请求错误', xhr);
     localStorage.removeItem('token');
     NotifyPlugin('error', {
       title: '遇到错误',
@@ -376,7 +375,7 @@ const getUserInfoByToken = (TOKEN) => {
  * @开始循环检查Token
  */
 const startCheckToken = () => {
-  console.log('[CheckToken] START');
+  console.warn('[CheckToken] START');
   timer.token = setInterval(() => {
     checkToken();
   }, 2500);
@@ -387,7 +386,7 @@ const startCheckToken = () => {
  * @取消循环检查Token
  */
 const cancelCheckToken = () => {
-  console.log('[CheckToken] CANCEL');
+  console.warn('[CheckToken] CANCEL');
   clearInterval(timer.token);
 };
 
@@ -397,7 +396,7 @@ const cancelCheckToken = () => {
  */
 const GetPageWidth = (e) => {
   if (e.currentTarget.parent.innerWidth < config.minWidth) {
-    console.log('尺寸过小！');
+    console.warn('尺寸过小！');
     pagesmall.value = true;
   } else {
     pagesmall.value = false;
@@ -430,19 +429,8 @@ const ToggleSideMenu = () => {
   SideMenu.show = !SideMenu.show;
 };
 
-const getpath = () => {
-  const path = window.location.hash.replace('#', '').replace(config.routerPrefix + '/', '');
-  return path;
-};
-
-const handleChangeComponent = (
-  componentName: string,
-  doNotToggleSideMenu: boolean = false,
-  forcePush: boolean = false,
-  query: object | null = {},
-) => {
-  // 与上次选择一样且不是强制刷新、验证地址失败
-  // (MainContent.lastChoose === componentName && !forcePush) || // 与当前页面相同或
+const handleChangeComponent = (componentName: string, doNotToggleSideMenu: boolean, query: object | null = {}) => {
+  // 与当前页面相同或
   if (!VerifyPath(componentName)) {
     console.error(`[handleChangeComponent]: 不会切换到页面(组件)[${componentName}]，因为页面不存在！`);
     return false;
@@ -516,9 +504,9 @@ const VerifyPath = (path) => {
  * @breadClick
  * @面包屑点击提示
  */
-const breadClick = () => {
-  NotifyPlugin('warning', { title: '操作失败', content: '上级地址无法跳转' });
-};
+// const breadClick = () => {
+//   NotifyPlugin('warning', { title: '操作失败', content: '上级地址无法跳转' });
+// };
 
 /**
  * @getUrlParam
@@ -542,31 +530,31 @@ const getUrlParam = (variable, url = window.location.search.substring(1)) => {
  * @param new_param 参数名
  * @param value 参数值
  */
-const applyUrlParam = (new_param, value, location = window.location) => {
-  if (!new_param || !value) {
-    return false;
-  }
-  var regUrl = location.search == '' ? false : true;
-  var regParam = location.search.indexOf(new_param) == -1 ? true : false;
-  var UrlH = location.origin + location.pathname;
-  var UrlS = location.href;
-  if (regUrl) {
-    //有参数了，追加
-    if (regParam) {
-      //没有参数，直接加
-      var newurl = UrlS + '&' + new_param + '=' + value;
-      window.history.pushState(null, null, newurl);
-    } else {
-      //有参数，替换
-      var newurl = updateUrlParam(new_param, value);
-      window.history.pushState(null, null, newurl);
-    }
-  } else {
-    //没有参数，直接加
-    var newurl = UrlH + '?' + new_param + '=' + value;
-    window.history.pushState(null, null, newurl);
-  }
-};
+// const applyUrlParam = (new_param, value, location = window.location) => {
+//   if (!new_param || !value) {
+//     return false;
+//   }
+//   var regUrl = location.search == '' ? false : true;
+//   var regParam = location.search.indexOf(new_param) == -1 ? true : false;
+//   var UrlH = location.origin + location.pathname;
+//   var UrlS = location.href;
+//   if (regUrl) {
+//     //有参数了，追加
+//     if (regParam) {
+//       //没有参数，直接加
+//       var newurl = UrlS + '&' + new_param + '=' + value;
+//       window.history.pushState(null, null, newurl);
+//     } else {
+//       //有参数，替换
+//       var newurl = updateUrlParam(new_param, value);
+//       window.history.pushState(null, null, newurl);
+//     }
+//   } else {
+//     //没有参数，直接加
+//     var newurl = UrlH + '?' + new_param + '=' + value;
+//     window.history.pushState(null, null, newurl);
+//   }
+// };
 
 /**
  * @updateUrlParam
@@ -574,19 +562,19 @@ const applyUrlParam = (new_param, value, location = window.location) => {
  * @param key 参数名
  * @param value 参数值
  */
-const updateUrlParam = (key, value) => {
-  var uri = window.location.href;
-  if (!value) {
-    return uri;
-  }
-  var re = new RegExp('([?&])' + key + '=.*?(&|$)', 'i');
-  var separator = uri.indexOf('?') !== -1 ? '&' : '?';
-  if (uri.match(re)) {
-    return uri.replace(re, '$1' + key + '=' + value + '$2');
-  } else {
-    return uri + separator + key + '=' + value;
-  }
-};
+// const updateUrlParam = (key, value) => {
+//   var uri = window.location.href;
+//   if (!value) {
+//     return uri;
+//   }
+//   var re = new RegExp('([?&])' + key + '=.*?(&|$)', 'i');
+//   var separator = uri.indexOf('?') !== -1 ? '&' : '?';
+//   if (uri.match(re)) {
+//     return uri.replace(re, '$1' + key + '=' + value + '$2');
+//   } else {
+//     return uri + separator + key + '=' + value;
+//   }
+// };
 
 const removeParam = (key, sourceURL) => {
   var rtn = sourceURL.split('?')[0],
@@ -607,7 +595,7 @@ const removeParam = (key, sourceURL) => {
 };
 
 onBeforeMount(() => {
-  console.log('System Start Running!');
+  console.info('System Start Running!');
   document.body.style.overflow = 'hidden';
   const actionType = getUrlParam('actionType');
   if (actionType == 'Login_Back') {
@@ -653,12 +641,12 @@ onBeforeMount(() => {
         // pass
         var param_path = getUrlParam('path');
         if (param_path) {
-          console.log('检测到 Path 参数,跳转至指定页面。');
+          console.info('检测到 Path 参数,跳转至指定页面。');
           if (VerifyPath(param_path) === true) {
             handleChangeComponent(param_path, true);
           }
         }
-        handleChangeComponent(MainContent.lastChoose, true, false);
+        handleChangeComponent(MainContent.lastChoose, true);
         localStorage.setItem('token', VERIFY_TOKEN);
         NotifyPlugin('success', {
           title: '温馨提示',
@@ -717,11 +705,14 @@ onMounted(() => {
   window.addEventListener('resize', (e) => {
     GetPageWidth(e);
   });
-  // if (__DEBUG_DONTCHECKLOGINSTATUS != "yes"){
-  //     // 开始检测
-  //     this.startCheckToken()
-  // }
-  // console.log(config.API_URL);
+  if (getUrlParam('__DEBUG_DONTCHECKLOGINSTATUS') != 'yes') {
+    // 开始检测
+    startCheckToken();
+  }
+});
+
+onUnmounted(() => {
+  cancelCheckToken();
 });
 </script>
 
