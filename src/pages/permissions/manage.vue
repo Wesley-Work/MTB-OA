@@ -68,7 +68,7 @@
   </t-tabs>
 </template>
 
-<script setup lang="jsx">
+<script setup lang="tsx">
 import { ref, computed, getCurrentInstance } from 'vue';
 import { Input, MessagePlugin } from 'tdesign-vue-next';
 
@@ -297,13 +297,13 @@ const System_Permissions_List_Columns = computed(() => [
 ]);
 </script>
 
-<script lang="jsx">
+<script lang="tsx">
 import { NotifyPlugin } from 'tdesign-vue-next';
 import { config } from '../../components/config';
 import useRequest from '../../hooks/useRequest';
 
 export default {
-  name: 'pErmissiosSmanaGe',
+  name: 'PermissionManage',
   data() {
     return {
       Tabs_Value: 1,

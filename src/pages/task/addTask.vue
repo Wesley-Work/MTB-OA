@@ -13,7 +13,8 @@
                     </div> -->
           <!---->
           <div
-            v-for="task in taskList"
+            v-for="(task, index) in taskList"
+            :key="index"
             class="taskList--item"
             :class="{ active: task.id == taskListActive }"
             @click="() => handleTaskItemClick(task)"
@@ -44,7 +45,7 @@
               <t-form-item label="工作时间" name="work_time">
                 <t-date-range-picker
                   v-model="taskActiveItem.work_time"
-                  enableTimePicker
+                  enable-time-picker
                   format="YYYY-MM-DD HH:mm"
                   :placeholder="['请选择开始时间', '请选择结束时间']"
                   style="width: 100%"
@@ -56,7 +57,7 @@
               <t-form-item label="何时前完成" name="finally_time">
                 <t-date-picker
                   v-model="taskActiveItem.finally_time"
-                  enableTimePicker
+                  enable-time-picker
                   format="YYYY-MM-DD HH:mm"
                   placeholder="请选择时间"
                   style="width: 100%"
@@ -65,9 +66,9 @@
               <t-form-item label="任务类型" name="type">
                 <t-select
                   v-model="taskActiveItem.type"
-                  :valueDisplay="(h, { value }) => selectValueDisplay(taskType, value)"
+                  :value-display="(_h, { value }) => selectValueDisplay(taskType, value)"
                 >
-                  <t-option v-for="item in taskType" :value="item.value" :key="item.value">
+                  <t-option v-for="item in taskType" :key="item.value" :value="item.value">
                     <t-tag variant="light-outline" :theme="item?.theme" :color="item.color">{{ item.label }}</t-tag>
                   </t-option>
                 </t-select>
@@ -75,9 +76,9 @@
               <t-form-item label="任务状态" name="status">
                 <t-select
                   v-model="taskActiveItem.status"
-                  :valueDisplay="(h, { value }) => selectValueDisplay(taskStatus, value)"
+                  :value-display="(_h, { value }) => selectValueDisplay(taskStatus, value)"
                 >
-                  <t-option v-for="item in taskStatus" :value="item.value" :key="item.value">
+                  <t-option v-for="item in taskStatus" :key="item.value" :value="item.value">
                     <t-tag variant="light-outline" :theme="item?.theme" :color="item.color">{{ item.label }}</t-tag>
                   </t-option>
                 </t-select>
@@ -92,7 +93,7 @@
             <!---->
             <div>
               <t-form-item label="分配人员" name="user">
-                <t-transfer :data="transferSource" v-model="taskActiveItem.user"></t-transfer>
+                <t-transfer v-model="taskActiveItem.user" :data="transferSource"></t-transfer>
               </t-form-item>
               <t-form-item label="使用设备" name="equipment">
                 <t-tagInput
@@ -105,7 +106,7 @@
           <t-form-item style="margin-top: 16px">
             <t-space size="small">
               <t-button theme="primary" type="submit" variant="outline" ghost>提交内容</t-button>
-              <t-popconfirm content="确认删除吗？" :onConfirm="onDelTask">
+              <t-popconfirm content="确认删除吗？" @confirm="onDelTask">
                 <t-button variant="dashed" theme="danger" :disabled="!taskListActive">删除任务</t-button>
               </t-popconfirm>
 
@@ -121,7 +122,7 @@
 
 <script setup lang="tsx">
 import { NotifyPlugin } from 'tdesign-vue-next';
-import { TaskAddIcon } from 'tdesign-icons-vue-next';
+// import { TaskAddIcon } from 'tdesign-icons-vue-next';
 import { taskType, taskStatus, findObjectByValueAndKeyInArray } from '../../hooks/common';
 import useRequest from '../../hooks/useRequest';
 import { onMounted, ref } from 'vue';
@@ -130,6 +131,7 @@ import { isArray } from 'lodash-es';
 const userList = ref([]);
 const transferSource = ref([]);
 const defaultItem = {
+  id: null,
   name: null,
   place: null,
   content: null,
@@ -225,7 +227,11 @@ const handleTaskItemClick = (task) => {
 };
 
 const selectValueDisplay = (arr: Array<any>, value: string | number) => {
-  const objectItem = findObjectByValueAndKeyInArray(arr, 'value', value);
+  const objectItem = findObjectByValueAndKeyInArray(arr, 'value', value) as {
+    theme: string;
+    color: string;
+    label: string;
+  };
   if (!objectItem) return null;
   return (
     <t-tag variant="light-outline" theme={objectItem?.theme} color={objectItem.color}>
@@ -253,7 +259,9 @@ const onSubmit = (context) => {
         NotifyPlugin.success({
           title: '操作成功',
           content: `${
-            taskListActive ? '成功编辑了' + taskActiveItem.value.id + '号任务' : '添加了' + json.data.id + '号任务'
+            taskListActive.value
+              ? '成功编辑了' + taskActiveItem.value?.id + '号任务'
+              : '添加了' + json.data.id + '号任务'
           }`,
         });
         resetForm();
