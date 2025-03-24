@@ -1,6 +1,6 @@
 <template>
   <div>
-    <t-tabs :default-value="2">
+    <t-tabs :default-value="1">
       <t-tab-panel :value="1">
         <template #label>
           <MenuIcon style="margin-right: 4px" />
