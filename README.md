@@ -3,9 +3,9 @@
 <p align="center">
     <img src="https://img.shields.io/badge/MTB--OA-4c1" alt="MTB">
     <br/>
-    <img src="https://img.shields.io/github/license/Wesley-0808/MTB-OA?color=green" alt="License">
-    <img src="https://img.shields.io/github/package-json/v/Wesley-0808/MTB-OA?color=blue" alt="Version">
-    <img src="https://img.shields.io/github/commit-activity/m/Wesley-0808/MTB-OA" alt="Commit">
+    <img src="https://img.shields.io/github/license/Wesley-Work/MTB-OA?color=green" alt="License">
+    <img src="https://img.shields.io/github/package-json/v/Wesley-Work/MTB-OA?color=blue" alt="Version">
+    <img src="https://img.shields.io/github/commit-activity/m/Wesley-Work/MTB-OA" alt="Commit">
 </p>
 
 

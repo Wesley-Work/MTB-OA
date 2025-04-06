@@ -230,6 +230,7 @@ interface HeaderItem {
   children?: HeaderItemChildren[];
   parentIsLabel?: boolean | 0 | 1;
   mode?: string;
+  orders?: number;
   callBack?: () => void;
 }
 type HeaderData = HeaderItem[];
@@ -658,6 +659,11 @@ const onHandlerTreeSubmit = async () => {
   const TREEDATA = headerTreeList.value;
   const isValid = await headerTreeVerify(TREEDATA);
   if (isValid) {
+    // 校验通过 设置根节点顺序
+    TREEDATA.forEach((rootNode, index) => {
+      rootNode.orders = index + 1;
+    });
+    // 请求-覆盖配置接口
     useRequest({
       url: `${getInternetAPI()}/setHeader/coverAdd`,
       useCustomURL: true,
