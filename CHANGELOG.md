@@ -1,4 +1,9 @@
 
+## 🌈 3.2.1 `2025-04-06` 
+### 🐞 Bug Fixes
+- `WebManage`: 修复`header`配置排序无效的问题 @Wesley-0808 ([#41](https://github.com/Wesley-Work/MTB-OA/pull/41))
+### 🚧 Others
+- `chore`: 更正仓库地址 @Wesley-0808 ([#41](https://github.com/Wesley-Work/MTB-OA/pull/41))
 ## 🌈 3.2.0 `2025-03-24`
 ### 🚀 Features
 - `OfficialManage`: 支持管理官网页面内容（顶部菜单、中部轮播框及共享网盘等内容） @Wesley-0808 ([#39](https://github.com/Wesley-Work/MTB-OA/pull/39))
