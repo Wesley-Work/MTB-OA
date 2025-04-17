@@ -1,16 +1,16 @@
-import { createRouter, createWebHashHistory } from 'vue-router';
-import RenderComponents from './components/index.tsx';
-import { routerMap } from './components/config';
-import { config } from './components/config';
+import { createRouter, createWebHashHistory, RouteRecordRaw, RouterOptions } from 'vue-router';
+import RenderComponents from './components/index';
+import { routerMap, config } from './components/config';
 import NProgress from 'nprogress';
+import { RouteMaps } from './types/type';
 
-function getRoutes(docs, type) {
+function getRoutes(docs: RouteMaps, type: string = undefined) {
   let docsRoutes = [];
   let docRoute;
 
   docs.forEach((item) => {
-    const docType = item.type || type;
-    let { children } = item;
+    const docType = item?.type || type;
+    const { children } = item;
     if (children) {
       docsRoutes = docsRoutes.concat(getRoutes(children, docType));
     } else {
@@ -25,7 +25,7 @@ function getRoutes(docs, type) {
   return docsRoutes;
 }
 
-const routes = [
+const routes: RouteRecordRaw[] = [
   {
     path: config.routerPrefix + '/',
     redirect: config.routerPrefix + '/Content',
@@ -42,7 +42,7 @@ const routes = [
   },
 ];
 
-const routerConfig = {
+const routerConfig: RouterOptions = {
   history: createWebHashHistory(),
   routes,
   scrollBehavior(to, from) {

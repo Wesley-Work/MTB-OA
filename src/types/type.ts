@@ -14,6 +14,7 @@ export interface RouteMapItems extends Omit<RouteRecordRaw, 'component' | 'child
   hiddenBreadCrumb?: boolean;
   fatherCrumb?: string;
   children?: RouteMapItems[];
+  type?: string;
 }
 
 export type RouteMaps = RouteMapItems[];
@@ -82,7 +83,7 @@ export interface equipmentStatus {
   id: number;
   label: string;
   theme: string;
-  n?: Array<number | 'start'> | undefined;
+  disableStatus?: Array<number | 'start'> | undefined;
   tips?: equipmentStatusTips[];
 }
 

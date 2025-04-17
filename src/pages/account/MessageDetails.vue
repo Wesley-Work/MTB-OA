@@ -36,7 +36,7 @@ export default {
   mounted() {
     this.$emit('mounted');
     var mid = this.getUrlParam('mid');
-    mid != false ? console.log('【消息详情】：收到id为' + mid + '的消息') : console.log('【消息详情】：消息id错误');
+    mid != false ? console.info('【消息详情】：收到id为' + mid + '的消息') : console.info('【消息详情】：消息id错误');
   },
 
   methods: {

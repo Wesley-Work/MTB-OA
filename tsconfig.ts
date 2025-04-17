@@ -17,6 +17,7 @@ export default {
       '@hooks/*': ['src/hooks/*'],
       '@pages/*': ['src/pages/*'],
       '@components/*': ['src/components/*'],
+      '@types/*': ['src/types/*'],
     },
     types: ['vite/client', 'vite-plugin-md', 'node'],
   },

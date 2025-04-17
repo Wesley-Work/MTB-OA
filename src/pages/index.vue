@@ -186,7 +186,7 @@ import {
 } from '../hooks/common';
 import { useRequest } from '../hooks/useRequest';
 import PageTooSmall from '../components/pages/PageSmall.vue';
-import router from '../routes';
+import router from '../routes.ts';
 
 watch(
   () => router.currentRoute.value.path,
