@@ -198,7 +198,7 @@ import {
 } from 'tdesign-vue-next';
 import dayjs from 'dayjs';
 import { isNumber } from 'lodash-es';
-import { getInternetAPI } from '@utils/index';
+import { getInternetAPI, getInternetWeb } from '@utils/index';
 
 interface HeaderItemChildren {
   id?: number;
@@ -242,7 +242,7 @@ interface HeaderTreeActiveList {
 type HeaderTreeTypeOption = { label: string; value: string };
 
 const headerPreviewUrl = computed(() => {
-  return 'http://localhost:14560/#/config/header?testData=' + JSON.stringify(headerTreeList.value);
+  return `${getInternetWeb()}/#/config/header?testData=${JSON.stringify(headerTreeList.value)}`;
 });
 const headerPreviewIframeVisible = ref(true);
 const headerTreeRef = ref<TreeInstanceFunctions>();
