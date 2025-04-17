@@ -1,78 +1,128 @@
 /* Make clicks pass-through */
 #nprogress {
-    pointer-events: none;
-  }
-  
-  #nprogress .bar {
-    position: fixed;
-    z-index: 1031;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    background: repeating-linear-gradient(to right,#0062fa 5%,#ffbd2e 30%,#ff454f 55%,#ffbd2e 80%,#0062fa 100%);
-    background-size: 200% auto;
-    background-position: 0 100%;
-    animation: gradient 6s infinite;
-    animation-fill-mode: forwards;
-    animation-timing-function: linear
+  pointer-events: none;
 }
-  
-  /* Fancy blur effect */
-  #nprogress .peg {
-    display: block;
-    position: absolute;
-    right: 0px;
-    width: 100px;
-    height: 100%;
-    box-shadow: 0 0 10px #29d, 0 0 5px #29d;
-    opacity: 1.0;
-  
-    -webkit-transform: rotate(3deg) translate(0px, -4px);
-        -ms-transform: rotate(3deg) translate(0px, -4px);
-            transform: rotate(3deg) translate(0px, -4px);
+
+#nprogress .bar {
+  position: fixed;
+  z-index: 1031;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: repeating-linear-gradient(to right, #0062fa 5%, #ffbd2e 30%, #ff454f 55%, #ffbd2e 80%, #0062fa 100%);
+  background-size: 200% auto;
+  background-position: 0 100%;
+  animation: gradient 6s infinite;
+  animation-fill-mode: forwards;
+  animation-timing-function: linear;
+}
+
+/* Fancy blur effect */
+#nprogress .peg {
+  display: block;
+  position: absolute;
+  right: 0px;
+  width: 100px;
+  height: 100%;
+  box-shadow: 0 0 10px #29d, 0 0 5px #29d;
+  opacity: 1;
+
+  -webkit-transform: rotate(3deg) translate(0px, -4px);
+  -ms-transform: rotate(3deg) translate(0px, -4px);
+  transform: rotate(3deg) translate(0px, -4px);
+}
+
+/* Remove these to get rid of the spinner */
+#nprogress .spinner {
+  display: none;
+  position: fixed;
+  z-index: 1031;
+  top: 15px;
+  right: 15px;
+}
+
+#nprogress .spinner-icon {
+  width: 18px;
+  height: 18px;
+  box-sizing: border-box;
+
+  border: solid 2px transparent;
+  border-top-color: #29d;
+  border-left-color: #29d;
+  border-radius: 50%;
+
+  -webkit-animation: nprogress-spinner 400ms linear infinite;
+  animation: nprogress-spinner 400ms linear infinite;
+}
+
+.nprogress-custom-parent {
+  overflow: hidden;
+  position: relative;
+}
+
+.nprogress-custom-parent #nprogress .spinner,
+.nprogress-custom-parent #nprogress .bar {
+  position: absolute;
+}
+
+@-webkit-keyframes nprogress-spinner {
+  0% {
+    -webkit-transform: rotate(0deg);
   }
-  
-  /* Remove these to get rid of the spinner */
-  #nprogress .spinner {
-    display: none;
-    position: fixed;
-    z-index: 1031;
-    top: 15px;
-    right: 15px;
+  100% {
+    -webkit-transform: rotate(360deg);
   }
-  
-  #nprogress .spinner-icon {
-    width: 18px;
-    height: 18px;
-    box-sizing: border-box;
-  
-    border: solid 2px transparent;
-    border-top-color: #29d;
-    border-left-color: #29d;
-    border-radius: 50%;
-  
-    -webkit-animation: nprogress-spinner 400ms linear infinite;
-            animation: nprogress-spinner 400ms linear infinite;
+}
+@keyframes nprogress-spinner {
+  0% {
+    transform: rotate(0deg);
   }
-  
-  .nprogress-custom-parent {
-    overflow: hidden;
-    position: relative;
+  100% {
+    transform: rotate(360deg);
   }
-  
-  .nprogress-custom-parent #nprogress .spinner,
-  .nprogress-custom-parent #nprogress .bar {
-    position: absolute;
+}
+
+
+// light-dark-8deg-animation
+@keyframes light-to-dark {
+  from {
+    clip-path: polygon(0 0, 0 0, calc(tan(8deg) * -100vh) 100%, calc(tan(8deg) * -100vh) 100%);
   }
-  
-  @-webkit-keyframes nprogress-spinner {
-    0%   { -webkit-transform: rotate(0deg); }
-    100% { -webkit-transform: rotate(360deg); }
+
+  to {
+    clip-path: polygon(0 0, calc((tan(8deg) * 100vh) + 100%) 0, 100% 100%, calc(tan(8deg) * -100vh) 100%);
   }
-  @keyframes nprogress-spinner {
-    0%   { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+}
+
+@keyframes dark-to-light {
+  from {
+    clip-path: polygon(calc((tan(8deg) * 100vh) + 100%) 0, calc((tan(8deg) * 100vh) + 100%) 0, 100% 100%, 100% 100%);
   }
-  
-  
+
+  to {
+    clip-path: polygon(0 0, calc((tan(8deg) * 100vh) + 100%) 0, 100% 100%, calc(tan(8deg) * -100vh) 100%);
+  }
+}
+
+:root::view-transition-group(root) {
+  animation-duration: 1s;
+}
+
+:root::view-transition-new(root),
+:root::view-transition-old(root) {
+  mix-blend-mode: normal;
+}
+
+:root::view-transition-old(root),
+:root[theme-mode='dark']::view-transition-old(root) {
+  animation: none;
+}
+
+:root::view-transition-new(root) {
+  animation-name: dark-to-light;
+}
+
+:root[theme-mode='dark']::view-transition-new(root) {
+  animation-name: light-to-dark;
+}

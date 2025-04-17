@@ -42,7 +42,7 @@
 <script lang="jsx">
 // import * as api from "../../components/config/api.js";
 import useRequest from "../../hooks/useRequest";
-import * as config from "../../components/config";
+import * as config from "../../config";
 import { getToken } from "../../hooks/common";
 import { NotifyPlugin } from "tdesign-vue-next";
 

@@ -1,4 +1,5 @@
 export * from './fetch';
+export * from './theme';
 
 /**
  * 判断是否为内网[简单判断]

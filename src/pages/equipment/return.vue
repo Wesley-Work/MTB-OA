@@ -96,7 +96,7 @@
 </template>
 
 <script setup lang="tsx">
-import { config } from "../../components/config";
+import { config } from "../../config";
 import scrollNumber from "../../components/function/scrollnumber.vue";
 import { NotifyPlugin } from "tdesign-vue-next";
 import { CheckCircleFilledIcon, CloseCircleFilledIcon } from 'tdesign-icons-vue-next';

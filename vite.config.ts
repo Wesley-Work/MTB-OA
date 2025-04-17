@@ -17,7 +17,8 @@ export default defineConfig({
       '@hooks': path.resolve(srcRootPath, 'hooks'),
       '@pages': path.resolve(srcRootPath, 'pages'),
       '@components': path.resolve(srcRootPath, 'components'),
-      '@types': path.resolve(srcRootPath, 'types'),
+      '@type': path.resolve(srcRootPath, 'types'),
+      '@config': path.resolve(srcRootPath, 'config'),
     },
   },
   plugins: [

@@ -132,7 +132,7 @@
 <script>
 import UserFakeData from '../../assets/UserFakeData.json'
 import { NotifyPlugin } from 'tdesign-vue-next'
-import { config } from "../../components/config";
+import { config } from "../../config";
 import useRequest from '../../hooks/useRequest';
 
 

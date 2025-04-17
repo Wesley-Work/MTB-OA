@@ -1,6 +1,6 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw, RouterOptions } from 'vue-router';
 import RenderComponents from './components/index';
-import { routerMap, config } from './components/config';
+import { routerMap, config } from './config';
 import NProgress from 'nprogress';
 import { RouteMaps } from './types/type';
 
@@ -28,7 +28,6 @@ function getRoutes(docs: RouteMaps, type: string = undefined) {
 const routes: RouteRecordRaw[] = [
   {
     path: config.routerPrefix + '/',
-    redirect: config.routerPrefix + '/Content',
     component: RenderComponents,
     children: [...getRoutes(routerMap)],
   },
@@ -57,16 +56,24 @@ const router = createRouter(routerConfig);
 router.beforeEach((to, from, next) => {
   // 进度条
   if (typeof NProgress !== 'undefined') {
-    // eslint-disable-next-line no-undef
     NProgress.start();
   }
-  next();
+
+  // 如果是根路径，且有上次访问的路径，则重定向到上次的路径
+  if (to.path === config.routerPrefix + '/' && localStorage.getItem('lastPath')) {
+    next({ path: localStorage.getItem('lastPath') });
+  } else {
+    next();
+  }
 });
 
-router.afterEach(() => {
+router.afterEach((to) => {
   if (typeof NProgress !== 'undefined') {
-    // eslint-disable-next-line no-undef
     NProgress.done();
+  }
+  // 保存当前路径
+  if (to.path !== config.routerPrefix + '/') {
+    localStorage.setItem('lastPath', to.path);
   }
 });
 

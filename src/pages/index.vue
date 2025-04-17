@@ -129,7 +129,7 @@
     }"
     :NoShowMenu="!TitleMenu.show"
   >
-    <BreadCurmb :value="SideMenu.ComponentValue"></BreadCurmb>
+    <BreadCrumb :value="SideMenu.ComponentValue"></BreadCrumb>
     <section
       class="loading-change-components-animation"
       :class="{
@@ -138,7 +138,7 @@
       }"
       :page="SideMenu.value"
     >
-      <PageTooSmall v-if="pagesmall" />
+      <PageTooSmall v-if="pageSmall" />
       <router-view
         v-else
         :handle-change-component="handleChangeComponent"
@@ -168,25 +168,18 @@
 </template>
 
 <script setup lang="tsx">
-import SideMenus from '../hooks/useMenu.tsx';
-import BreadCurmb from '../hooks/useBreadcrumb.tsx';
+import SideMenus from '../hooks/useMenu';
+import BreadCrumb from '../hooks/useBreadcrumb';
 import { computed, onBeforeMount, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
-import { themeMode, toggleTheme } from '../components/function/theme.js';
-import { config, routerMap } from '../components/config';
+import { themeMode, toggleTheme } from '../utils/theme';
+import { config, routerMap, useViewTransition } from '../config';
 import { PoweroffIcon, ChatBubbleHelpIcon } from 'tdesign-icons-vue-next';
 import { NotifyPlugin } from 'tdesign-vue-next';
-import {
-  getCurrentPage,
-  verifyPath,
-  getSSOURL,
-  getAPIURL,
-  getLoginURL,
-  getRoutePathObj,
-  VerifyToken,
-} from '../hooks/common';
+import { getCurrentPage, verifyPath, getSSOURL, getLoginURL, getRoutePathObj, VerifyToken } from '../hooks/common';
 import { useRequest } from '../hooks/useRequest';
-import PageTooSmall from '../components/pages/PageSmall.vue';
-import router from '../routes.ts';
+import PageTooSmall from '../components/pages/pageSmall.vue';
+import router from '../routes';
+import type { LocationQueryRaw } from 'vue-router';
 
 watch(
   () => router.currentRoute.value.path,
@@ -199,7 +192,7 @@ watch(
 
 const componentPermissions = ref([]);
 const TitleMenu = reactive({
-  text: config.systemname,
+  text: config.systemName,
   show: true,
 });
 const SideMenu = reactive({
@@ -234,17 +227,14 @@ const login_info = reactive({
 });
 const timer = reactive({
   token: null,
+  isChecking: false,
 });
 const theme = ref(false);
-const pagesmall = ref(false);
+const pageSmall = ref(false);
 const messageList = ref([]);
 const hasMessageNotRead = computed(() => {
   return messageList.value.filter((item) => item.onread === 0).length > 0;
 });
-console.info(
-  '消息列表：',
-  messageList.value.filter((item) => item.onread === 0),
-);
 
 const getComponentPermissions = (componentName) => {
   const { current } = getRoutePathObj(routerMap, componentName);
@@ -276,6 +266,10 @@ const getMessage = () => {
         return;
       }
       messageList.value = result.data;
+      console.info(
+        `${login_info.name}[${login_info.code}] 消息列表：`,
+        messageList.value.filter((item) => item.onread === 0),
+      );
     },
     error: function (err) {
       console.error(err);
@@ -313,36 +307,6 @@ const LoadUserPermissions = (TOKEN: string = localStorage.getItem('token')) => {
 };
 
 /**
- * @checkToken
- * @检查Token时效
- */
-const checkToken = () => {
-  var TOKEN = localStorage.getItem('token');
-  // Token检测较为特殊，useRequest可能会影响用户体验，所以不用useRequest
-  const xhr = new XMLHttpRequest();
-  xhr.open('post', getAPIURL() + '/checkToken', true);
-  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
-  xhr.setRequestHeader('token', TOKEN);
-  xhr.onload = () => {
-    var result = JSON.parse(xhr.response.replace(/\r|\n/gi, ''));
-    if (result.errcode != 0 || !result.data.verify) {
-      // pass
-      location.href = getLoginURL();
-    }
-  };
-  xhr.onerror = () => {
-    console.error('请求错误', xhr);
-    localStorage.removeItem('token');
-    NotifyPlugin('error', {
-      title: '遇到错误',
-      content: '无法检测Token状态，请尝试重新登录',
-      duration: 0,
-    });
-  };
-  xhr.send();
-};
-
-/**
  * @getUserInfoByToken
  * @获取用户信息
  * @param token
@@ -371,6 +335,42 @@ const getUserInfoByToken = (TOKEN) => {
 };
 
 /**
+ * @checkToken
+ * @检查Token时效
+ */
+const checkToken = () => {
+  if (timer.isChecking) {
+    return;
+  }
+  timer.isChecking = true;
+  // 统一使用useRequest，抛弃XHR请求方式
+  useRequest({
+    url: '/checkToken',
+    methods: 'POST',
+    success: function (res) {
+      var result = JSON.parse(res);
+      if (result.errcode != 0 || !result.data.verify) {
+        // loginState invalid
+        cancelCheckToken();
+        location.href = getLoginURL();
+      }
+    },
+    error: function (err) {
+      console.error(err);
+      localStorage.removeItem('token');
+      NotifyPlugin('error', {
+        title: '遇到错误',
+        content: '无法检测Token状态，请尝试重新登录',
+        duration: 0,
+      });
+    },
+    complete: function () {
+      timer.isChecking = false;
+    },
+  });
+};
+
+/**
  * @startCheckToken
  * @开始循环检查Token
  */
@@ -388,6 +388,7 @@ const startCheckToken = () => {
 const cancelCheckToken = () => {
   console.warn('[CheckToken] CANCEL');
   clearInterval(timer.token);
+  timer.isChecking = false;
 };
 
 /**
@@ -397,9 +398,9 @@ const cancelCheckToken = () => {
 const GetPageWidth = (e) => {
   if (e.currentTarget.parent.innerWidth < config.minWidth) {
     console.warn('尺寸过小！');
-    pagesmall.value = true;
+    pageSmall.value = true;
   } else {
-    pagesmall.value = false;
+    pageSmall.value = false;
   }
 };
 
@@ -408,8 +409,14 @@ const GetPageWidth = (e) => {
  * @切换样式
  */
 const ToggleTheme = () => {
-  // document.startViewTransition(() => toggleTheme());
-  toggleTheme();
+  // 是否使用view-transition API
+  if (document.startViewTransition && useViewTransition) {
+    document.startViewTransition(() => {
+      toggleTheme();
+    });
+  } else {
+    toggleTheme();
+  }
   theme.value = ThemeMode();
 };
 
@@ -448,7 +455,7 @@ const handleChangeComponent = (componentName: string, doNotToggleSideMenu: boole
   setTimeout(() => {
     router.push({
       path: `${config.routerPrefix}/${componentName}`,
-      query: query,
+      query: query as LocationQueryRaw,
     });
     MainContent.ComponentValue = componentName;
     MainContent.classOut = false;
@@ -465,7 +472,7 @@ const handleChangeComponent = (componentName: string, doNotToggleSideMenu: boole
  * @param {*} e 选择数据项
  */
 const handleAccountMenu = (e) => {
-  e.value == 1 ? handleChangeComponent('PersionCenter', true) : e.value == 2 ? null : logout();
+  e.value == 1 ? handleChangeComponent('PersonCenter', true) : e.value == 2 ? null : logout();
   SideMenu.show = false;
 };
 
@@ -482,7 +489,7 @@ const PageReload = () => {
  * @阻止a标签默认点击事件，防止跳转到站外链接
  */
 const NotClick = () => {
-  if (config.aTag_DontNav) {
+  if (config.aTagDoNotNav) {
     NotifyPlugin('warning', {
       title: '操作失败',
       content: '根据相关规则，不允许跳转站外链接',
@@ -513,15 +520,18 @@ const VerifyPath = (path) => {
  * @desc 获取参数
  * @param id 参数名
  */
-const getUrlParam = (variable, url = window.location.search.substring(1)) => {
-  var vars = url.split('&');
-  for (var i = 0; i < vars.length; i++) {
-    var pair = vars[i].split('=');
-    if (pair[0] == variable) {
-      return pair[1];
-    }
+const getUrlParam = (variable) => {
+  // 先尝试从 hash 后的参数中获取
+  const hashParts = window.location.hash.split('?');
+  if (hashParts.length > 1) {
+    const hashParams = new URLSearchParams(hashParts[1]);
+    const value = hashParams.get(variable);
+    if (value) return value;
   }
-  return undefined;
+
+  // 如果在 hash 后没有找到，再尝试从 URL 参数中获取
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get(variable);
 };
 
 /**
@@ -576,65 +586,67 @@ const getUrlParam = (variable, url = window.location.search.substring(1)) => {
 //   }
 // };
 
-const removeParam = (key, sourceURL) => {
-  var rtn = sourceURL.split('?')[0],
-    param,
-    params_arr = [],
-    queryString = sourceURL.indexOf('?') !== -1 ? sourceURL.split('?')[1] : '';
-  if (queryString !== '') {
-    params_arr = queryString.split('&');
-    for (var i = params_arr.length - 1; i >= 0; i -= 1) {
-      param = params_arr[i].split('=')[0];
-      if (param === key) {
-        params_arr.splice(i, 1);
-      }
-    }
-    rtn = rtn + '?' + params_arr.join('&');
-  }
-  return rtn;
-};
+// const removeParam = (key, sourceURL) => {
+//   var rtn = sourceURL.split('?')[0],
+//     param,
+//     params_arr = [],
+//     queryString = sourceURL.indexOf('?') !== -1 ? sourceURL.split('?')[1] : '';
+//   if (queryString !== '') {
+//     params_arr = queryString.split('&');
+//     for (var i = params_arr.length - 1; i >= 0; i -= 1) {
+//       param = params_arr[i].split('=')[0];
+//       if (param === key) {
+//         params_arr.splice(i, 1);
+//       }
+//     }
+//     rtn = rtn + '?' + params_arr.join('&');
+//   }
+//   return rtn;
+// };
 
 onBeforeMount(() => {
   console.info('System Start Running!');
   document.body.style.overflow = 'hidden';
-  const actionType = getUrlParam('actionType');
+  const searchParams = new URLSearchParams(window.location.search);
+  const actionType = searchParams.get('actionType');
+
   if (actionType == 'Login_Back') {
     // 登录页面返回
-    var TOKEN = getUrlParam('user_token');
-    localStorage.setItem('token', TOKEN);
-    const USER_INFO = {
-      code: getUrlParam('user_code'),
-      name: getUrlParam('user_name'),
-      class: getUrlParam('user_class'),
-      login_time: getUrlParam('login_time'),
-    };
-    login_info.code = getUrlParam('user_code');
-    login_info.name = getUrlParam('user_name');
-    login_info.class = getUrlParam('user_class');
-    login_info.login_time = getUrlParam('login_time');
-    localStorage.setItem('user_info', JSON.stringify(USER_INFO));
-    // 地址栏只保留token但不刷新页面，保证地址栏干净
-    window.history.pushState(
-      null,
-      null,
-      removeParam(
-        'actionType',
-        removeParam(
-          'login_time',
-          removeParam('user_class', removeParam('user_name', removeParam('user_code', window.location.href))),
-        ),
-      ),
-    );
+    const TOKEN = searchParams.get('user_token');
+    if (TOKEN) {
+      localStorage.setItem('token', TOKEN);
+      const USER_INFO = {
+        code: searchParams.get('user_code'),
+        name: searchParams.get('user_name'),
+        class: searchParams.get('user_class'),
+        login_time: searchParams.get('login_time'),
+      };
+      login_info.code = searchParams.get('user_code');
+      login_info.name = searchParams.get('user_name');
+      login_info.class = searchParams.get('user_class');
+      login_info.login_time = searchParams.get('login_time');
+      localStorage.setItem('user_info', JSON.stringify(USER_INFO));
+
+      // 获取当前路由路径
+      const currentPath = router.currentRoute.value.fullPath;
+      const hashParams = new URLSearchParams();
+      hashParams.set('user_token', TOKEN);
+
+      // 更新 URL，将参数放在当前路由后面
+      const newUrl = new URL(window.location.href);
+      newUrl.hash = `${currentPath}?${hashParams.toString()}`;
+      window.history.replaceState(null, '', newUrl.toString());
+    }
   }
   // 查询Token
   const VERIFY_TOKEN = localStorage.getItem('token');
-  if ((VERIFY_TOKEN == null || !VERIFY_TOKEN) && config.login_verify == true) {
+  if ((VERIFY_TOKEN == null || !VERIFY_TOKEN) && config.loginVerify == true) {
     // 没有登录数据，遣返登录页面
     console.warn('未登录，跳转统一认证');
     setTimeout(() => {
       location.href = getLoginURL();
     }, 1500);
-  } else if (config.login_verify == true) {
+  } else if (config.loginVerify == true) {
     // 验证登录
     setTimeout(async () => {
       if (await VerifyToken()) {
@@ -646,7 +658,8 @@ onBeforeMount(() => {
             handleChangeComponent(param_path, true);
           }
         }
-        handleChangeComponent(MainContent.lastChoose, true);
+        // 下方是为了修复刷新时跳到默认页面（首页）的问题
+        // handleChangeComponent(MainContent.lastChoose, true);
         localStorage.setItem('token', VERIFY_TOKEN);
         NotifyPlugin('success', {
           title: '温馨提示',
@@ -727,119 +740,10 @@ export default {
   padding: 12px;
 }
 
-@keyframes light-to-dark {
-  0% {
-    clip-path: polygon(0 0, 0 0, calc(0.14054083 * -100vh) 100%, calc(0.14054083 * -100vh) 100%);
-  }
-
-  to {
-    clip-path: polygon(0 0, calc((0.14054083 * 100vh) + 100%) 0, 100% 100%, calc(0.14054083 * -100vh) 100%);
-  }
-}
-
-@keyframes dark-to-light {
-  0% {
-    clip-path: polygon(calc((0.14054083 * 100vh) + 100%) 0, calc((0.14054083 * 100vh) + 100%) 0, 100% 100%, 100% 100%);
-  }
-
-  to {
-    clip-path: polygon(0 0, calc((0.14054083 * 100vh) + 100%) 0, 100% 100%, calc(0.14054083 * -100vh) 100%);
-  }
-}
-
-:root::view-transition-group(root) {
-  animation-duration: 1s;
-}
-
-:root::view-transition-new(root),
-:root::view-transition-old(root) {
-  mix-blend-mode: normal;
-}
-
-:root::view-transition-old(root),
-:root[theme-mode='dark']::view-transition-old(root) {
-  animation: none;
-}
-
-:root::view-transition-new(root) {
-  animation-name: dark-to-light;
-}
-
-:root[theme-mode='dark']::view-transition-new(root) {
-  animation-name: light-to-dark;
-}
-
-html::view-transition {
-  position: fixed;
-  inset: 0px;
-}
-
-:root::view-transition-group(root) {
-  animation-duration: 1s;
-}
-
-html::view-transition-group(root) {
-  width: 2512px;
-  height: 906px;
-  transform: matrix(1, 0, 0, 1, 0, 0);
-  color-scheme: normal;
-  text-orientation: mixed;
-  writing-mode: horizontal-tb;
-  backdrop-filter: none;
-  mix-blend-mode: normal;
-  animation-name: -ua-view-transition-group-anim-root;
-  animation-timing-function: ease;
-  animation-delay: 0s;
-  animation-iteration-count: 1;
-  animation-direction: normal;
-}
-
-html::view-transition-group(*) {
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  animation-duration: 0.25s;
-  animation-fill-mode: both;
-}
-
-:root::view-transition-new(root) {
-  animation-name: dark-to-light;
-}
-
-:root::view-transition-new(root),
-:root::view-transition-old(root) {
-  mix-blend-mode: normal;
-}
-
-html::view-transition-new(root) {
-  animation-name: -ua-view-transition-fade-in, -ua-mix-blend-mode-plus-lighter;
-}
-
-html::view-transition-new(*) {
-  animation-duration: inherit;
-  animation-fill-mode: inherit;
-}
-
-::view-transition-new(*) {
-  position: absolute;
-  inset-block-start: 0px;
-  inline-size: 100%;
-  block-size: auto;
-}
-
-@keyframes -ua-view-transition-group-anim-root {
-  0% {
-    transform: matrix(1, 0, 0, 1, 0, 0);
-    width: 2512px;
-    height: 906px;
-    backdrop-filter: none;
-  }
-}
-
 :root {
   --transition-default: cubic-bezier(0.645, 0.045, 0.355, 1);
   --td-errp-color: #e3e6ebb8;
-  --pagesmall: rgba(0, 0, 0, 0.6);
+  --pageSmall: rgba(0, 0, 0, 0.6);
   --CornerBackgroundColor: #fff;
   --text-color: #000;
   --dai1: var(--td-bg-color-page);
@@ -850,7 +754,7 @@ html::view-transition-new(*) {
 
 :root[theme-mode='dark'] {
   --td-errp-color: rgba(74, 74, 74, 0.4);
-  --pagesmall: rgba(255, 255, 255, 0.6);
+  --pageSmall: rgba(255, 255, 255, 0.6);
   --text-color: #fff;
   --dai1: #fff;
   --loading-block: rgba(255, 255, 255, 0.1);

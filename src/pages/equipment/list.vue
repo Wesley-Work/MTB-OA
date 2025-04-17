@@ -20,7 +20,7 @@
 
 <script lang="tsx" setup>
 import { InfoCircleIcon } from 'tdesign-icons-vue-next';
-import { config } from '../../components/config';
+import { config } from '../../config';
 import { NotifyPlugin } from 'tdesign-vue-next';
 import useRequest from '../../hooks/useRequest';
 import { getToken } from '../../hooks/common';

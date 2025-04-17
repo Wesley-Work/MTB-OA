@@ -117,7 +117,7 @@
 </template>
 
 <script setup lang="tsx">
-import { config } from "../../components/config";
+import { config } from "../../config";
 import useRequest from "../../hooks/useRequest";
 import scrollNumber from "../../components/function/scrollnumber.vue";
 import { NotifyPlugin } from "tdesign-vue-next";

@@ -268,22 +268,23 @@ const routerMap: RouteMaps = [
 
 const config = {
   version: '3.1.0',
-  version_mode: 'RC',
+  versionMode: 'Stable',
   packageVersion: packageVersion,
-  systemname: '顺德中专团委媒体部管理系统',
-  systemnameEn: 'MTB OA',
-  develop_mode: false, //开发模式
-  login_verify: true, //登陆验证
-  logout_time: 120000, //无操作退登时间,ms
-  check_time: 3000, //验证登录态时间,ms
+  systemName: '顺德中专团委媒体部管理系统',
+  systemNameEn: 'MTB OA',
+  developMode: false, //开发模式
+  loginVerify: true, //登陆验证
+  logoutTime: 120000, //无操作退登时间,ms
+  checkTime: 3000, //验证登录态时间,ms
   minWidth: 960, //页面最小宽度
-  update_mode: false, //是否开启更新模式
-  aTag_DontNav: true, //A标签不允许跳转
+  updateMode: false, //是否开启更新模式
+  aTagDoNotNav: true, //A标签不允许跳转
   menuUseCollapsed: true, //菜单是否使用折叠模式
   routerPrefix: '/system', //路由前缀
   routerMap,
   pagePermissionVerify: true, //是否开启页面权限验证
   menuPermissionVerify: false, //是否开启菜单权限验证
+  useViewTransition: true, // 是否使用ViewTransition API 进行切换样式
 };
 
 export default config;
@@ -293,8 +294,9 @@ export const routerPrefix = config.routerPrefix;
 export { routerMap, config, packageVersion };
 
 export const VERSION = config.version;
-export const VersionMode = config.version_mode;
-export const SystemName = config.systemname;
-export const SystemNameEn = config.systemnameEn;
+export const VersionMode = config.versionMode;
+export const SystemName = config.systemName;
+export const SystemNameEn = config.systemNameEn;
 export const pagePermissionVerify = config.pagePermissionVerify;
 export const menuPermissionVerify = config.menuPermissionVerify;
+export const useViewTransition = config.useViewTransition;

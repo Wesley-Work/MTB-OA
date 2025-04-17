@@ -52,7 +52,7 @@
 
 <script setup lang="ts">
 import useRequest from '../../hooks/useRequest';
-import { VERSION, packageVersion, VersionMode, SystemName, SystemNameEn } from '../../components/config'
+import { VERSION, packageVersion, VersionMode, SystemName, SystemNameEn } from '../../config'
 import { NotifyPlugin } from 'tdesign-vue-next';
 import { onMounted, ref } from 'vue';
 

@@ -1,18 +1,18 @@
 import { NotifyPlugin } from 'tdesign-vue-next';
 import { getAPIURL, getLoginURL, getToken } from './common';
-import { config } from '../components/config';
+import { config } from '../config';
 import { RequestHooksOptions, RequestResponseData } from '@/types/type';
 import { isFunction, merge, omit } from 'lodash-es';
 function SpliceParameter(DATA: Object) {
   if (Object.prototype.toString.call(DATA) !== '[object Object]') return false;
   // PASS
-  var ParameterOBJ = [];
+  const ParameterOBJ = [];
   for (const [key, value] of Object.entries(DATA)) {
-    var keys = encodeURIComponent(key);
-    var values = value === null ? '' : encodeURIComponent(value);
+    const keys = encodeURIComponent(key);
+    const values = value === null ? '' : encodeURIComponent(value);
     ParameterOBJ.push(`${keys}=${values}`);
   }
-  var ParameterSRT = ParameterOBJ.join('&');
+  const ParameterSRT = ParameterOBJ.join('&');
   return ParameterSRT;
 }
 
@@ -45,7 +45,7 @@ export function useRequest(option: RequestHooksOptions) {
         if (option.error && typeof option.error === 'function') {
           option.error(res);
         }
-        console.log(et, res);
+        console.error(et, res);
         emitComplete(res);
         reject(res);
       }
@@ -58,12 +58,12 @@ export function useRequest(option: RequestHooksOptions) {
       }
       if (Object.prototype.toString.call(option) !== '[object Object]') resolve(false);
 
-      var headers = {};
+      const headers = {};
       // 优先header使用提供的内容 若没提供则使用默认值
       headers['Content-Type'] = option?.header?.['Content-Type'] ?? 'application/x-www-form-urlencoded; charset=UTF-8';
       headers['TOKEN'] = option?.token ?? option?.header?.['TOKEN'] ?? getToken() ?? null;
       // 合并两个object 排除contentType和token
-      var headersMerge = merge(headers, omit(option?.header, ['Content-Type', 'TOKEN', 'token']));
+      const headersMerge = merge(headers, omit(option?.header, ['Content-Type', 'TOKEN', 'token']));
       // fetch 请求
       await fetch(option?.useCustomURL ? option?.url : getAPIURL() + option?.url, {
         method: option?.methods ? option?.methods.toUpperCase() : 'GET',
@@ -83,7 +83,7 @@ export function useRequest(option: RequestHooksOptions) {
           if (data.errcode === -1003) {
             console.error('Token Timeout!');
             emitError('TokenTimeout', data);
-            if (config.login_verify) {
+            if (config.loginVerify) {
               NotifyPlugin('error', {
                 title: '登录已过期，请重新登录',
                 duration: 0,

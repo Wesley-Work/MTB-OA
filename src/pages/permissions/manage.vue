@@ -300,7 +300,7 @@ const System_Permissions_List_Columns = computed(() => [
 
 <script lang="tsx">
 import { NotifyPlugin } from 'tdesign-vue-next';
-import { config } from '../../components/config';
+import { config } from '../../config';
 import useRequest from '../../hooks/useRequest';
 
 export default {

@@ -1,7 +1,7 @@
 
 import { defineComponent, ref, computed, toRefs, watch } from 'vue';
 import { getRoutePathObj } from './common';
-import config, { routerMap } from '../components/config';
+import config, { routerMap } from '../config';
 import { RouteData } from 'tdesign-vue-next';
 import { RouteMapItem, RouteMaps } from '@/types/type';
 

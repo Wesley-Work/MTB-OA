@@ -1,6 +1,6 @@
 
 import { defineComponent, toRefs, watch } from 'vue';
-import config, { menuPermissionVerify, routerMap } from '../components/config';
+import config, { menuPermissionVerify, routerMap } from '../config';
 import packageFile from '../../package.json';
 import { h } from 'vue';
 import { MenuGroup, Submenu, MenuItem, Icon } from 'tdesign-vue-next';

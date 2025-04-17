@@ -142,7 +142,7 @@
 import { computed, onMounted, reactive, ref } from "vue";
 import dayjs from 'dayjs';
 import { NotifyPlugin, TableProps } from "tdesign-vue-next";
-import { config } from "../../components/config";
+import { config } from "../../config/index.ts";
 import sha256 from 'crypto-js/sha256'
 import useRequest from "../../hooks/useRequest";
 import { loadSystemPermissions, loadUserPermissionsList } from "../../hooks/usePermission.ts";

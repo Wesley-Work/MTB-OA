@@ -44,7 +44,7 @@
 
 <script lang="jsx">
 import { NotifyPlugin } from "tdesign-vue-next";
-import { config } from "../../components/config";
+import { config } from "../../config";
 import useRequest from "../../hooks/useRequest";
 import { getToken } from "../../hooks/common";
 
