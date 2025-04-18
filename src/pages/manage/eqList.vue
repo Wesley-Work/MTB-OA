@@ -35,19 +35,21 @@
     <div style="padding-top: 16px">
       <t-table
         row-key="id"
-        :columns="table_Columns"
-        :data="table_Data"
+        :columns="tableColumns"
+        :data="tableData"
         select-on-row-click
         :reserve-selected-row-on-paginate="false"
-        :sort="table_Sort"
+        :sort="tableSort"
         :pagination="tablePagination"
-        :loading="table_Loading"
+        :loading="tableLoading"
+        :filter-value="tableFilterValue"
         cell-empty-content="-"
         stripe
         bordered
         @sort-change="sortChange"
         @select-change="handleTableSelectChange"
         @page-change="onPageChange"
+        @filter-change="onFilterChange"
       >
       </t-table>
     </div>
@@ -61,7 +63,7 @@
     :close-btn="false"
     cancel-btn="取消"
     :confirm-btn="'提交' + dialogModeText"
-    :on-confirm="EditForm"
+    :on-confirm="dialogSubmit"
     :close-on-esc-keydown="false"
   >
     <div style="width: 100%; margin-top: 8px">
@@ -116,7 +118,7 @@
 
 <script setup lang="tsx">
 import { computed, onMounted, reactive, ref } from 'vue';
-import { NotifyPlugin } from 'tdesign-vue-next';
+import { FilterValue, NotifyPlugin, TableProps } from 'tdesign-vue-next';
 import type { equipmentStatus } from '@type/type';
 import useRequest from '../../hooks/useRequest';
 
@@ -128,7 +130,7 @@ const equipmentType = [
   },
   {
     id: 1,
-    label: '其他-非媒体部',
+    label: '其他(非媒体部)',
     theme: 'warning',
   },
 ];
@@ -167,7 +169,7 @@ const equipmentStatus: equipmentStatus[] = [
   },
 ];
 
-const table_Columns = [
+const tableColumns = [
   {
     colKey: 'row-select',
     type: 'multiple',
@@ -186,6 +188,15 @@ const table_Columns = [
     sortType: 'all',
     sorter: true,
     width: '200',
+    filter: {
+      type: 'input',
+      resetValue: '',
+      confirmEvents: ['onEnter'],
+      props: {
+        placeholder: '输入进行过滤',
+      },
+      showConfirmAndReset: true,
+    },
   },
   {
     colKey: 'eq_name',
@@ -193,13 +204,23 @@ const table_Columns = [
     sortType: 'all',
     sorter: true,
     ellipsis: true,
+    ellipsisTitle: false,
+    filter: {
+      type: 'input',
+      resetValue: '',
+      confirmEvents: ['onEnter'],
+      props: {
+        placeholder: '输入进行过滤',
+      },
+      showConfirmAndReset: true,
+    },
   },
   { colKey: 'model', title: '型号', sortType: 'all', sorter: true },
-  { colKey: 'sn', title: '设备sn码' },
+  { colKey: 'sn', title: '设备sn' },
   { colKey: 'ascription', title: '归属', sortType: 'all', sorter: true },
   {
     colKey: 'type',
-    title: '设备种类',
+    title: '设备类型',
     sortType: 'all',
     sorter: true,
     cell: (h, { row }) => {
@@ -229,13 +250,14 @@ const table_Columns = [
     },
   },
 ];
-const table_Data = ref([]);
-const table_BackData = ref([]);
-const table_Sort = ref({
+const tableData = ref([]);
+const tableData_Backup = ref([]);
+const tableSort = ref({
   sortBy: 'id',
   descending: false,
 });
-const table_Loading = ref(false);
+const tableLoading = ref(false);
+const tableFilterValue = ref({});
 const SelectData = ref([]);
 const dialogModel = ref(false);
 const dialogMode = ref(undefined);
@@ -258,7 +280,7 @@ const tablePagination = computed(() => {
     current: 1,
     pageSize: 25,
     pageSizeOptions: [25, 75, 115, 150],
-    total: table_Data.value.length,
+    total: tableData.value.length,
     showJumper: true,
   };
 });
@@ -321,15 +343,15 @@ onMounted(() => {
  * @初始化表格数据
  */
 const loadEquipmentTableData = () => {
-  table_Loading.value = true;
+  tableLoading.value = true;
   try {
     useRequest({
       url: '/equipment/list',
       methods: 'POST',
       success: function (res) {
         var RES = JSON.parse(res);
-        table_Data.value = RES.data;
-        table_BackData.value = RES.data;
+        tableData.value = RES.data;
+        tableData_Backup.value = RES.data;
       },
       error: function (err) {
         console.error(err);
@@ -340,12 +362,34 @@ const loadEquipmentTableData = () => {
         });
       },
       complete: function () {
-        table_Loading.value = false;
+        tableLoading.value = false;
       },
     });
   } catch (e) {
     console.error(e);
   }
+};
+
+/**
+ * @filterTableData
+ * @筛选表格数据
+ */
+const filterTableData = (filters: FilterValue) => {
+  tableData.value = JSON.parse(
+    JSON.stringify(
+      tableData_Backup.value.filter((item) => {
+        let result = true;
+        if (result && filters.eq_name) {
+          // 忽略大小写且模糊匹配
+          result = item.eq_name.toLowerCase().includes(filters.eq_name.toLowerCase());
+        } else if (result && filters.eq_code) {
+          // 忽略大小写且模糊匹配
+          result = item.eq_code.toLowerCase().includes(filters.eq_code.toLowerCase());
+        }
+        return result;
+      }),
+    ),
+  );
 };
 
 /**
@@ -496,18 +540,26 @@ const EditForm = () => {
   });
 };
 
+const dialogSubmit = () => {
+  if (dialogMode.value === 'add') {
+    VerifyAddForm();
+  } else if (dialogMode.value === 'edit') {
+    EditForm();
+  }
+};
+
 // 表格排序
 const sortChange = (e) => {
-  table_Sort.value = e;
+  tableSort.value = e;
   tableSortData();
 };
 
 // 表格排序子函数
 const tableSortData = () => {
-  var data = table_Data.value;
-  var sort = table_Sort.value;
+  var data = tableData.value;
+  var sort = tableSort.value;
   if (sort) {
-    table_Data.value = data
+    tableData.value = data
       .concat()
       .sort((a, b) =>
         sort.descending
@@ -515,7 +567,7 @@ const tableSortData = () => {
           : Intl.Collator('zh-Hans-CN', { sensitivity: 'accent' }).compare(b[sort.sortBy], a[sort.sortBy]),
       );
   } else {
-    table_Data.value = table_BackData.value;
+    tableData.value = tableData_Backup.value;
   }
 };
 
@@ -525,9 +577,16 @@ const handleTableSelectChange = (_value, { selectedRowData }) => {
 };
 
 // 表格分页变更
-const onPageChange = (pageInfo, context) => {
+const onPageChange = (pageInfo, _context) => {
   tablePagination.value.current = pageInfo.current;
   tablePagination.value.pageSize = pageInfo.pageSize;
+};
+
+const onFilterChange: TableProps['onFilterChange'] = (filters) => {
+  tableFilterValue.value = {
+    ...filters,
+  };
+  filterTableData(filters);
 };
 </script>
 
