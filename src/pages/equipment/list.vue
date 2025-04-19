@@ -19,8 +19,6 @@
 </template>
 
 <script lang="tsx" setup>
-import { InfoCircleIcon } from 'tdesign-icons-vue-next';
-import { config } from '../../config';
 import { NotifyPlugin } from 'tdesign-vue-next';
 import useRequest from '../../hooks/useRequest';
 import { getToken } from '../../hooks/common';
@@ -97,7 +95,7 @@ const loadTotal = () => {
       },
     });
   } catch (e) {
-    console.log(e);
+    console.error(e);
   }
 };
 
@@ -141,16 +139,16 @@ const loadData = () => {
       },
     });
   } catch (e) {
-    console.log(e);
+    console.error(e);
     TableLoading.value = false;
   }
 };
 
-const handleTableSelectChange = (value, { selectedRowData }) => {
+const handleTableSelectChange = (_value, { selectedRowData }) => {
   SelectData.value = selectedRowData;
 };
 
-const onPageChange = (pageInfo, context) => {
+const onPageChange = (pageInfo) => {
   table_Pagination.value.current = pageInfo.current;
   table_Pagination.value.pageSize = pageInfo.pageSize;
   loadData();

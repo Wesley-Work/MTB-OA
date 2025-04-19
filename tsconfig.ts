@@ -19,6 +19,7 @@ export default {
       '@components/*': ['src/components/*'],
       '@type/*': ['src/types/*'],
       '@config/*': ['src/config/*'],
+      '@styles/*': ['src/styles/*'],
     },
     types: ['vite/client', 'vite-plugin-md', 'node'],
   },

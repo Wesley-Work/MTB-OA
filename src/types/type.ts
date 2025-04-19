@@ -87,6 +87,29 @@ export interface equipmentStatus {
   tips?: equipmentStatusTips[];
 }
 
+export interface EquipmentInfo {
+  id: number;
+  name: string;
+  code: string;
+  belong: string;
+  model: string;
+  sn: string;
+  status: number;
+}
+
+export interface LendRecordInfo {
+  id: number;
+  eqcode: string;
+  eqname: string;
+  lender: string;
+  user: string;
+  returner: string;
+  lendtime: string;
+  returntime: string;
+  record_sha: string;
+  remark: string;
+}
+
 export interface userListObject {
   id?: number;
   name: string;

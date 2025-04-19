@@ -256,12 +256,10 @@
 </template>
 
 <script setup lang="tsx">
-import { themeMode, toggleTheme } from '../../utils/theme.js';
 import { NotifyPlugin } from 'tdesign-vue-next';
-import { config } from '../../config/index.js';
-import { getCurrentInstance, onBeforeUnmount, onMounted, onUnmounted, reactive, ref } from 'vue';
-import useRequest from '../../hooks/useRequest';
-import { getToken } from '../..//hooks/common';
+import { getCurrentInstance, onBeforeUnmount, onMounted, reactive, ref } from 'vue';
+import useRequest from '@hooks/useRequest';
+import { getToken } from '@hooks/common';
 
 const objectResizeRef = ref(null);
 var echarts;
@@ -269,12 +267,6 @@ var Chartslist = [];
 let internalInstance = getCurrentInstance();
 echarts = internalInstance.appContext.config.globalProperties.$echarts;
 var Timer = null;
-const props = defineProps({
-  handleChangeComponent: {
-    type: Function,
-    default: null,
-  },
-});
 // 默认数据都为0，使用updateChartsLendReturn更新图表数据
 const chartsLendReturn = reactive({
   Charts_xAxis_Text: [0, 0, 0, 0, 0, 0, 0],

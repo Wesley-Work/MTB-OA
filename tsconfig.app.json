@@ -25,6 +25,7 @@
       "@components/*": ["src/components/*"],
       "@type/*": ["src/types/*"],
       "@config/*": ["src/config/*"],
+      "@styles/*": ["src/styles/*"],
     },
 
     /* Linting */

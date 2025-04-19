@@ -19,6 +19,7 @@ export default defineConfig({
       '@components': path.resolve(srcRootPath, 'components'),
       '@type': path.resolve(srcRootPath, 'types'),
       '@config': path.resolve(srcRootPath, 'config'),
+      '@styles': path.resolve(srcRootPath, 'styles'),
     },
   },
   plugins: [
