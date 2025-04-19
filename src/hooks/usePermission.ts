@@ -1,8 +1,7 @@
-import { getToken } from './common';
 import useRequest from './useRequest';
 import { isString, isArray } from 'lodash-es';
 
-export var userPermissions = [];
+export let userPermissions = [];
 
 /**
  * @loadUserPermissions
@@ -89,18 +88,19 @@ export function loadUserPermissionsList() {
 export function VerifyPermissions(hasPermission: string[], needPermission: string | string[]): boolean {
   // 将needPermission转换为数组
   const needs = Array.isArray(needPermission) ? needPermission : [needPermission];
+
+  // 空数组或空，直接返回true
+  console.info('[Permission]', 'hasPermission:', hasPermission, 'needPermission:', needPermission, needs);
+  if (needs.length === 0 || !needPermission) {
+    return true;
+  }
+
   // 定义一个函数来检查单个权限是否满足
   function matches(permission: string, requiredPermission: string): boolean {
-    try {
-      var permissionParts = permission.split('.');
-      var requiredParts = requiredPermission.split('.');
-    } catch {
-      if (!requiredPermission) {
-        return true;
-      }
-    }
+    const permissionParts = permission.split('.');
+    const requiredParts = requiredPermission.split('.');
     // 特殊处理 *.*
-    if (permission === '*.*') {
+    if (!requiredPermission || permission === '*.*') {
       return true;
     }
     // 处理通配符 *
@@ -135,17 +135,17 @@ export function VerifyPermissions(hasPermission: string[], needPermission: strin
 }
 
 export function TEST__VerifyPermissions() {
-  console.log('[PermissionTEST]', VerifyPermissions(['*.*'], ['a.b'])); // true
-  console.log('[PermissionTEST]', VerifyPermissions(['*.*'], ['a.b.c'])); // true
-  console.log('[PermissionTEST]', VerifyPermissions(['a.b.c'], ['a.b.c'])); // true
-  console.log('[PermissionTEST]', VerifyPermissions(['a.b.*'], ['a.b.c'])); // true
-  console.log('[PermissionTEST]', VerifyPermissions(['a.b.*'], ['a.b.d'])); // true
-  console.log('[PermissionTEST]', VerifyPermissions(['a.*.*'], ['a.c.b'])); // true
-  console.log('[PermissionTEST]', VerifyPermissions(['*.*.*'], ['a.c.b'])); // true
-  console.log('[PermissionTEST]', VerifyPermissions(['*.*.*'], ['a.c'])); // true
-  console.log('[PermissionTEST]', VerifyPermissions(['a.b.c'], ['a.c.b'])); // false
-  console.log('[PermissionTEST]', VerifyPermissions(['a.*'], ['f.g.h'])); // false
-  console.log('[PermissionTEST]', VerifyPermissions(['a.*'], ['f.h'])); // false
+  console.info('[PermissionTEST]', VerifyPermissions(['*.*'], ['a.b'])); // true
+  console.info('[PermissionTEST]', VerifyPermissions(['*.*'], ['a.b.c'])); // true
+  console.info('[PermissionTEST]', VerifyPermissions(['a.b.c'], ['a.b.c'])); // true
+  console.info('[PermissionTEST]', VerifyPermissions(['a.b.*'], ['a.b.c'])); // true
+  console.info('[PermissionTEST]', VerifyPermissions(['a.b.*'], ['a.b.d'])); // true
+  console.info('[PermissionTEST]', VerifyPermissions(['a.*.*'], ['a.c.b'])); // true
+  console.info('[PermissionTEST]', VerifyPermissions(['*.*.*'], ['a.c.b'])); // true
+  console.info('[PermissionTEST]', VerifyPermissions(['*.*.*'], ['a.c'])); // true
+  console.info('[PermissionTEST]', VerifyPermissions(['a.b.c'], ['a.c.b'])); // false
+  console.info('[PermissionTEST]', VerifyPermissions(['a.*'], ['f.g.h'])); // false
+  console.info('[PermissionTEST]', VerifyPermissions(['a.*'], ['f.h'])); // false
 }
 
 /**
