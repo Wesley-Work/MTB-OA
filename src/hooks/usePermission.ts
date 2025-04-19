@@ -90,7 +90,6 @@ export function VerifyPermissions(hasPermission: string[], needPermission: strin
   const needs = Array.isArray(needPermission) ? needPermission : [needPermission];
 
   // 空数组或空，直接返回true
-  console.info('[Permission]', 'hasPermission:', hasPermission, 'needPermission:', needPermission, needs);
   if (needs.length === 0 || !needPermission) {
     return true;
   }
