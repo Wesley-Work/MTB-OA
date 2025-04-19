@@ -1,4 +1,9 @@
 
+## 🌈 3.3.1 `2025-04-19` 
+### 🚀 Features
+- `Update`: 新增更新检测功能，将在每个用户打开系统时检测是否有新的`Relese`版本，如有则提示用户 @Wesley-0808 ([#48](https://github.com/Wesley-Work/MTB-OA/pull/48))
+### 🐞 Bug Fixes
+- `Menu`: 修复菜单权限判断逻辑问题 @Wesley-0808 ([#48](https://github.com/Wesley-Work/MTB-OA/pull/48))
 ## 🌈 3.3.0 `2025-04-19` 
 ### 🚀 Features
 - `Theme`: 新增切换样式时的动画 @Wesley-0808 ([#44](https://github.com/Wesley-Work/MTB-OA/pull/44))
