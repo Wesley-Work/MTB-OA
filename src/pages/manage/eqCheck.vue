@@ -32,7 +32,7 @@
                   placeholder="请扫描或输入"
                   :on-enter="newlend"
                   :autofocus="true"
-                  @Input="requesteqinfo(lendeqcodevalue)"
+                  @input="requesteqinfo(lendeqcodevalue)"
                 ></t-input>
                 <t-button class="lendbutton" style="margin-left: -10px; z-index: 2" @click.end="newlend">归还</t-button>
               </div>

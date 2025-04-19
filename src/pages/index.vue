@@ -172,7 +172,7 @@ import SideMenus from '../hooks/useMenu';
 import BreadCrumb from '../hooks/useBreadcrumb';
 import { computed, onBeforeMount, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { themeMode, toggleTheme } from '../utils/theme';
-import { config, routerMap, useViewTransition } from '../config';
+import { config, routerMap, useViewTransition, allowHotUpdate, packageVersion } from '../config';
 import { PoweroffIcon, ChatBubbleHelpIcon } from 'tdesign-icons-vue-next';
 import { NotifyPlugin } from 'tdesign-vue-next';
 import { getCurrentPage, verifyPath, getSSOURL, getLoginURL, getRoutePathObj, VerifyToken } from '../hooks/common';
@@ -516,6 +516,31 @@ const VerifyPath = (path) => {
 // };
 
 /**
+ * @checkUpdate
+ * @新版本检测
+ */
+const checkUpdate = () => {
+  if (allowHotUpdate) {
+    useRequest({
+      url: 'https://status.wesley.net.cn/mtb/oa/version',
+      useCustomURL: true,
+      methods: 'POST',
+      success: function (res) {
+        var RES = JSON.parse(res);
+        if (RES.errcode == 0) {
+          if (RES.data.version != packageVersion) {
+            NotifyPlugin('info', {
+              title: '版本检测提示~',
+              content: `发现新版本${RES.data.version}，可联系管理员进行更新OoO～～`,
+            });
+          }
+        }
+      },
+    });
+  }
+};
+
+/**
  * @getUrlParam
  * @desc 获取参数
  * @param id 参数名
@@ -659,7 +684,9 @@ onBeforeMount(() => {
           }
         }
         // 下方是为了修复刷新时跳到默认页面（首页）的问题
-        // handleChangeComponent(MainContent.lastChoose, true);
+        if (!localStorage.getItem('lastPath')) {
+          handleChangeComponent(MainContent.lastChoose, true);
+        }
         localStorage.setItem('token', VERIFY_TOKEN);
         NotifyPlugin('success', {
           title: '温馨提示',
@@ -698,6 +725,8 @@ onBeforeMount(() => {
     //     }
     // }
   }
+  // update
+  checkUpdate();
   // load message
   getMessage();
   LoadUserPermissions();
