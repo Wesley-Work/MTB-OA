@@ -103,7 +103,7 @@ const AddNewPermissionsItem = (e) => {
 const onEdit = (e) => {
   const { id } = e.currentTarget.dataset;
   const ids = Number(id) ? Number(id) : id;
-  console.log(ids);
+  console.info(ids);
   if (!editableRowKeys.value.includes(ids)) {
     editableRowKeys.value.push(ids);
   }
@@ -140,7 +140,7 @@ const onSave = (e) => {
   currentSaveId.value = id;
   // 触发内部校验，而后也可在 onRowValidate 中接收异步校验结果
   System_Permissions.value.validateRowData(id).then((params) => {
-    console.log('Event Table Promise Validate:', params);
+    console.info('Event Table Promise Validate:', params);
     if (params.result.length) {
       const r = params.result[0];
       MessagePlugin.error(`${r.col.title} ${r.errorList[0].message}`);
@@ -150,7 +150,7 @@ const onSave = (e) => {
     if (params.trigger === 'parent' && !params.result.length) {
       const current = editMap[currentSaveId.value];
       if (current) {
-        console.log(current.rowIndex, current.editedRow);
+        console.info(current.rowIndex, current.editedRow);
         data.value.splice(current.rowIndex, 1, current.editedRow);
         MessagePlugin.success('保存成功');
       }
@@ -161,24 +161,25 @@ const onSave = (e) => {
 
 // 行校验反馈事件，System_Permissions.value.validateRowData 执行结束后触发
 const onRowValidate = (params) => {
-  console.log('Event Table Row Validate:', params);
+  console.info('Event Table Row Validate:', params);
 };
 
-function onValidateTableData() {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const onValidateTableData = () => {
   // 执行结束后触发事件 validate
   System_Permissions.value.validateTableData().then((params) => {
-    console.log('Promise Table Data Validate:', params);
+    console.info('Promise Table Data Validate:', params);
     const cellKeys = Object.keys(params.result);
     const firstError = params.result[cellKeys[0]];
     if (firstError) {
       MessagePlugin.warning(firstError[0].message);
     }
   });
-}
+};
 
 // 表格全量数据校验反馈事件，System_Permissions.value.validateTableData() 执行结束后触发
 function onValidate(params) {
-  console.log('Event Table Data Validate:', params);
+  console.info('Event Table Data Validate:', params);
 }
 
 const onRowEdit = (params) => {
@@ -299,7 +300,7 @@ const System_Permissions_List_Columns = computed(() => [
 
 <script lang="tsx">
 import { NotifyPlugin } from 'tdesign-vue-next';
-import { config } from '../../components/config';
+import { config } from '../../config';
 import useRequest from '../../hooks/useRequest';
 
 export default {
@@ -315,7 +316,7 @@ export default {
   },
   methods: {
     GetStsyemPermissionsList() {
-      const that = this;
+      var that = this;
       try {
         useRequest({
           url: config.API_URL.MAIN_URL + '/permissions/systemlist',
@@ -339,7 +340,7 @@ export default {
           },
         });
       } catch (e) {
-        console.log(e);
+        console.info(e);
       }
     },
 
@@ -347,7 +348,7 @@ export default {
      * 编辑
      */
     System_Edit_Permissions(e, e2) {
-      console.log(e, e2);
+      console.info(e, e2);
     },
   },
 };

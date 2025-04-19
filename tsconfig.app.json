@@ -23,6 +23,9 @@
       "@hooks/*": ["src/hooks/*"],
       "@pages/*": ["src/pages/*"],
       "@components/*": ["src/components/*"],
+      "@type/*": ["src/types/*"],
+      "@config/*": ["src/config/*"],
+      "@styles/*": ["src/styles/*"],
     },
 
     /* Linting */

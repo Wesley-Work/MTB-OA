@@ -6,7 +6,7 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
-  test:
+  lint:
     # 在最新版本的 Ubuntu 环境中运行
     runs-on: ubuntu-latest
     steps:
@@ -47,35 +47,54 @@ jobs:
 
       # 运行代码 lint 检查
       - run: pnpm run lint
+
+      # # 将测试报告上传到 Codecov
+      # - uses: codecov/codecov-action@v2
+      #   with:
+      #     # 使用 GitHub Secrets 中的 Codecov Token
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+
   build:
+    # 在最新版本的 Ubuntu 环境中运行
     runs-on: ubuntu-latest
-    if: github.event.pull_request.draft == false
+    # 如果需要依赖自身任务，可以取消注释（通常不需要）
     # needs: build
     steps:
-      - name: Save PR number
-        run: echo ${{ github.event.number }} > ./pr-id.txt
-      - name: Upload PR number
-        uses: actions/upload-artifact@v4
-        with:
-          name: pr
-          path: ./pr-id.txt
+      # 检出代码仓库，并递归初始化子模块
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+
+      # 设置 pnpm
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      # 设置 Node.js 环境，版本为 18
       - uses: actions/setup-node@v4
         with:
           node-version: 18
-      - uses: actions/cache@v4
-        env:
-          cache-name: cache-nodemodules
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-      - run: npm install
 
-      - name: Build
-        run: npm run build
+      # 获取 pnpm 的存储目录路径
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        run: |
+          echo "pnpm_cache_dir=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      # 设置 pnpm 缓存
+      - uses: actions/cache@v4
+        name: Setup pnpm cache
+        with:
+          # 缓存路径
+          path: ${{ steps.pnpm-cache.outputs.pnpm_cache_dir }}
+          # 缓存键
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          # 恢复缓存的备用键
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      # 安装依赖
+      - run: pnpm i
+
+      # 运行构建任务
+      - name: Build 
+        run: pnpm run build

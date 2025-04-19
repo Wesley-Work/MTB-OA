@@ -14,6 +14,7 @@ export interface RouteMapItems extends Omit<RouteRecordRaw, 'component' | 'child
   hiddenBreadCrumb?: boolean;
   fatherCrumb?: string;
   children?: RouteMapItems[];
+  type?: string;
 }
 
 export type RouteMaps = RouteMapItems[];
@@ -82,8 +83,31 @@ export interface equipmentStatus {
   id: number;
   label: string;
   theme: string;
-  n?: Array<number | 'start'> | undefined;
+  disableStatus?: Array<number | 'start'> | undefined;
   tips?: equipmentStatusTips[];
+}
+
+export interface EquipmentInfo {
+  id: number;
+  name: string;
+  code: string;
+  belong: string;
+  model: string;
+  sn: string;
+  status: number;
+}
+
+export interface LendRecordInfo {
+  id: number;
+  eqcode: string;
+  eqname: string;
+  lender: string;
+  user: string;
+  returner: string;
+  lendtime: string;
+  returntime: string;
+  record_sha: string;
+  remark: string;
 }
 
 export interface userListObject {

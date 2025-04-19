@@ -3,7 +3,7 @@ import path from 'path';
 import vue from '@vitejs/plugin-vue';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 import { plugin as mdPlugin } from 'vite-plugin-markdown';
-import { Mode } from 'vite-plugin-markdown';
+// import { Mode } from 'vite-plugin-markdown';
 const srcRootPath = path.resolve(__dirname, './src');
 
 // https://vite.dev/config/
@@ -17,6 +17,9 @@ export default defineConfig({
       '@hooks': path.resolve(srcRootPath, 'hooks'),
       '@pages': path.resolve(srcRootPath, 'pages'),
       '@components': path.resolve(srcRootPath, 'components'),
+      '@type': path.resolve(srcRootPath, 'types'),
+      '@config': path.resolve(srcRootPath, 'config'),
+      '@styles': path.resolve(srcRootPath, 'styles'),
     },
   },
   plugins: [

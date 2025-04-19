@@ -18,7 +18,7 @@
 
 <script>
 import * as api from '../../components/config/api.js';
-import * as config from '../../components/config'; // for testing, replace with "./config.js" for production server. 描述自身数据库信息以";
+import * as config from '../../config/index.js'; // for testing, replace with "./config.js" for production server. 描述自身数据库信息以";
 export default {
   name: 'MessageDetails',
   data() {
@@ -36,7 +36,7 @@ export default {
   mounted() {
     this.$emit('mounted');
     var mid = this.getUrlParam('mid');
-    mid != false ? console.log('【消息详情】：收到id为' + mid + '的消息') : console.log('【消息详情】：消息id错误');
+    mid != false ? console.info('【消息详情】：收到id为' + mid + '的消息') : console.info('【消息详情】：消息id错误');
   },
 
   methods: {

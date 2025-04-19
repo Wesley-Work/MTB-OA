@@ -2,7 +2,7 @@ import { defineComponent, h, PropType } from 'vue';
 import { VerifyPermissions } from '../hooks/usePermission';
 import Error from './pages/Error.vue';
 import NoPermissions from './pages/NoPermissions.vue';
-import { pagePermissionVerify } from './config';
+import { pagePermissionVerify } from '../config';
 import { useRoute } from 'vue-router';
 import { isInternet as isSdzzInternet, isMTBInternet } from '@/utils';
 import OnlyInternet from './pages/onlyInternet.vue';

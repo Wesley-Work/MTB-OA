@@ -64,7 +64,6 @@
 
 <script setup lang="tsx">
 import CHANGELOG from '../../hooks/useChangeLog';
-const defaultLog = 'No Log';
 </script>
 
 <script lang="tsx">

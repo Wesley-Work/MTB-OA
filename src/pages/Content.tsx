@@ -1,5 +1,5 @@
 import { defineComponent } from 'vue';
-import { routerMap } from '../components/config';
+import { routerMap } from '../config';
 import '../assets/Content.scss';
 import { RouteMaps } from '../types/type';
 

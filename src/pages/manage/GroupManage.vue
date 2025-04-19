@@ -10,7 +10,7 @@
         </div>
       </template>
     </t-card>
-    <t-card bordered :style="{ width: '340px' }" v-for="(item, index) in groupList" v-key="item.id">
+    <t-card bordered :style="{ width: '340px' }" v-for="item in groupList" v-key="item.id">
       <template #header>
         <div style="font: var(--td-font-title-medium)">『{{ item.id }}』 {{ item.name }} [{{ item.desc }}]</div>
       </template>
@@ -126,7 +126,7 @@
 import { Edit2Icon, ListIcon, DeleteIcon, AddRectangleIcon } from 'tdesign-icons-vue-next';
 import useRequest from '../../hooks/useRequest';
 import { computed, onMounted, reactive, ref } from 'vue';
-import { MessagePlugin, NotifyPlugin } from 'tdesign-vue-next';
+import { NotifyPlugin } from 'tdesign-vue-next';
 import { GroupItem, GroupList, GroupPermissionList, GroupUserList, UserList } from '../../types/type';
 
 const drawerFormEl = ref(null);
@@ -194,9 +194,6 @@ const drawerRule = {
     },
   ],
 };
-const props = defineProps({
-  handleChangeComponent: Function,
-});
 
 const getGroupList = () => {
   useRequest({
@@ -336,6 +333,7 @@ const showWhoInGroup = (groupItem) => {
 const showAddDrawer = () => {
   drawerVisible.value = true;
   drawerData.value.mode = 'add';
+  drawerFormEl.value.reset();
 };
 
 const showEditDrawer = (groupItem: GroupItem) => {
@@ -355,6 +353,11 @@ const showEditDrawer = (groupItem: GroupItem) => {
     updateToUser: [],
   };
   drawerVisible.value = true;
+};
+
+const hideDrawer = () => {
+  drawerVisible.value = false;
+  drawerFormEl.value.reset();
 };
 
 // 抽屉提交
@@ -400,6 +403,10 @@ const addGroupSubmit = () => {
         content: err,
       });
     },
+    complete: () => {
+      hideDrawer();
+      getGroupList();
+    },
   });
 };
 
@@ -433,14 +440,18 @@ const editGroupSubmit = () => {
         content: err,
       });
     },
+    complete: () => {
+      hideDrawer();
+      getGroupList();
+    },
   });
 };
 
-const permissionTransferChange = (targetValue, context) => {
+const permissionTransferChange = (targetValue) => {
   drawerData.value.permission = targetValue;
 };
 
-const userTransferChange = (targetValue, context) => {
+const userTransferChange = (targetValue) => {
   drawerData.value.updateToUser = targetValue;
 };
 

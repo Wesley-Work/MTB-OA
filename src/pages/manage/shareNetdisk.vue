@@ -7,7 +7,7 @@
           <span>『取件码』设置</span>
         </template>
         <!---->
-        <div class="pickUpCode-Title">当前『取件码』列表，暂不支持编辑</div>
+        <div class="pickUpCode-Title">当前『取件码』列表。受系统政策限制，不允许编辑『取件码』内容</div>
         <div class="pickUpCode-Box">
           <div v-for="(item, index) in pickUpCodeList" :key="item?.id ?? index" class="pickUpCode-Box--item">
             <div>『码』ID：{{ item?.id }}；『码』值:</div>
@@ -36,7 +36,7 @@
             </div>
             <div class="pickUpCode-Form--item">
               <span>『取件码』是否为页面路由</span>
-              <t-switch size="large" v-model:value="pickUpCodeFormData.isRouter">
+              <t-switch v-model:value="pickUpCodeFormData.isRouter" size="large">
                 <template #label="slotProps">{{ slotProps.value ? '是' : '否' }}</template>
               </t-switch>
             </div>
@@ -66,15 +66,15 @@
   <t-dialog
     v-model:visible="pickUpCodeDetailDialogVisible"
     header="『取件码』内容"
-    :cancelBtn="null"
-    confirmBtn="关闭"
+    :cancel-btn="null"
+    confirm-btn="关闭"
     width="40%"
-    :onClose="
+    :on-close="
       () => {
         pickUpCodeDetailDialogVisible = false;
       }
     "
-    :onConfirm="
+    :on-confirm="
       () => {
         pickUpCodeDetailDialogVisible = false;
       }

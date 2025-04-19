@@ -1,4 +1,4 @@
-import { routerMap } from '../components/config';
+import { routerMap } from '../config';
 import { isNumber } from 'lodash-es';
 import { RouteMaps, RouteMapItems } from '../types/type';
 import useRequest from './useRequest';
