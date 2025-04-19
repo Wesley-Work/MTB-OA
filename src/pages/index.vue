@@ -177,7 +177,7 @@ import { PoweroffIcon, ChatBubbleHelpIcon } from 'tdesign-icons-vue-next';
 import { NotifyPlugin } from 'tdesign-vue-next';
 import { getCurrentPage, verifyPath, getSSOURL, getLoginURL, getRoutePathObj, VerifyToken } from '../hooks/common';
 import { useRequest } from '../hooks/useRequest';
-import PageTooSmall from '@components/pages/pageSmall.vue';
+import PageTooSmall from '../components/pages/PageSmall.vue';
 import router from '../routes';
 import type { LocationQueryRaw } from 'vue-router';
 
