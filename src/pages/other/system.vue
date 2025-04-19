@@ -1,94 +1,95 @@
 <template>
-    <div class="info-container">
-        <div class="system-info">
-            <div class="title"> {{ SystemName }}</div>
-            <div class="subtitle">
-                [ {{ SystemNameEn }} ]
-                <span class="versionMode">{{ VersionMode }}</span>
-            </div>
-        </div>
-        <div class="content">
-            <div> 系统版本 [System Version]: {{ VERSION }} </div>
-            <div> 包版本 [Package Version]: {{ packageVersion ?? '无法获取' }} </div>
-            <div> API版本 [WESLEY SDK Version]: {{ lastetVersion }} </div>
-            <div> TDesign版本: {{ TdesignVueNextVersion }} </div>
-        </div>
+  <div class="info-container">
+    <div class="system-info">
+      <div class="title">{{ SystemName }}</div>
+      <div class="subtitle">
+        [ {{ SystemNameEn }} ]
+        <span class="versionMode">{{ VersionMode }}</span>
+      </div>
     </div>
-    <div class="info-container TPIS">
-        <div class="title-group">
-            <div class="title">
-                第三方信息共享清单
-            </div>
-            <div class="subtitle minWidth" style="flex-direction: column;gap: 8px;">
-                <span>为保障系统的稳定运行或实现相关功能，我们接入了由第三方提供的软件开发包（SDK）实现下述目的。我们会尽到审慎提示义务，要求获取信息的软件工具开发包（SDK）保护您的数据安全。</span>
-                <span>我们接入的第三方SDK主要服务于您以及其他的用户的需求，因此在满足新的服务需求及业务功能变更时，我们可能会调整我们接入的第三方SDK。我们会及时在本目录中向您公开列明接入第三方SDK的最新情况。</span>
-            </div>
-        </div>
-        <div class="content">
-            <div v-for="(item, index) in sdk" class="content-item">
-                <div class="sdkName">{{ index + 1 }}. {{ item.name }}</div>
-                <div>服务商名称：{{ item.company }}</div>
-                <div>使用场景/目的： {{ item.way }}</div>
-                <div>收集信息字段： {{ item.value }}</div>
-                <div>隐私政策链接： <a :href="item.url" target="_blank">{{ item.url }}</a></div>
-            </div>
-        </div>
+    <div class="content">
+      <div>系统版本 [System Version]: {{ VERSION }}</div>
+      <div>包版本 [Package Version]: {{ packageVersion ?? '无法获取' }}</div>
+      <div>API版本 [WESLEY SDK Version]: {{ latestVersion }}</div>
+      <div>TDesign版本: {{ TdesignVueNextVersion }}</div>
     </div>
-    <div class="info-container OpenSource">
-        <div class="title">
-            开源声明协议
-        </div>
-        <div class="subtitle">
-            <span>本系统在开发过程中使用了下列第三方开源类库、组件。感谢开源社区对我们的帮助和对整个互联网的贡献。</span>
-        </div>
-        <div class="content">
-            <div v-for="(item, index) in openSource" class="content-item">
-                <div class="osName">{{ item.name }}</div>
-                <div v-html="item.content"></div>
-            </div>
-        </div>
+  </div>
+  <div class="info-container TPIS">
+    <div class="title-group">
+      <div class="title">第三方信息共享清单</div>
+      <div class="subtitle minWidth" style="flex-direction: column; gap: 8px">
+        <span
+          >为保障系统的稳定运行或实现相关功能，我们接入了由第三方提供的软件开发包（SDK）实现下述目的。我们会尽到审慎提示义务，要求获取信息的软件工具开发包（SDK）保护您的数据安全。</span
+        >
+        <span
+          >我们接入的第三方SDK主要服务于您以及其他的用户的需求，因此在满足新的服务需求及业务功能变更时，我们可能会调整我们接入的第三方SDK。我们会及时在本目录中向您公开列明接入第三方SDK的最新情况。</span
+        >
+      </div>
     </div>
+    <div class="content">
+      <div v-for="(item, index) in sdk" :key="index" class="content-item">
+        <div class="sdkName">{{ index + 1 }}. {{ item.name }}</div>
+        <div>服务商名称：{{ item.company }}</div>
+        <div>使用场景/目的： {{ item.way }}</div>
+        <div>收集信息字段： {{ item.value }}</div>
+        <div>
+          隐私政策链接： <a :href="item.url" target="_blank">{{ item.url }}</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="info-container OpenSource">
+    <div class="title">开源声明协议</div>
+    <div class="subtitle">
+      <span>本系统在开发过程中使用了下列第三方开源类库、组件。感谢开源社区对我们的帮助和对整个互联网的贡献。</span>
+    </div>
+    <div class="content">
+      <div v-for="(item, index) in openSource" :key="index" class="content-item">
+        <div class="osName">{{ item.name }}</div>
+        <div>{{ item.content }}</div>
+      </div>
+    </div>
+  </div>
+  ß
 </template>
 
 <script setup lang="ts">
 import useRequest from '../../hooks/useRequest';
-import { VERSION, packageVersion, VersionMode, SystemName, SystemNameEn } from '../../config'
+import { VERSION, packageVersion, VersionMode, SystemName, SystemNameEn } from '../../config';
 import { NotifyPlugin } from 'tdesign-vue-next';
 import { onMounted, ref } from 'vue';
 
-const TdesignVueNextVersion = "1.10.7";
-const lastetVersion = ref('0.0.0')
-const props = defineProps({
-    handleChangeComponent: Function,
-});
+const TdesignVueNextVersion = '1.10.7';
+const latestVersion = ref('0.0.0');
 const sdk = [
-    {
-        name: "WESLEY SDK",
-        company: "Wesley",
-        way: "系统基础服务（如设备操作、记录查询等）、系统高级服务（如使用微信登录、系统管理、账号绑定等）",
-        value: "IP地址、用户行为记录、用户账号信息（如名称、Code等）、网络信息（如网络类型）、设备标识符（如UUID、UA）、设备信息（如设备类型、操作系统）",
-        url: "https://docs.wesley.net.cn/privacy_policy/"
-    },
-    {
-        name: "微信SDK（Wechat SDK）",
-        company: "深圳市腾讯计算机系统有限公司",
-        way: "使用微信、微信小程序登录",
-        value: "IP地址、设备标识符、设备信息",
-        url: "https://www.wechat.com/zh_CN/privacy_policy.html"
-    },
+  {
+    name: 'WESLEY SDK',
+    company: 'Wesley',
+    way: '系统基础服务（如设备操作、记录查询等）、系统高级服务（如使用微信登录、系统管理、账号绑定等）',
+    value:
+      'IP地址、用户行为记录、用户账号信息（如名称、Code等）、网络信息（如网络类型）、设备标识符（如UUID、UA）、设备信息（如设备类型、操作系统）',
+    url: 'https://docs.wesley.net.cn/privacy_policy/',
+  },
+  {
+    name: '微信SDK（Wechat SDK）',
+    company: '深圳市腾讯计算机系统有限公司',
+    way: '使用微信、微信小程序登录',
+    value: 'IP地址、设备标识符、设备信息',
+    url: 'https://www.wechat.com/zh_CN/privacy_policy.html',
+  },
 ];
 const openSource = [
-    {
-        name: "TDesign",
-        content: `MIT License\n
+  {
+    name: 'TDesign',
+    content: `MIT License\n
 Copyright (c) 2021-present TDesign\n
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.`
-    },
-    {
-        name: "Dayjs",
-        content: `MIT License
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.`,
+  },
+  {
+    name: 'Dayjs',
+    content: `MIT License
 
 Copyright (c) 2018-present, iamkun
 
@@ -97,11 +98,11 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-`
-    },
-    {
-        name: "Lodash",
-        content: `Copyright OpenJS Foundation and other contributors <https://openjsf.org/>
+`,
+  },
+  {
+    name: 'Lodash',
+    content: `Copyright OpenJS Foundation and other contributors <https://openjsf.org/>
 
 Based on Underscore.js, copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
 
@@ -125,11 +126,11 @@ CC0: http://creativecommons.org/publicdomain/zero/1.0/
 
 ====
 
-Files located in the node_modules and vendor directories are externally maintained libraries used by this software which have their own licenses; we recommend you read them, as their terms may differ from the terms above.`
-    },
-    {
-        name: "Echarts",
-        content: `   Apache License
+Files located in the node_modules and vendor directories are externally maintained libraries used by this software which have their own licenses; we recommend you read them, as their terms may differ from the terms above.`,
+  },
+  {
+    name: 'Echarts',
+    content: `   Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
 
@@ -209,11 +210,11 @@ The following files embed [d3.js](https://github.com/d3/d3) BSD 3-Clause:
     '/src/chart/tree/layoutHelper.ts',
     '/src/chart/graph/forceHelper.ts',
     '/src/util/number.ts'
-See '/licenses/LICENSE-d3' for details of the license.`
-    },
-    {
-        name: "VueJs",
-        content: `The MIT License (MIT)
+See '/licenses/LICENSE-d3' for details of the license.`,
+  },
+  {
+    name: 'VueJs',
+    content: `The MIT License (MIT)
 
 Copyright (c) 2013-present, Yuxi (Evan) You
 
@@ -222,11 +223,11 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-`
-    },
-    {
-        name: "Vue-Router",
-        content: `MIT License
+`,
+  },
+  {
+    name: 'Vue-Router',
+    content: `MIT License
 
 Copyright (c) 2013-present Evan You
 
@@ -235,31 +236,31 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-`
-    },
-    {
-        name: "Sass",
-        content: `Copyright (c) 2019, Google LLC
+`,
+  },
+  {
+    name: 'Sass',
+    content: `Copyright (c) 2019, Google LLC
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.`
-    },
-    {
-        name: "Sass-Loader",
-        content: `Copyright JS Foundation and other contributors
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.`,
+  },
+  {
+    name: 'Sass-Loader',
+    content: `Copyright JS Foundation and other contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the 'Software'), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.`
-    },
-    {
-        name: "Vite",
-        content: `MIT License
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.`,
+  },
+  {
+    name: 'Vite',
+    content: `MIT License
 
 Copyright (c) 2019-present, VoidZero Inc. and Vite contributors
 
@@ -267,94 +268,93 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.`
-    }
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.`,
+  },
 ];
 
-const getLastetVersion = () => {
-    useRequest({
-        url: '/LatestVersion',
-        methods: 'POST',
-        success: function (res) {
-            const result = JSON.parse(res)
-            if (result.errcode != 0) {
-                NotifyPlugin.error({
-                    title: "获取API版本号失败",
-                    content: result.errmsg,
-                })
-                return;
-            }
-            lastetVersion.value = result.data.version.replace('v', '').replace(/_/g,'.')
-        },
-        error: function (err) {
-            console.error(err)
-            NotifyPlugin.error({
-                title: "获取API版本号失败",
-                content: err
-            })
-        }
-    })
-}
+const getlatestVersion = () => {
+  useRequest({
+    url: '/LatestVersion',
+    methods: 'POST',
+    success: function (res) {
+      const result = JSON.parse(res);
+      if (result.errcode != 0) {
+        NotifyPlugin.error({
+          title: '获取API版本号失败',
+          content: result.errmsg,
+        });
+        return;
+      }
+      latestVersion.value = result.data.version.replace('v', '').replace(/_/g, '.');
+    },
+    error: function (err) {
+      console.error(err);
+      NotifyPlugin.error({
+        title: '获取API版本号失败',
+        content: err,
+      });
+    },
+  });
+};
 onMounted(() => {
-    getLastetVersion()
-})
+  getlatestVersion();
+});
 </script>
 
 <script lang="ts">
 export default {
-    name: 'SystemInfo'
-}
+  name: 'SystemInfo',
+};
 </script>
 
 <style lang="scss">
-
 .info-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 36px auto;
+  width: 70%;
+  a {
+    color: var(--td-brand-color);
+  }
+  .system-info,
+  .title-group {
+    padding: 24px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 36px auto;
-    width: 70%;
-    a {
-        color: var(--td-brand-color);
+    gap: 6px;
+  }
+  .title {
+    font: var(--td-font-headline-small);
+  }
+  .subtitle {
+    display: flex;
+    gap: 4px;
+    font: var(--td-font-title-medium);
+    .versionMode {
+      color: var(--td-brand-color-hover);
     }
-    .system-info, .title-group {
-        padding: 24px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 6px;
-    }
-    .title {
+  }
+  .content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    .content-item {
+      .sdkName {
+        margin-left: 0px;
+        font: var(--td-font-title-small);
+      }
+      div {
+        margin-left: 12px;
+        white-space: pre-wrap;
+      }
+      .osName {
+        margin-left: 0px;
         font: var(--td-font-headline-small);
+        padding: 12px 0px;
+      }
     }
-    .subtitle {
-        display: flex;
-        gap: 4px;
-        font: var(--td-font-title-medium);
-        .versionMode {
-            color: var(--td-brand-color-hover);
-        }
-    }
-    .content {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        .content-item {
-            .sdkName {
-                margin-left: 0px;
-                font: var(--td-font-title-small);
-            }
-            div {
-                margin-left: 12px;
-                white-space: pre-wrap;
-            }
-            .osName {
-                margin-left: 0px;
-                font: var(--td-font-headline-small);
-                padding: 12px 0px;
-            }
-        }
-    }
+  }
 }
-
 </style>
