@@ -14,7 +14,7 @@ export function loadUserPermissions(): Promise<Array<string> | string> {
       url: '/permissions/userHasPermissions',
       methods: 'POST',
       success: function (res) {
-        var RES = JSON.parse(res);
+        const RES = JSON.parse(res);
         if (RES.errcode == 0) {
           userPermissions = RES.data;
           resolve(RES.data);
@@ -39,7 +39,7 @@ export function loadSystemPermissions() {
       url: '/permissions/systemlist',
       methods: 'POST',
       success: function (res) {
-        var RES = JSON.parse(res);
+        const RES = JSON.parse(res);
         if (RES.errcode == 0) {
           resolve(RES.data);
         } else {
@@ -64,7 +64,7 @@ export function loadUserPermissionsList() {
       url: '/permissions/userlist',
       methods: 'POST',
       success: function (res) {
-        var RES = JSON.parse(res);
+        const RES = JSON.parse(res);
         if (RES.errcode == 0) {
           resolve(RES.data);
         } else {
@@ -172,7 +172,7 @@ export function checkPermission(needPermissions: string | Array<string>) {
       }
       // 判断是否有某权限的根权限
       const permissionItem = item.split('.');
-      var p = '';
+      let p = '';
       for (const i in permissionItem) {
         const element = permissionItem[i];
         p = p + element;
