@@ -37,7 +37,7 @@ export default defineComponent({
     try {
       version = packageFile?.version;
     } catch (error) {
-      console.log('Cannot Resload Version', error);
+      console.error('Cannot Resload Version', error);
     }
 
     function arrayAllItemIsNull(arr) {
@@ -89,9 +89,10 @@ export default defineComponent({
       return items.map((item) => {
         const isSubMenu = item?.children && item?.children.length > 0;
         const isHidden = item?.hidden === true;
-        const isPermission = VerifyPermissions(userPermissions.value, item?.permissions);
+        const isPermission = VerifyPermissions(userPermissions.value, item?.permissions ?? []);
 
-        if ((isHidden || !isPermission) && menuPermissionVerify) return null;
+        // 隐藏的菜单 or 开启菜单权限验证 -> 没有权限 => 隐藏菜单
+        if ((isHidden || menuPermissionVerify) && isPermission) return null;
 
         if (isSubMenu) {
           const subMenu = renderMenu(item.children);
