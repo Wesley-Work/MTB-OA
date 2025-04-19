@@ -1,4 +1,16 @@
 
+## 🌈 3.3.0 `2025-04-19` 
+### 🚀 Features
+- `Theme`: 新增切换样式时的动画 @Wesley-0808 ([#44](https://github.com/Wesley-Work/MTB-OA/pull/44))
+### 🐞 Bug Fixes
+- `GroupManage`:
+  - 修复新增、编辑组信息后，抽屉没有关闭的问题 @Wesley-0808 ([#44](https://github.com/Wesley-Work/MTB-OA/pull/44))
+  - 修复新增组信息，抽屉内容未清空的问题 @Wesley-0808 ([#44](https://github.com/Wesley-Work/MTB-OA/pull/44))
+- `Components`: 修复部分已知问题，完善用户体验 @Wesley-0808 ([#44](https://github.com/Wesley-Work/MTB-OA/pull/44))
+### 📈 Performance
+- `EqList`: 重构`设备管理` @Wesley-0808 ([#44](https://github.com/Wesley-Work/MTB-OA/pull/44))
+### 🚧 Others
+- `ShareNetDisk`: 优化`共享网盘管理`页面 @Wesley-0808 ([#44](https://github.com/Wesley-Work/MTB-OA/pull/44))
 ## 🌈 3.2.1 `2025-04-06` 
 ### 🐞 Bug Fixes
 - `WebManage`: 修复`header`配置排序无效的问题 @Wesley-0808 ([#41](https://github.com/Wesley-Work/MTB-OA/pull/41))
