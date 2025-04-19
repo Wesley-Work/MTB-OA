@@ -285,6 +285,7 @@ const config = {
   pagePermissionVerify: true, //是否开启页面权限验证
   menuPermissionVerify: false, //是否开启菜单权限验证
   useViewTransition: true, // 是否使用ViewTransition API 进行切换样式
+  allowHotUpdate: true, // 是否允许热更新
 };
 
 export default config;
@@ -300,3 +301,4 @@ export const SystemNameEn = config.systemNameEn;
 export const pagePermissionVerify = config.pagePermissionVerify;
 export const menuPermissionVerify = config.menuPermissionVerify;
 export const useViewTransition = config.useViewTransition;
+export const allowHotUpdate = config.allowHotUpdate;
