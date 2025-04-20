@@ -305,7 +305,6 @@ const cleanDialogForm = () => {
   Object.keys(dialogForm).forEach((key) => {
     dialogForm[key] = '';
   });
-  SelectData.value = [];
 };
 
 const showAddEquipmentDialog = () => {
