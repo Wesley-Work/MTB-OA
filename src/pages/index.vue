@@ -653,13 +653,12 @@ onBeforeMount(() => {
       localStorage.setItem('user_info', JSON.stringify(USER_INFO));
 
       // 获取当前路由路径
-      const currentPath = router.currentRoute.value.fullPath;
       const hashParams = new URLSearchParams();
       hashParams.set('user_token', TOKEN);
 
-      // 更新 URL，将参数放在当前路由后面
+      // 更新 URL，只修改 search 参数
       const newUrl = new URL(window.location.href);
-      newUrl.hash = `${currentPath}?${hashParams.toString()}`;
+      newUrl.search = `?${hashParams.toString()}`;
       window.history.replaceState(null, '', newUrl.toString());
     }
   }
@@ -675,6 +674,15 @@ onBeforeMount(() => {
     // 验证登录
     setTimeout(async () => {
       if (await VerifyToken()) {
+        // 设置userInfo
+        const userInfo = localStorage.getItem('user_info');
+        if (userInfo) {
+          const { code, name, class: class_name, login_time } = JSON.parse(userInfo);
+          login_info.code = code;
+          login_info.name = name;
+          login_info.class = class_name;
+          login_info.login_time = login_time;
+        }
         // pass
         var param_path = getUrlParam('path');
         if (param_path) {
@@ -703,7 +711,7 @@ onBeforeMount(() => {
       } else {
         location.href = getLoginURL();
       }
-    }, 100);
+    });
   } else {
     NotifyPlugin('success', {
       title: '温馨提示',
