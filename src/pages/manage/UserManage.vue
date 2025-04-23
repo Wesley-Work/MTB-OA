@@ -332,7 +332,7 @@ const table_Columns: TableProps['columns'] = [
     sortType: 'all',
     sorter: true,
     width: 110,
-    cell: (h, { row }) => {
+    cell: (_h, { row }) => {
       return <span>{groupOptions.value.find((item) => item.value === row.group)?.label ?? '-'}</span>;
     },
   },
@@ -342,7 +342,7 @@ const table_Columns: TableProps['columns'] = [
     sortType: 'all',
     sorter: true,
     ellipsis: true,
-    cell: (h, { row }) => {
+    cell: (_h, { row }) => {
       return dayjs(row.reg_time).format('YYYY-MM-DD HH:mm:ss');
     },
   },
@@ -352,7 +352,7 @@ const table_Columns: TableProps['columns'] = [
     sortType: 'all',
     sorter: true,
     ellipsis: true,
-    cell: (h, { row }) => {
+    cell: (_h, { row }) => {
       return dayjs(row.join_time).format('YYYY-MM-DD');
     },
   },
@@ -362,7 +362,7 @@ const table_Columns: TableProps['columns'] = [
     sortType: 'all',
     sorter: true,
     ellipsis: true,
-    cell: (h, { row }) => {
+    cell: (_h, { row }) => {
       return row.login_time ? dayjs(row.login_time).format('YYYY-MM-DD HH:mm:ss') : '-';
     },
   },
@@ -556,7 +556,7 @@ const handlePermissionDialogClose = () => {
 };
 
 // 穿梭框数据变化时
-const handlePermissionsTransferChange: TransferProps['onChange'] = (val, ctx) => {
+const handlePermissionsTransferChange: TransferProps['onChange'] = (_val, ctx) => {
   const { movedValue, type } = ctx;
   if (type === 'target') {
     // 需要设置权限状态，默认为true
@@ -700,54 +700,6 @@ const DeleteAccount = () => {
     }
   }
 };
-
-async function readExcel(file) {
-  uploadFile();
-  // 忽略前几行
-  const ignoreRows = 2;
-  const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.load(file.raw); // 读取 Excel 文件
-
-  const worksheet = workbook.getWorksheet(1); // 获取第一个工作表
-
-  worksheet.eachRow((row, rowNumber) => {
-    if (rowNumber <= ignoreRows) return;
-    const name = row.values[1];
-    const code = row.values[2];
-    const classes = row.values[3];
-    const grade = row.values[4];
-    const group = row.values[5];
-    const password = row.values[6];
-    const permissions = row.values[7];
-    const join_time = row.values[8];
-    const share_device = row.values[9];
-    const openid = row.values[10];
-    const remark = row.values[11];
-
-    console.info(`Row ${rowNumber}:`, row.values); // 打印每一行的数据
-  });
-}
-
-// eslint-enable @typescript-eslint/no-unused-vars
-const uploadFile = (e) => {
-  return new Promise(function (resolve, reject) {
-    if (!/\.(xls|xlsx)$/.test(e.name.toLowerCase())) {
-      NotifyPlugin('error', {
-        title: '错误',
-        content: '上传格式不正确，请上传xls或者xlsx格式',
-      });
-      reject({ status: 'fail', error: '上传失败，文件格式不正确', response: { files: [{ name: e.name }] } });
-    }
-    try {
-      readExcel(e);
-      resolve({ status: 'success', response: { files: [{ name: e.name }] } });
-    } catch (error) {
-      reject({ status: 'fail', error: `解析文件失败，${error}`, response: { files: [{ name: e.name }] } });
-    }
-  });
-};
-
-// eslint-enable @typescript-eslint/no-unused-vars
 
 const exportToXlsx = () => {
   async function createExcel() {
@@ -975,8 +927,8 @@ const submitForm = () => {
     share_device: EditUserDialogForm.value.share_device,
     group: EditUserDialogForm.value.group,
     grade: EditUserDialogForm.value.grade,
-    reg_time: dayjs(EditUserDialogForm.value.reg_time).toString(),
-    join_time: dayjs(EditUserDialogForm.value.join_time).toString(),
+    reg_time: dayjs(EditUserDialogForm.value.reg_time).format('YYYY-MM-DD HH:mm:ss'),
+    join_time: dayjs(EditUserDialogForm.value.join_time).format('YYYY-MM-DD HH:mm:ss'),
     permissions_open: Object.keys(permissionsTransfer.proxyStatus).filter(
       (key) => permissionsTransfer.proxyStatus[key].open,
     ),
@@ -990,6 +942,14 @@ const submitForm = () => {
         ...SUBDATA,
       }
     : SUBDATA;
+  const showError = (err) => {
+    NotifyPlugin('error', {
+      title: '设置账号信息失败',
+      content: err,
+      duration: 5000,
+    });
+    console.error(err);
+  };
   const editFunction = () => {
     useRequest({
       url: '/user/edit',
@@ -1005,12 +965,12 @@ const submitForm = () => {
             duration: 5000,
           });
           console.info(`编辑了id为${E_id}的账号信息`);
-          // 关闭对话框
-          setEditDialogVisible(false);
           // 重置对话框数据
           ResetDialogForm();
           // 刷新数据
           loadTableData();
+        } else {
+          showError(RES?.data ?? RES?.errmsg);
         }
       },
       error: function (err) {
@@ -1038,12 +998,12 @@ const submitForm = () => {
             duration: 5000,
           });
           console.info(`添加了id为${E_id}的账号`);
-          // 关闭对话框
-          setEditDialogVisible(false);
           // 重置对话框数据
           ResetDialogForm();
           // 刷新数据
           loadTableData();
+        } else {
+          showError(RES?.data ?? RES?.errmsg);
         }
       },
       error: function (err) {
@@ -1058,6 +1018,8 @@ const submitForm = () => {
   };
   // 操作
   isEditMode ? editFunction() : addFunction();
+  // 关闭对话框
+  setEditDialogVisible(false);
 };
 
 const sortChange = (e) => {
