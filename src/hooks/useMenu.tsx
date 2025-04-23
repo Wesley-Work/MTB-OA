@@ -31,7 +31,7 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const { theme, visiable, value, userPermissions } = toRefs(props);
+    const { visiable, value, userPermissions } = toRefs(props);
     let version = '-.-.-';
 
     try {

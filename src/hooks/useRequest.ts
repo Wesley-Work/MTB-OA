@@ -2,7 +2,7 @@ import { NotifyPlugin } from 'tdesign-vue-next';
 import { getAPIURL, getLoginURL, getToken } from './common';
 import { config } from '../config';
 import { RequestHooksOptions, RequestResponseData } from '@/types/type';
-import { isFunction, merge, omit } from 'lodash-es';
+import { merge, omit } from 'lodash-es';
 function SpliceParameter(DATA: Object) {
   if (Object.prototype.toString.call(DATA) !== '[object Object]') return false;
   // PASS

@@ -69,8 +69,9 @@
 </template>
 
 <script setup lang="tsx">
-import { ref, computed, getCurrentInstance } from 'vue';
-import { Input, MessagePlugin } from 'tdesign-vue-next';
+import { ref, computed, onMounted } from 'vue';
+import { Input, MessagePlugin, NotifyPlugin } from 'tdesign-vue-next';
+import useRequest from '../../hooks/useRequest';
 
 const System_Permissions = ref();
 
@@ -83,7 +84,19 @@ const editMap = {};
 // 是否处于添加模式
 const AlAdd = ref(false);
 
-const TData = getCurrentInstance();
+const Tabs_Value = ref(1);
+const System_Permissions_List_Data = ref([]);
+
+// Tab2 临时变量，避免 linter 报错
+const data = ref<any[]>([]);
+const columns = ref<any[]>([]);
+const pagination = computed(() => ({
+  current: 1,
+  pageSize: 25,
+  pageSizeOptions: [25, 75, 115, 150],
+  total: data.value.length,
+  showJumper: true,
+}));
 
 const AddNewPermissionsItem = (e) => {
   if (!AlAdd.value) {
@@ -95,7 +108,7 @@ const AddNewPermissionsItem = (e) => {
       type: 'system',
       val: '',
     };
-    TData.data.System_Permissions_List_Data.unshift(NewAddData);
+    System_Permissions_List_Data.value.unshift(NewAddData);
     editableRowKeys.value = ['NewItem'];
   }
 };
@@ -120,7 +133,7 @@ const onCancel = (e) => {
   updateEditState(id);
   if (AlAdd.value) {
     AlAdd.value = false;
-    TData.data.System_Permissions_List_Data.shift();
+    System_Permissions_List_Data.value.shift();
   }
   System_Permissions.value.clearValidateData();
 };
@@ -131,10 +144,11 @@ const onSaveFather = (e) => {
   OnSaveNeedEvent = e.currentTarget.dataset;
 };
 
-const onSave = (e) => {
+const onSave = () => {
   // const { ids } = e.currentTarget.dataset;
   // const id = Number(ids)
-  let { id } = OnSaveNeedEvent;
+  // TODO
+  let { id } = OnSaveNeedEvent as any;
   id = Number(id);
 
   currentSaveId.value = id;
@@ -151,7 +165,7 @@ const onSave = (e) => {
       const current = editMap[currentSaveId.value];
       if (current) {
         console.info(current.rowIndex, current.editedRow);
-        data.value.splice(current.rowIndex, 1, current.editedRow);
+        System_Permissions_List_Data.value.splice(current.rowIndex, 1, current.editedRow);
         MessagePlugin.success('保存成功');
       }
       updateEditState(currentSaveId.value);
@@ -296,62 +310,36 @@ const System_Permissions_List_Columns = computed(() => [
     },
   },
 ]);
+
+const GetSystemPermissionsList = () => {
+  try {
+    useRequest({
+      url: '/permissions/systemlist',
+      methods: 'POST',
+      header: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+      success(res) {
+        const RES = JSON.parse(res);
+        if (RES.errcode === 0) {
+          System_Permissions_List_Data.value = RES.data;
+        }
+      },
+      error(err) {
+        console.error(err);
+        NotifyPlugin.error({ title: '获取权限列表失败', content: err, duration: 5000 });
+      },
+    });
+  } catch (e) {
+    console.info(e);
+  }
+};
+
+onMounted(() => {
+  GetSystemPermissionsList();
+});
 </script>
 
 <script lang="tsx">
-import { NotifyPlugin } from 'tdesign-vue-next';
-import { config } from '../../config';
-import useRequest from '../../hooks/useRequest';
-
-export default {
-  name: 'PermissionManage',
-  data() {
-    return {
-      Tabs_Value: 1,
-      System_Permissions_List_Data: [],
-    };
-  },
-  mounted() {
-    this.GetStsyemPermissionsList();
-  },
-  methods: {
-    GetStsyemPermissionsList() {
-      var that = this;
-      try {
-        useRequest({
-          url: config.API_URL.MAIN_URL + '/permissions/systemlist',
-          methods: 'POST',
-          header: {
-            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-          },
-          success: function (res) {
-            var RES = JSON.parse(res);
-            if (RES.errcode == 0) {
-              that.$data.System_Permissions_List_Data = RES.data;
-            }
-          },
-          error: function (err) {
-            console.error(err);
-            NotifyPlugin('error', {
-              title: '获取权限列表失败',
-              content: err,
-              duration: 5000,
-            });
-          },
-        });
-      } catch (e) {
-        console.info(e);
-      }
-    },
-
-    /**
-     * 编辑
-     */
-    System_Edit_Permissions(e, e2) {
-      console.info(e, e2);
-    },
-  },
-};
+export default { name: 'PermissionManage' };
 </script>
 
 <style></style>

@@ -1,8 +1,6 @@
-import { defineComponent, ref, computed, toRefs, watch } from 'vue';
-import { getRoutePathObj } from './common';
-import config, { routerMap } from '../config';
-import { RouteData } from 'tdesign-vue-next';
-import { RouteMapItem, RouteMaps } from '@/types/type';
+import { defineComponent, ref, toRefs, watch } from 'vue';
+import { routerMap } from '../config';
+import type { RouteMaps } from '@type/type';
 
 export default defineComponent({
   name: 'Breadcrumb',
@@ -24,10 +22,10 @@ export default defineComponent({
     const isHidden = ref(false);
 
     // 通过url判断当前页面
-    const getpath = () => {
-      const path = window.location.hash.replace('#', '').replace(config.routerPrefix + '/', '');
-      return path;
-    };
+    // const getpath = () => {
+    //   const path = window.location.hash.replace('#', '').replace(config.routerPrefix + '/', '');
+    //   return path;
+    // };
 
     function getIteminMap(
       map: RouteMaps,
