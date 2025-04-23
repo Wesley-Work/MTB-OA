@@ -117,7 +117,7 @@ const routerMap: RouteMaps = [
       {
         key: 'eq-manage',
         label: '设备管理',
-        icon: 'edit-1',
+        icon: 'device',
         children: [
           {
             key: 'EqList',

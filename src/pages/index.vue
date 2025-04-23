@@ -458,12 +458,14 @@ const handleChangeComponent = (componentName: string, doNotToggleSideMenu: boole
       query: query as LocationQueryRaw,
     });
     MainContent.ComponentValue = componentName;
-    MainContent.classOut = false;
-    MainContent.classIn = true;
     setTimeout(() => {
-      MainContent.classIn = false;
+      MainContent.classOut = false;
+      MainContent.classIn = true;
+      setTimeout(() => {
+        MainContent.classIn = false;
+      }, 280);
     }, 280);
-  }, 280);
+  }, 200);
 };
 
 /**
@@ -692,9 +694,7 @@ onBeforeMount(() => {
           }
         }
         // 下方是为了修复刷新时跳到默认页面（首页）的问题
-        if (!localStorage.getItem('lastPath')) {
-          handleChangeComponent(MainContent.lastChoose, true);
-        }
+        handleChangeComponent(localStorage.getItem('lastPath') ?? MainContent.lastChoose, true);
         localStorage.setItem('token', VERIFY_TOKEN);
         NotifyPlugin('success', {
           title: '温馨提示',
