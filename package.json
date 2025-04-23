@@ -13,7 +13,7 @@
     "local:build": "vite build --mode=atlocal",
     "local:preview": "vite preview --mode=atlocal --port 7371",
     "hmh:build": "vite build --mode=hmh",
-    "open:build": "vite build --mode=open",
+    "open:build": "vite build --mode=wesley",
     "lint:fix": "eslint --ext .vue,.js,.ts,.tsx ./src --max-warnings 0 --fix --cache",
     "lint": "pnpm lint:tsc && eslint --ext .vue,.js,.ts,.tsx ./src --max-warnings 0 --cache",
     "lint:tsc": "tsc --noEmit"
