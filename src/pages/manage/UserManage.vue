@@ -34,12 +34,12 @@
       <t-table
         row-key="id"
         :columns="table_Columns"
-        :data="table_Data"
+        :data="tableData"
         select-on-row-click
         :reserve-selected-row-on-paginate="false"
-        :sort="table_Sort"
-        :pagination="table_Pagination"
-        :loading="table_Loading"
+        :sort="tableSort"
+        :pagination="tablePagination"
+        :loading="tableLoading"
         cell-empty-content="-"
         stripe
         bordered
@@ -387,13 +387,13 @@ const table_Columns: TableProps['columns'] = [
   //     sorter: true,
   // },
 ];
-const table_Data = ref([]);
-const table_BackData = ref([]);
-const table_Sort = ref({
+const tableData = ref([]);
+const tableBackData = ref([]);
+const tableSort = ref({
   sortBy: 'id',
   descending: false,
 });
-const table_Loading = ref(false);
+const tableLoading = ref(false);
 const SelectData = ref<UserSelectData>([]);
 const Dialog_Model = reactive({
   permissions: false,
@@ -438,12 +438,12 @@ const permissionsTransfer = reactive({
 const userPermissionsList = ref<{ users?: object; group?: object }>({});
 const activeUserPermissions = ref([]);
 const activeGroupPermissions = ref([]);
-const table_Pagination = computed(() => {
+const tablePagination = computed(() => {
   return {
     current: 1,
     pageSize: 25,
     pageSizeOptions: [25, 75, 115, 150],
-    total: table_Data.value.length,
+    total: tableData.value.length,
     showJumper: true,
   };
 });
@@ -627,15 +627,22 @@ const loadGroupData = () => {
  * @初始化表格数据
  */
 const loadTableData = () => {
-  table_Loading.value = true;
+  const { current: currentPage, pageSize } = tablePagination.value;
+  tableLoading.value = true;
   try {
     useRequest({
       url: '/user/list',
       methods: 'POST',
       success: function (res) {
         var RES = JSON.parse(res);
-        table_Data.value = RES.data;
-        table_BackData.value = RES.data;
+        tableData.value = RES.data;
+        tableBackData.value = RES.data;
+        // 保留分页
+        const total = tableData.value.length;
+        const totalPages = Math.ceil(total / pageSize);
+        const newCurrentPage = currentPage > totalPages ? totalPages : currentPage;
+        tablePagination.value.current = newCurrentPage;
+        tablePagination.value.pageSize = pageSize;
       },
       error: function (err) {
         console.error(err);
@@ -646,7 +653,7 @@ const loadTableData = () => {
         });
       },
       complete: function () {
-        table_Loading.value = false;
+        tableLoading.value = false;
       },
     });
   } catch (e) {
@@ -819,7 +826,7 @@ const exportToXlsx = () => {
       // @ts-expect-error
       cell.style = headerStyle;
     });
-    table_Data.value.forEach((it) => {
+    tableData.value.forEach((it) => {
       // 特殊组标记
       const unUsual = ['老师', '保留用户', '系统用户'];
       const isUnusual = unUsual.includes(groupOptions.value.find((item) => item.value === it.group)?.label ?? '');
@@ -1023,15 +1030,15 @@ const submitForm = () => {
 };
 
 const sortChange = (e) => {
-  table_Sort.value = e;
+  tableSort.value = e;
   TableSortData();
 };
 
 const TableSortData = () => {
-  var data = table_Data.value;
-  var sort = table_Sort.value;
+  var data = tableData.value;
+  var sort = tableSort.value;
   if (sort) {
-    table_Data.value = data
+    tableData.value = data
       .concat()
       .sort((a, b) =>
         sort.descending
@@ -1039,7 +1046,7 @@ const TableSortData = () => {
           : Intl.Collator('zh-Hans-CN', { sensitivity: 'accent' }).compare(b[sort.sortBy], a[sort.sortBy]),
       );
   } else {
-    table_Data.value = table_BackData.value;
+    tableData.value = tableBackData.value;
   }
 };
 
@@ -1048,8 +1055,8 @@ const handleTableSelectChange = (_value, { selectedRowData }) => {
 };
 
 const onPageChange = (pageInfo) => {
-  table_Pagination.value.current = pageInfo.current;
-  table_Pagination.value.pageSize = pageInfo.pageSize;
+  tablePagination.value.current = pageInfo.current;
+  tablePagination.value.pageSize = pageInfo.pageSize;
 };
 
 onMounted(() => {
