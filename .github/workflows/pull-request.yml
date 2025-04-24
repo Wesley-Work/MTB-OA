@@ -60,6 +60,13 @@ jobs:
     # 如果需要依赖自身任务，可以取消注释（通常不需要）
     # needs: build
     steps:
+      - name: Save PR number
+        run: echo ${{ github.event.number }} > ./pr-id.txt
+      - name: Upload PR number
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr
+          path: ./pr-id.txt
       # 检出代码仓库，并递归初始化子模块
       - uses: actions/checkout@v4
         with:
