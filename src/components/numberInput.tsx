@@ -1,4 +1,4 @@
-import { defineComponent, onMounted, ref, toRefs } from 'vue';
+import { defineComponent, ref, toRefs } from 'vue';
 import './style/numberInput.scss';
 
 export default defineComponent({

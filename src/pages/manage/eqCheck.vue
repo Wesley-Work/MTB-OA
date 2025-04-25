@@ -60,164 +60,113 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, reactive, onMounted } from 'vue';
 import { NotifyPlugin } from 'tdesign-vue-next';
-import { config } from '../../config';
 import useRequest from '../../hooks/useRequest';
 
-function sleep(d) {
-  for (var t = Date.now(); Date.now() - t <= d; );
-}
+// 睡眠函数
+// function sleep(d) {
+//   for (let t = Date.now(); Date.now() - t <= d; );
+// }
 
+const formData = reactive({ eqcode: '', start: false });
+const loading = ref(false);
+const TableData = ref([
+  {
+    eqname: '一个设备设备设备设备设备设备',
+    eqcode: '09098',
+    user: '文俊亮',
+    lendtime: '2023-07-11 22:55:34',
+    dothisthinguser: '文俊亮',
+    more: 'ok',
+  },
+]);
+const TableColumns = ref([
+  { colKey: 'eqname', title: '设备名称', width: '200' },
+  { colKey: 'eqcode', title: '设备Code', width: '150' },
+  { colKey: 'user', title: '归还人', width: '90', align: 'center' },
+  { colKey: 'dothisthinguser', title: '操作人', width: '90', align: 'center' },
+  { colKey: 'lendtime', title: '归还时间', ellipsis: true },
+  { colKey: 'more', title: '备注', width: '170' },
+]);
+const textlist = [
+  '请稍等，正在执行清点设备程序',
+  '请不要关闭浏览器',
+  '很快就好',
+  '去看看窗外的风景吧',
+  '稍安勿躁',
+  '海内存知己，天涯若比邻',
+];
+const textchange = ref(false);
+const nowtext = ref(0);
+const timer = ref(null);
+const Operation_id = ref(null);
+const getStatusTimer = ref(null);
+
+const start = () => {
+  setTimeout(() => {
+    formData.start = true;
+    loading.value = true;
+    timer.value = setInterval(() => {
+      setTimeout(() => s1(), 2500);
+      setTimeout(() => s2(), 5000);
+    }, 7500);
+  }, 280);
+
+  const TOKEN = localStorage.getItem('token');
+  useRequest({
+    url: '/eqcheck/start',
+    methods: 'POST',
+    success: (res) => {
+      const RES = JSON.parse(res);
+      if (RES.errcode === 0) {
+        Operation_id.value = RES.data.operation_sha;
+        getStatusTimer.value = setInterval(() => getStatus(), 1000);
+      } else {
+        NotifyPlugin.error({ title: '执行失败', content: `未知错误，错误码${RES.errcode}，${RES.errmsg}` });
+      }
+    },
+    error: (err) => NotifyPlugin.error({ title: '借出设备失败！', content: err, duration: 5000 }),
+  });
+};
+
+const getStatus = () => {
+  const TOKEN = localStorage.getItem('token');
+  useRequest({
+    url: '/eqcheck/status',
+    methods: 'POST',
+    success: (res) => {
+      const RES = JSON.parse(res);
+      if (RES.errcode === 0 && RES.data.progressing === false) {
+        loading.value = false;
+        clearInterval(getStatusTimer.value);
+        clearInterval(timer.value);
+      }
+    },
+    error: (err) => NotifyPlugin.error({ title: '获取状态失败！', content: err, duration: 5000 }),
+  });
+};
+
+const s1 = () => {
+  textchange.value = true;
+};
+const s2 = () => {
+  const b = textlist.length;
+  const c = Math.floor(Math.random() * b);
+  const d = c === nowtext.value ? Math.floor(Math.random() * b) : c;
+  const e = d === nowtext.value ? Math.floor(Math.random() * b) : d;
+  const f = e === nowtext.value ? Math.floor(Math.random() * b) : e;
+  nowtext.value = f;
+  textchange.value = false;
+};
+
+onMounted(() => {});
+</script>
+
+<script>
 export default {
   name: 'EqCheck',
-  data() {
-    return {
-      formData: {
-        eqcode: '',
-        start: false,
-      },
-      loading: false,
-      TableData: [
-        {
-          eqname: '一个设备设备设备设备设备设备',
-          eqcode: '09098',
-          //
-          user: '文俊亮',
-          lendtime: '2023-07-11 22:55:34',
-          dothisthinguser: '文俊亮',
-          more: 'ok',
-        },
-      ],
-      TableColumns: [
-        { colKey: 'eqname', title: '设备名称', width: '200' },
-        { colKey: 'eqcode', title: '设备Code', width: '150' },
-        { colKey: 'user', title: '归还人', width: '90', align: 'center' },
-        { colKey: 'dothisthinguser', title: '操作人', width: '90', align: 'center' },
-        { colKey: 'lendtime', title: '归还时间', ellipsis: true },
-        { colKey: 'more', title: '备注', width: '170' },
-      ],
-      textlist: [
-        '请稍等，正在执行清点设备程序',
-        '请不要关闭浏览器',
-        '很快就好',
-        '去看看窗外的风景吧',
-        '稍安勿躁',
-        '海内存知己，天涯若比邻',
-      ],
-      textchange: false,
-      nowtext: 0,
-      timer: null,
-      Operation_id: null,
-      getStatusTimer: null,
-    };
-  },
-
-  mounted() {},
-
-  methods: {
-    start() {
-      var that = this;
-      setTimeout(() => {
-        this.$data.formData.start = true;
-        this.$data.loading = true;
-        this.$data.timer = setInterval(() => {
-          setTimeout(() => this.s1(), 2500);
-          setTimeout(() => this.s2(), 5000);
-        }, 7500);
-      }, 280);
-
-      var TOKEN = localStorage.getItem('token');
-      try {
-        useRequest({
-          url: config.API_URL.MAIN_URL + '/eqcheck/start',
-          methods: 'POST',
-          header: {
-            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-            token: TOKEN,
-          },
-          success: function (res) {
-            var RES = JSON.parse(res);
-            console.log(RES);
-            if (RES.errcode == 0) {
-              // pass
-              that.$data.Operation_id = RES.data.operation_sha;
-              that.$data.getStatusTimer = setInterval(() => {
-                that.getStatus();
-              }, 1000);
-            } else {
-              // Unknown
-              NotifyPlugin('error', {
-                title: '执行失败',
-                content: `未知错误，错误码${RES.errcode}，${RES.errmsg}`,
-              });
-            }
-          },
-          error: function (err) {
-            console.error(err);
-            NotifyPlugin('error', {
-              title: '借出设备失败！',
-              content: err,
-              duration: 5000,
-            });
-          },
-        });
-      } catch (e) {
-        console.log(e);
-      }
-    },
-
-    getStatus() {
-      var that = this;
-      var TOKEN = localStorage.getItem('token');
-      try {
-        HTTPRequest({
-          url: config.API_URL.MAIN_URL + '/eqcheck/status',
-          methods: 'POST',
-          header: {
-            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-            token: TOKEN,
-          },
-          success: function (res) {
-            var RES = JSON.parse(res);
-            if (RES.errcode == 0) {
-              console.log(RES, RES.data.progress);
-              if (RES.data.progressing == false) {
-                that.$data.loading = false;
-                clearInterval(that.$data.getStatusTimer);
-                clearInterval(that.$data.timer);
-              }
-            }
-          },
-          error: function (err) {
-            console.error(err);
-            NotifyPlugin('error', {
-              title: '获取状态失败！',
-              content: err,
-              duration: 5000,
-            });
-          },
-        });
-      } catch (e) {
-        console.log(e);
-      }
-    },
-
-    s1() {
-      var that = this;
-      that.$data.textchange = true;
-    },
-    s2() {
-      var that = this;
-      var b = that.$data.textlist.length;
-      var c = Math.floor(Math.random() * b);
-      var d = c == that.$data.nowtext ? Math.floor(Math.random() * b) : c;
-      var e = d == that.$data.nowtext ? Math.floor(Math.random() * b) : d;
-      var f = e == that.$data.nowtext ? Math.floor(Math.random() * b) : e;
-      that.$data.nowtext = f;
-      that.$data.textchange = false;
-    },
-  },
 };
 </script>
 

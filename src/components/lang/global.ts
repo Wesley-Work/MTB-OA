@@ -1,9 +1,5 @@
-export const langZhCfg = {
+export const langZhCfg = {};
 
-}
+export const langEnCfg = {};
 
-export const langEnCfg = {
-
-}
-
-export default langZhCfg
+export default langZhCfg;

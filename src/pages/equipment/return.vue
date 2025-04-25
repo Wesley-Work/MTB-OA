@@ -58,7 +58,7 @@
                   placeholder="请扫描或输入"
                   :on-enter="Return"
                   :autofocus="true"
-                  @Input="RequestEqInfo(formData.eqcode)"
+                  @input="RequestEqInfo(formData.eqcode)"
                 ></t-input>
                 <t-button class="returnbutton" style="margin-left: -10px; z-index: 2" @click.end="Return"
                   >归还</t-button
@@ -123,12 +123,6 @@ const TableColumns = reactive([
   { colKey: 'more', title: '备注', minWidth: '80' },
 ]);
 const Requesting = ref(false);
-const props = defineProps({
-  handleChangeComponent: {
-    type: Function,
-    default: null,
-  },
-});
 
 const initStyle = () => {
   setTimeout(() => {

@@ -58,7 +58,7 @@
 
 <script>
 export default {
-  name: 'onlyInternet',
+  name: 'OnlyInternet',
 };
 </script>
 

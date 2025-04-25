@@ -1,10 +1,9 @@
 import { defineComponent, Fragment } from 'vue';
-import { h } from 'vue';
 import { Tag, Link, Timeline, TimelineItem } from 'tdesign-vue-next';
 
 import { html } from '../../CHANGELOG.md';
 
-const h2Tag = /<h2>(.*?)<\/h2>/g;
+// const h2Tag = /<h2>(.*?)<\/h2>/g;
 const codeTag = /<code>(.*?)<\/code>/g;
 
 const aTagConvert = (htmlString: string) => {
@@ -164,7 +163,7 @@ const renderAll = () => {
 
 export default defineComponent({
   name: 'CHANGELOGTsx',
-  setup(props) {
+  setup() {
     return () => <Timeline mode="same">{renderAll()}</Timeline>;
   },
 });

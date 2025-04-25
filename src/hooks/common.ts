@@ -18,7 +18,7 @@ export function applyParmer(parmer: Object) {
 }
 
 export function VerifyToken() {
-  return new Promise(async (resolve, reject) => {
+  return new Promise(async (resolve) => {
     const TOKEN = localStorage.getItem('token');
     if (!TOKEN) resolve(false);
     await useRequest({

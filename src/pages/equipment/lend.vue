@@ -87,7 +87,7 @@
                   placeholder="请扫描或输入"
                   :on-enter="Lend"
                   :autofocus="true"
-                  @Input="RequestEqInfo(formData.eqcode)"
+                  @input="RequestEqInfo(formData.eqcode)"
                 ></t-input>
                 <t-button
                   class="lendbutton"
@@ -159,13 +159,6 @@ const TableColumns = [
   { colKey: 'lendtime', title: '借出时间', ellipsis: true, width: '200' },
   { colKey: 'more', title: '备注', minWidth: '80' },
 ];
-
-const props = defineProps({
-  handleChangeComponent: {
-    type: Function,
-    default: null,
-  },
-});
 
 /**
  * @loadTableViewHeight

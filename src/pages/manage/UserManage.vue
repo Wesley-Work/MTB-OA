@@ -34,12 +34,12 @@
       <t-table
         row-key="id"
         :columns="table_Columns"
-        :data="table_Data"
+        :data="tableData"
         select-on-row-click
         :reserve-selected-row-on-paginate="false"
-        :sort="table_Sort"
-        :pagination="table_Pagination"
-        :loading="table_Loading"
+        :sort="tableSort"
+        :pagination="tablePagination"
+        :loading="tableLoading"
         cell-empty-content="-"
         stripe
         bordered
@@ -332,7 +332,7 @@ const table_Columns: TableProps['columns'] = [
     sortType: 'all',
     sorter: true,
     width: 110,
-    cell: (h, { row }) => {
+    cell: (_h, { row }) => {
       return <span>{groupOptions.value.find((item) => item.value === row.group)?.label ?? '-'}</span>;
     },
   },
@@ -342,7 +342,7 @@ const table_Columns: TableProps['columns'] = [
     sortType: 'all',
     sorter: true,
     ellipsis: true,
-    cell: (h, { row }) => {
+    cell: (_h, { row }) => {
       return dayjs(row.reg_time).format('YYYY-MM-DD HH:mm:ss');
     },
   },
@@ -352,7 +352,7 @@ const table_Columns: TableProps['columns'] = [
     sortType: 'all',
     sorter: true,
     ellipsis: true,
-    cell: (h, { row }) => {
+    cell: (_h, { row }) => {
       return dayjs(row.join_time).format('YYYY-MM-DD');
     },
   },
@@ -362,7 +362,7 @@ const table_Columns: TableProps['columns'] = [
     sortType: 'all',
     sorter: true,
     ellipsis: true,
-    cell: (h, { row }) => {
+    cell: (_h, { row }) => {
       return row.login_time ? dayjs(row.login_time).format('YYYY-MM-DD HH:mm:ss') : '-';
     },
   },
@@ -387,13 +387,13 @@ const table_Columns: TableProps['columns'] = [
   //     sorter: true,
   // },
 ];
-const table_Data = ref([]);
-const table_BackData = ref([]);
-const table_Sort = ref({
+const tableData = ref([]);
+const tableBackData = ref([]);
+const tableSort = ref({
   sortBy: 'id',
   descending: false,
 });
-const table_Loading = ref(false);
+const tableLoading = ref(false);
 const SelectData = ref<UserSelectData>([]);
 const Dialog_Model = reactive({
   permissions: false,
@@ -438,12 +438,12 @@ const permissionsTransfer = reactive({
 const userPermissionsList = ref<{ users?: object; group?: object }>({});
 const activeUserPermissions = ref([]);
 const activeGroupPermissions = ref([]);
-const table_Pagination = computed(() => {
+const tablePagination = computed(() => {
   return {
     current: 1,
     pageSize: 25,
     pageSizeOptions: [25, 75, 115, 150],
-    total: table_Data.value.length,
+    total: tableData.value.length,
     showJumper: true,
   };
 });
@@ -556,7 +556,7 @@ const handlePermissionDialogClose = () => {
 };
 
 // 穿梭框数据变化时
-const handlePermissionsTransferChange: TransferProps['onChange'] = (val, ctx) => {
+const handlePermissionsTransferChange: TransferProps['onChange'] = (_val, ctx) => {
   const { movedValue, type } = ctx;
   if (type === 'target') {
     // 需要设置权限状态，默认为true
@@ -627,15 +627,22 @@ const loadGroupData = () => {
  * @初始化表格数据
  */
 const loadTableData = () => {
-  table_Loading.value = true;
+  const { current: currentPage, pageSize } = tablePagination.value;
+  tableLoading.value = true;
   try {
     useRequest({
       url: '/user/list',
       methods: 'POST',
       success: function (res) {
         var RES = JSON.parse(res);
-        table_Data.value = RES.data;
-        table_BackData.value = RES.data;
+        tableData.value = RES.data;
+        tableBackData.value = RES.data;
+        // 保留分页
+        const total = tableData.value.length;
+        const totalPages = Math.ceil(total / pageSize);
+        const newCurrentPage = currentPage > totalPages ? totalPages : currentPage;
+        tablePagination.value.current = newCurrentPage;
+        tablePagination.value.pageSize = pageSize;
       },
       error: function (err) {
         console.error(err);
@@ -646,7 +653,7 @@ const loadTableData = () => {
         });
       },
       complete: function () {
-        table_Loading.value = false;
+        tableLoading.value = false;
       },
     });
   } catch (e) {
@@ -700,54 +707,6 @@ const DeleteAccount = () => {
     }
   }
 };
-
-async function readExcel(file) {
-  uploadFile();
-  // 忽略前几行
-  const ignoreRows = 2;
-  const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.load(file.raw); // 读取 Excel 文件
-
-  const worksheet = workbook.getWorksheet(1); // 获取第一个工作表
-
-  worksheet.eachRow((row, rowNumber) => {
-    if (rowNumber <= ignoreRows) return;
-    const name = row.values[1];
-    const code = row.values[2];
-    const classes = row.values[3];
-    const grade = row.values[4];
-    const group = row.values[5];
-    const password = row.values[6];
-    const permissions = row.values[7];
-    const join_time = row.values[8];
-    const share_device = row.values[9];
-    const openid = row.values[10];
-    const remark = row.values[11];
-
-    console.info(`Row ${rowNumber}:`, row.values); // 打印每一行的数据
-  });
-}
-
-// eslint-enable @typescript-eslint/no-unused-vars
-const uploadFile = (e) => {
-  return new Promise(function (resolve, reject) {
-    if (!/\.(xls|xlsx)$/.test(e.name.toLowerCase())) {
-      NotifyPlugin('error', {
-        title: '错误',
-        content: '上传格式不正确，请上传xls或者xlsx格式',
-      });
-      reject({ status: 'fail', error: '上传失败，文件格式不正确', response: { files: [{ name: e.name }] } });
-    }
-    try {
-      readExcel(e);
-      resolve({ status: 'success', response: { files: [{ name: e.name }] } });
-    } catch (error) {
-      reject({ status: 'fail', error: `解析文件失败，${error}`, response: { files: [{ name: e.name }] } });
-    }
-  });
-};
-
-// eslint-enable @typescript-eslint/no-unused-vars
 
 const exportToXlsx = () => {
   async function createExcel() {
@@ -867,7 +826,7 @@ const exportToXlsx = () => {
       // @ts-expect-error
       cell.style = headerStyle;
     });
-    table_Data.value.forEach((it) => {
+    tableData.value.forEach((it) => {
       // 特殊组标记
       const unUsual = ['老师', '保留用户', '系统用户'];
       const isUnusual = unUsual.includes(groupOptions.value.find((item) => item.value === it.group)?.label ?? '');
@@ -975,8 +934,8 @@ const submitForm = () => {
     share_device: EditUserDialogForm.value.share_device,
     group: EditUserDialogForm.value.group,
     grade: EditUserDialogForm.value.grade,
-    reg_time: dayjs(EditUserDialogForm.value.reg_time).toString(),
-    join_time: dayjs(EditUserDialogForm.value.join_time).toString(),
+    reg_time: dayjs(EditUserDialogForm.value.reg_time).format('YYYY-MM-DD HH:mm:ss'),
+    join_time: dayjs(EditUserDialogForm.value.join_time).format('YYYY-MM-DD HH:mm:ss'),
     permissions_open: Object.keys(permissionsTransfer.proxyStatus).filter(
       (key) => permissionsTransfer.proxyStatus[key].open,
     ),
@@ -990,6 +949,14 @@ const submitForm = () => {
         ...SUBDATA,
       }
     : SUBDATA;
+  const showError = (err) => {
+    NotifyPlugin('error', {
+      title: '设置账号信息失败',
+      content: err,
+      duration: 5000,
+    });
+    console.error(err);
+  };
   const editFunction = () => {
     useRequest({
       url: '/user/edit',
@@ -1005,12 +972,12 @@ const submitForm = () => {
             duration: 5000,
           });
           console.info(`编辑了id为${E_id}的账号信息`);
-          // 关闭对话框
-          setEditDialogVisible(false);
           // 重置对话框数据
           ResetDialogForm();
           // 刷新数据
           loadTableData();
+        } else {
+          showError(RES?.data ?? RES?.errmsg);
         }
       },
       error: function (err) {
@@ -1038,12 +1005,12 @@ const submitForm = () => {
             duration: 5000,
           });
           console.info(`添加了id为${E_id}的账号`);
-          // 关闭对话框
-          setEditDialogVisible(false);
           // 重置对话框数据
           ResetDialogForm();
           // 刷新数据
           loadTableData();
+        } else {
+          showError(RES?.data ?? RES?.errmsg);
         }
       },
       error: function (err) {
@@ -1058,18 +1025,20 @@ const submitForm = () => {
   };
   // 操作
   isEditMode ? editFunction() : addFunction();
+  // 关闭对话框
+  setEditDialogVisible(false);
 };
 
 const sortChange = (e) => {
-  table_Sort.value = e;
+  tableSort.value = e;
   TableSortData();
 };
 
 const TableSortData = () => {
-  var data = table_Data.value;
-  var sort = table_Sort.value;
+  var data = tableData.value;
+  var sort = tableSort.value;
   if (sort) {
-    table_Data.value = data
+    tableData.value = data
       .concat()
       .sort((a, b) =>
         sort.descending
@@ -1077,7 +1046,7 @@ const TableSortData = () => {
           : Intl.Collator('zh-Hans-CN', { sensitivity: 'accent' }).compare(b[sort.sortBy], a[sort.sortBy]),
       );
   } else {
-    table_Data.value = table_BackData.value;
+    tableData.value = tableBackData.value;
   }
 };
 
@@ -1086,8 +1055,8 @@ const handleTableSelectChange = (_value, { selectedRowData }) => {
 };
 
 const onPageChange = (pageInfo) => {
-  table_Pagination.value.current = pageInfo.current;
-  table_Pagination.value.pageSize = pageInfo.pageSize;
+  tablePagination.value.current = pageInfo.current;
+  tablePagination.value.pageSize = pageInfo.pageSize;
 };
 
 onMounted(() => {

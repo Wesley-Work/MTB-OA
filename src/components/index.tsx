@@ -1,4 +1,4 @@
-import { defineComponent, h, PropType } from 'vue';
+import { defineComponent, PropType } from 'vue';
 import { VerifyPermissions } from '../hooks/usePermission';
 import Error from './pages/Error.vue';
 import NoPermissions from './pages/NoPermissions.vue';

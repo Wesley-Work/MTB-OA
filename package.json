@@ -13,7 +13,7 @@
     "local:build": "vite build --mode=atlocal",
     "local:preview": "vite preview --mode=atlocal --port 7371",
     "hmh:build": "vite build --mode=hmh",
-    "open:build": "vite build --mode=open",
+    "open:build": "vite build --mode=wesley",
     "lint:fix": "eslint --ext .vue,.js,.ts,.tsx ./src --max-warnings 0 --fix --cache",
     "lint": "pnpm lint:tsc && eslint --ext .vue,.js,.ts,.tsx ./src --max-warnings 0 --cache",
     "lint:tsc": "tsc --noEmit"
@@ -57,7 +57,7 @@
     "prettier": "2.8.1",
     "sass": "^1.63.6",
     "sass-loader": "^13.3.2",
-    "typescript": "~5.6.2",
+    "typescript": "~5.8.3",
     "vite": "^5.4.11",
     "vite-plugin-markdown": "^2.2.0",
     "vue-tsc": "^2.1.8"

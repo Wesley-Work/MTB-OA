@@ -342,6 +342,7 @@ onMounted(() => {
  * @初始化表格数据
  */
 const loadEquipmentTableData = () => {
+  const { current: currentPage, pageSize } = tablePagination.value;
   tableLoading.value = true;
   try {
     useRequest({
@@ -351,6 +352,12 @@ const loadEquipmentTableData = () => {
         var RES = JSON.parse(res);
         tableData.value = RES.data;
         tableData_Backup.value = RES.data;
+        // 保留分页
+        const total = tableData.value.length;
+        const totalPages = Math.ceil(total / pageSize);
+        const newCurrentPage = currentPage > totalPages ? totalPages : currentPage;
+        tablePagination.value.current = newCurrentPage;
+        tablePagination.value.pageSize = pageSize;
       },
       error: function (err) {
         console.error(err);
