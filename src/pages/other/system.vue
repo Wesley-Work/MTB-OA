@@ -59,7 +59,7 @@ import { VERSION, packageVersion, VersionMode, SystemName, SystemNameEn } from '
 import { NotifyPlugin } from 'tdesign-vue-next';
 import { onMounted, ref } from 'vue';
 
-const TdesignVueNextVersion = '1.11.5';
+const TdesignVueNextVersion = '1.12.0';
 const latestVersion = ref('0.0.0');
 const sdk = [
   {

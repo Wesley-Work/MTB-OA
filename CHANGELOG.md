@@ -1,4 +1,13 @@
 
+## 🌈 3.3.3 `2025-04-25` 
+### 🐞 Bug Fixes
+- `UserManage`: 修复提交更新用户信息后，遇后端错误无错误内容显示的问题 @Wesley-0808 ([#53](https://github.com/Wesley-Work/MTB-OA/pull/53))
+- `Index`: 
+  - 修复切换动画时闪目标页面的问题 @Wesley-0808 ([#53](https://github.com/Wesley-Work/MTB-OA/pull/53))
+  - 修复网页图标无法正确加载的问题 @Wesley-0808 ([#53](https://github.com/Wesley-Work/MTB-OA/pull/53))
+### 🚧 Others
+- `EquipmentManage`: 更新设备列表不会改变分页内容 @Wesley-0808 ([#53](https://github.com/Wesley-Work/MTB-OA/pull/53))
+- `UserManage`: 更新用户列表不会改变分页内容 @Wesley-0808 ([#53](https://github.com/Wesley-Work/MTB-OA/pull/53))
 ## 🌈 3.3.2 `2025-04-20` 
 ### 🐞 Bug Fixes
 - `EqList`: 修复点击编辑未同步选择行数据的问题 @Wesley-0808 ([#51](https://github.com/Wesley-Work/MTB-OA/pull/51))
