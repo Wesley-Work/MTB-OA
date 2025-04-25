@@ -10,7 +10,7 @@
         </div>
       </template>
     </t-card>
-    <t-card bordered :style="{ width: '340px' }" v-for="item in groupList" v-key="item.id">
+    <t-card v-for="item in groupList" :key="item.id" bordered :style="{ width: '340px' }">
       <template #header>
         <div style="font: var(--td-font-title-medium)">『{{ item.id }}』 {{ item.name }} [{{ item.desc }}]</div>
       </template>
@@ -44,9 +44,9 @@
   <t-dialog
     v-model:visible="dialogVisible"
     width="35%"
-    :cancelBtn="null"
-    confirmBtn="关闭"
-    :onConfirm="
+    :cancel-btn="null"
+    confirm-btn="关闭"
+    :on-confirm="
       () => {
         dialogVisible = false;
       }
@@ -57,24 +57,24 @@
     </template>
     <template #body>
       <div class="groupUserList-dialog-content">
-        <t-button v-for="item in dialogData.content" variant="dashed" theme="primary">{{ item }}</t-button>
+        <t-button v-for="item in dialogData.content" :key="item" variant="dashed" theme="primary">{{ item }}</t-button>
       </div>
     </template>
   </t-dialog>
   <!---->
   <t-drawer
     v-model:visible="drawerVisible"
-    :onClose="
+    :on-close="
       () => {
         drawerVisible = false;
       }
     "
     size="36%"
-    :onConfirm="handleSubmit"
+    :on-confirm="handleSubmit"
   >
     <template #header>{{ drawerData.mode === 'add' ? '添加' : '编辑' }}组</template>
     <t-form ref="drawerFormEl" :rules="drawerRule" :data="drawerData" :colon="true">
-      <t-form-item label="id" name="id" v-if="drawerData.mode === 'edit'">
+      <t-form-item v-if="drawerData.mode === 'edit'" label="id" name="id">
         <t-input v-model="drawerData.id" placeholder="请输入内容"></t-input>
       </t-form-item>
 
@@ -90,13 +90,13 @@
         <t-input v-model="drawerData.desc" placeholder="请输入内容"></t-input>
       </t-form-item>
 
-      <t-form-item label="更新到用户" name="updateToUser" v-if="drawerData.mode === 'add'">
+      <t-form-item v-if="drawerData.mode === 'add'" label="更新到用户" name="updateToUser">
         <t-transfer
           :data="transferUserSource"
           :value="drawerData.updateToUser"
           :search="true"
           :operation="['移除', '添加']"
-          :onChange="userTransferChange"
+          :on-change="userTransferChange"
           class="transfer-custom"
         >
           <template #title="props">
@@ -111,7 +111,7 @@
           :data="transferPermissionSource"
           :value="drawerData.permission"
           :operation="['移除', '添加']"
-          :onChange="permissionTransferChange"
+          :on-change="permissionTransferChange"
         >
           <template #title="props">
             <div>{{ props.type === 'target' ? '目标' : '来源' }}</div>
@@ -122,7 +122,7 @@
   </t-drawer>
 </template>
 
-<script setup lang="ts">
+<script setup lang="tsx">
 import { Edit2Icon, ListIcon, DeleteIcon, AddRectangleIcon } from 'tdesign-icons-vue-next';
 import useRequest from '../../hooks/useRequest';
 import { computed, onMounted, reactive, ref } from 'vue';
@@ -130,9 +130,10 @@ import { NotifyPlugin } from 'tdesign-vue-next';
 import { GroupItem, GroupList, GroupPermissionList, GroupUserList, UserList } from '../../types/type';
 
 const drawerFormEl = ref(null);
-const groupList = ref(<GroupList>[]);
-const userGroupList = ref(<GroupUserList>[]);
-const userList = ref(<UserList>[]);
+const groupList = ref<GroupList>([]);
+const userGroupList = ref<GroupUserList>([]);
+const userList = ref<UserList>([]);
+const permissionList = ref([]);
 const transferUserSource = computed(() => {
   return userList.value.map((item) => {
     return {
@@ -141,7 +142,6 @@ const transferUserSource = computed(() => {
     };
   });
 });
-const permissionList = ref([]);
 const transferPermissionSource = computed(() => {
   return permissionList.value.map((item) => {
     return {
@@ -164,7 +164,7 @@ const groupType = [
     value: 'close',
   },
 ];
-const groupPermission = ref(<GroupPermissionList>[]);
+const groupPermission = ref<GroupPermissionList>([]);
 const dialogVisible = ref(false);
 const dialogData = reactive({
   title: '',
@@ -365,7 +365,7 @@ const handleSubmit = () => {
   drawerFormEl.value.validate().then((validateResult) => {
     if (validateResult && Object.keys(validateResult).length) {
       // 有错误
-      console.log('表单校验失败', validateResult);
+      console.error('表单校验失败', validateResult);
       return;
     }
     // 提交数据
@@ -469,7 +469,7 @@ onMounted(() => {
 });
 </script>
 
-<script lang="ts">
+<script lang="tsx">
 export default {
   name: 'GroupManage',
 };
