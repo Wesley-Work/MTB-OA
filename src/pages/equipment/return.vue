@@ -13,7 +13,7 @@
             <div>
               <t-button
                 style="width: 100%; height: 56px; font: var(--td-font-title-large); margin-bottom: 16px"
-                @click.end="handleChangeComponent('Lend', true)"
+                @click.end="props.handleChangeComponent('Lend', true)"
                 >去借出设备</t-button
               >
             </div>
@@ -123,6 +123,12 @@ const TableColumns = reactive([
   { colKey: 'more', title: '备注', minWidth: '80' },
 ]);
 const Requesting = ref(false);
+const props = defineProps({
+  handleChangeComponent: {
+    type: Function,
+    default: null,
+  },
+});
 
 const initStyle = () => {
   setTimeout(() => {

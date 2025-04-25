@@ -5,6 +5,7 @@
 - `Index`: 
   - 修复切换动画时闪目标页面的问题 @Wesley-0808 ([#53](https://github.com/Wesley-Work/MTB-OA/pull/53))
   - 修复网页图标无法正确加载的问题 @Wesley-0808 ([#53](https://github.com/Wesley-Work/MTB-OA/pull/53))
+- `SuppleRecord`: 修复点击添加借出记录按钮无反馈的问题
 ### 🚧 Others
 - `EquipmentManage`: 更新设备列表不会改变分页内容 @Wesley-0808 ([#53](https://github.com/Wesley-Work/MTB-OA/pull/53))
 - `UserManage`: 更新用户列表不会改变分页内容 @Wesley-0808 ([#53](https://github.com/Wesley-Work/MTB-OA/pull/53))

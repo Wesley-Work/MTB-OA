@@ -68,7 +68,7 @@
       <div class="operation">
         <div style="width: 560px; gap: 8px; display: flex; flex-direction: column">
           <t-button theme="default" size="large" variant="outline" @click="resetForm">重置表单</t-button>
-          <t-button theme="primary" size="large" @click="submitForm">添加记录</t-button>
+          <t-button theme="primary" size="large" @click="submitForm">添加借出记录</t-button>
         </div>
       </div>
     </div>
