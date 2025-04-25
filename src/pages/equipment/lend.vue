@@ -16,13 +16,13 @@
                   style="width: 100%; height: 56px; font: var(--td-font-title-large); margin-bottom: 16px"
                   variant="outline"
                   theme="primary"
-                  @click.end="handleChangeComponent('Return', true)"
+                  @click.end="props.handleChangeComponent('Return', true)"
                   >去归还设备</t-button
                 >
                 <t-button
                   style="width: 100%; height: 56px; font: var(--td-font-title-large); margin-bottom: 16px"
                   theme="primary"
-                  @click.end="handleChangeComponent('SuppleRecord', true)"
+                  @click.end="props.handleChangeComponent('SuppleRecord', true)"
                   >补借出记录</t-button
                 >
               </t-space>
@@ -159,6 +159,12 @@ const TableColumns = [
   { colKey: 'lendtime', title: '借出时间', ellipsis: true, width: '200' },
   { colKey: 'more', title: '备注', minWidth: '80' },
 ];
+const props = defineProps({
+  handleChangeComponent: {
+    type: Function,
+    default: null,
+  },
+});
 
 /**
  * @loadTableViewHeight

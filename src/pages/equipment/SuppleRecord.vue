@@ -68,7 +68,7 @@
       <div class="operation">
         <div style="width: 560px; gap: 8px; display: flex; flex-direction: column">
           <t-button theme="default" size="large" variant="outline" @click="resetForm">重置表单</t-button>
-          <t-button theme="primary" size="large" @click="submitForm">添加记录</t-button>
+          <t-button theme="primary" size="large" @click="submitForm">添加借出记录</t-button>
         </div>
       </div>
     </div>
@@ -159,7 +159,7 @@ const fetchEquipmentInfo = () => {
       console.error(err);
       NotifyPlugin.error({
         title: '设备信息获取失败',
-        content: '请检查设备编号是否正确',
+        content: '请检查设备Code是否正确',
       });
     },
   });
@@ -173,7 +173,19 @@ const handleApplyRecord = () => {
       ...formData.value,
     },
     success: function (res) {
-      console.info(res);
+      const RES = JSON.parse(res);
+      if (RES.errcode == 0) {
+        NotifyPlugin.success({
+          title: '新增记录成功',
+          content: '记录ID：' + RES?.data?.id,
+        });
+        resetForm();
+      } else {
+        NotifyPlugin.error({
+          title: '新增记录失败',
+          content: '错误：' + RES.errmsg,
+        });
+      }
     },
     error: function (err) {
       console.error(err);
