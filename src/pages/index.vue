@@ -186,7 +186,7 @@ import PageTooSmall from '../components/pages/PageSmall.vue';
 import { useRoute, useRouter } from 'vue-router';
 import type { LocationQueryRaw } from 'vue-router';
 import { getParams, getURLAllParams } from '@hooks/useParams';
-import { curryRight, isEmpty, isObject } from 'lodash-es';
+import { isEmpty, isObject } from 'lodash-es';
 
 const router = useRouter();
 const route = useRoute();

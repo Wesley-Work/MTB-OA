@@ -1,10 +1,10 @@
 <template>
   <div class="info-container">
     <div class="system-info">
-      <div class="title">{{ SystemName }}</div>
+      <div class="title">{{ systemName }}</div>
       <div class="subtitle">
-        [ {{ SystemNameEn }} ]
-        <span class="versionMode">{{ VersionMode }}</span>
+        [ {{ systemNameEn }} ]
+        <span class="versionMode">{{ versionMode }}</span>
       </div>
     </div>
     <div class="content">
@@ -55,7 +55,7 @@
 
 <script setup lang="ts">
 import useRequest from '../../hooks/useRequest';
-import { VERSION, packageVersion, VersionMode, SystemName, SystemNameEn } from '../../config';
+import { VERSION, packageVersion, versionMode, systemName, systemNameEn } from '../../config';
 import { NotifyPlugin } from 'tdesign-vue-next';
 import { onMounted, ref } from 'vue';
 
