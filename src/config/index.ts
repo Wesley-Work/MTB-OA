@@ -93,6 +93,17 @@ const routerMap: RouteMaps = [
     ],
   },
   {
+    label: '上网认证',
+    children: [
+      {
+        key: 'network-portal',
+        label: '绑定列表',
+        icon: 'internet',
+        component: () => import('@pages/manage/network-portal.vue'),
+      },
+    ],
+  },
+  {
     label: 'Management',
     children: [
       {
@@ -295,10 +306,12 @@ export const routerPrefix = config.routerPrefix;
 export { routerMap, config, packageVersion };
 
 export const VERSION = config.version;
-export const VersionMode = config.versionMode;
-export const SystemName = config.systemName;
-export const SystemNameEn = config.systemNameEn;
+export const versionMode = config.versionMode;
+export const systemName = config.systemName;
+export const systemNameEn = config.systemNameEn;
 export const pagePermissionVerify = config.pagePermissionVerify;
 export const menuPermissionVerify = config.menuPermissionVerify;
 export const useViewTransition = config.useViewTransition;
 export const allowHotUpdate = config.allowHotUpdate;
+export const loginVerify = config.loginVerify;
+export const menuUseCollapsed = config.menuUseCollapsed;

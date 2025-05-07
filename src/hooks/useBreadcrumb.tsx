@@ -1,5 +1,6 @@
 import { defineComponent, ref, toRefs, watch } from 'vue';
 import { routerMap } from '../config';
+import { Breadcrumb, BreadcrumbItem } from 'tdesign-vue-next';
 import type { RouteMaps } from '@type/type';
 
 export default defineComponent({
@@ -10,28 +11,22 @@ export default defineComponent({
     },
   },
   setup(props) {
-    // const { value } = toRefs(props)
     const { value } = toRefs(props);
+    const componentValue = ref(value.value);
 
     watch(
       () => value.value,
       (newVal) => {
-        value.value = newVal;
+        componentValue.value = newVal;
       },
     );
     const isHidden = ref(false);
 
-    // 通过url判断当前页面
-    // const getpath = () => {
-    //   const path = window.location.hash.replace('#', '').replace(config.routerPrefix + '/', '');
-    //   return path;
-    // };
-
-    function getIteminMap(
+    const getItemInMap = (
       map: RouteMaps,
       value: string,
       deep = 0,
-    ): { parent: string | null; current: string | null; fatherCrumb?: string | null } {
+    ): { parent: string | null; current: string | null; fatherCrumb?: string | null } => {
       for (const item of map) {
         if (item?.key === value) {
           isHidden.value = item?.hiddenBreadCrumb ?? false;
@@ -42,7 +37,7 @@ export default defineComponent({
           };
         }
         if (item?.children) {
-          const result = getIteminMap(item.children, value, deep + 1);
+          const result = getItemInMap(item.children, value, deep + 1);
           if (result?.current) {
             return {
               parent: result?.fatherCrumb ?? result?.parent ?? item.label,
@@ -52,33 +47,33 @@ export default defineComponent({
         }
       }
       return { parent: null, current: null };
-    }
+    };
 
-    function renderCrumbItem(path: string, level = 0) {
-      const valuekey = getIteminMap(routerMap, path);
+    const renderCrumbItem = (path: string, level = 0) => {
+      const valueKey = getItemInMap(routerMap, path);
       if (level === 0) {
         return (
           <>
-            <t-breadcrumbItem>媒体部管理系统</t-breadcrumbItem>
-            {renderCrumbItem(value.value, level + 1)}
+            <BreadcrumbItem>媒体部管理系统</BreadcrumbItem>
+            {renderCrumbItem(componentValue.value, level + 1)}
           </>
         );
       }
-      if (!valuekey?.parent) {
-        return <t-breadcrumbItem>{valuekey?.current}</t-breadcrumbItem>;
+      if (!valueKey?.parent) {
+        return <BreadcrumbItem>{valueKey?.current}</BreadcrumbItem>;
       } else {
         return (
           <>
-            <t-breadcrumbItem>{valuekey?.parent}</t-breadcrumbItem>
-            <t-breadcrumbItem>{valuekey?.current}</t-breadcrumbItem>
+            <BreadcrumbItem>{valueKey?.parent}</BreadcrumbItem>
+            <BreadcrumbItem>{valueKey?.current}</BreadcrumbItem>
           </>
         );
       }
-    }
+    };
 
     return () => (
       <div style={isHidden.value ? 'display: none' : 'padding-bottom: 24px; user-select: none;'}>
-        <t-breadcrumb max-item-width={150}>{renderCrumbItem(value.value)}</t-breadcrumb>
+        <Breadcrumb max-item-width={150}>{renderCrumbItem(componentValue.value)}</Breadcrumb>
       </div>
     );
   },
