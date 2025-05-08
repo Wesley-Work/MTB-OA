@@ -78,7 +78,6 @@
               width: `${triggerElem.offsetWidth}px`,
             }),
           }"
-          @click="handleAccountMenu"
         >
           <t-button variant="text" class="we-tag-headmenu-operations-account" block>
             <t-icon name="user-circle" style="min-width: 20px; min-height: 20px" />
@@ -178,7 +177,7 @@ import {
   loginVerify,
   menuUseCollapsed,
 } from '../config';
-import { PoweroffIcon, ChatBubbleHelpIcon } from 'tdesign-icons-vue-next';
+import { PoweroffIcon, UserPasswordIcon } from 'tdesign-icons-vue-next';
 import { NotifyPlugin } from 'tdesign-vue-next';
 import { getCurrentPage, verifyPath, getSSOURL, getLoginURL, getRoutePathObj, VerifyToken } from '../hooks/common';
 import { useRequest } from '../hooks/useRequest';
@@ -215,9 +214,28 @@ const MainContent = reactive({
   lastChoose: 'Content',
   ComponentValue: 'Content',
   AccountMenuOptions: [
-    // { content: "个人中心", value: 1, prefixIcon: <UserIcon /> },
-    { content: '遇到问题', value: 2, prefixIcon: <ChatBubbleHelpIcon /> },
-    { content: '退出登录', value: 3, prefixIcon: <PoweroffIcon /> },
+    // { content: '个人中心', value: 1, prefixIcon: <UserIcon /> },
+    // {
+    //   content: '遇到问题',
+    //   value: 2,
+    //   prefixIcon: <ChatBubbleHelpIcon />,
+    // },
+    {
+      content: '修改密码',
+      value: 4,
+      prefixIcon: <UserPasswordIcon />,
+      onClick: () => {
+        goChangePws();
+      },
+    },
+    {
+      content: '退出登录',
+      value: 3,
+      prefixIcon: <PoweroffIcon />,
+      onClick: () => {
+        logout();
+      },
+    },
   ],
 });
 const login_info = reactive({
@@ -470,18 +488,12 @@ const handleChangeComponent = (componentName: string, doNotToggleSideMenu: boole
   }, 200);
 };
 
-/**
- * @handleAccountMenu
- * @处理右上角菜单选择内容
- * @param {*} e 选择数据项
- */
-const handleAccountMenu = (e) => {
-  e.value == 1 ? handleChangeComponent('PersonCenter', true) : e.value == 2 ? null : logout();
-  SideMenu.show = false;
-};
-
 const logout = () => {
   location.href = getSSOURL() + '?actionType=logout';
+};
+
+const goChangePws = () => {
+  location.href = getSSOURL() + '?actionType=changePassword';
 };
 
 const PageReload = () => {
