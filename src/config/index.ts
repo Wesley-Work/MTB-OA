@@ -36,14 +36,13 @@ const routerMap: RouteMaps = [
         key: 'TaskList',
         label: '任务列表',
         icon: 'server',
-        permissions: ['task.list'],
         component: () => import('@pages/task/TaskList.vue'),
       },
       {
         key: 'AddTask',
         label: '添加任务',
         icon: 'root-list',
-        permissions: ['task.add'],
+        permissions: ['task.post'],
         component: () => import('@pages/task/addTask.vue'),
       },
       {
@@ -93,6 +92,17 @@ const routerMap: RouteMaps = [
     ],
   },
   {
+    label: '上网认证',
+    children: [
+      {
+        key: 'network-portal',
+        label: '绑定列表',
+        icon: 'internet',
+        component: () => import('@pages/manage/network-portal.vue'),
+      },
+    ],
+  },
+  {
     label: 'Management',
     children: [
       {
@@ -103,13 +113,13 @@ const routerMap: RouteMaps = [
           {
             key: 'LendList',
             label: '借出列表',
-            permissions: ['equipment.list'],
+            permissions: ['equipment.manage.getlist'],
             component: () => import('@pages/equipment/list.vue'),
           },
           {
             key: 'LendCheck',
             label: '借出查询',
-            permissions: ['equipment.check'],
+            permissions: ['equipment.record.get'],
             component: () => import('@pages/equipment/check.vue'),
           },
         ],
@@ -122,7 +132,7 @@ const routerMap: RouteMaps = [
           {
             key: 'EqList',
             label: '设备列表',
-            permissions: ['equipment.list'],
+            permissions: ['equipment.manage.getlist'],
             component: () => import('@pages/manage/eqList.vue'),
           },
           {
@@ -142,13 +152,13 @@ const routerMap: RouteMaps = [
           {
             key: 'AccountManage',
             label: '账号管理',
-            permissions: ['user.list'],
+            permissions: ['account.manage.getlist'],
             component: () => import('@pages/manage/UserManage.vue'),
           },
           {
             key: 'GroupManage',
             label: '组管理',
-            permissions: ['group.add'],
+            permissions: ['account.manage.getlist'],
             component: () => import('@pages/manage/GroupManage.vue'),
           },
         ],
@@ -295,10 +305,12 @@ export const routerPrefix = config.routerPrefix;
 export { routerMap, config, packageVersion };
 
 export const VERSION = config.version;
-export const VersionMode = config.versionMode;
-export const SystemName = config.systemName;
-export const SystemNameEn = config.systemNameEn;
+export const versionMode = config.versionMode;
+export const systemName = config.systemName;
+export const systemNameEn = config.systemNameEn;
 export const pagePermissionVerify = config.pagePermissionVerify;
 export const menuPermissionVerify = config.menuPermissionVerify;
 export const useViewTransition = config.useViewTransition;
 export const allowHotUpdate = config.allowHotUpdate;
+export const loginVerify = config.loginVerify;
+export const menuUseCollapsed = config.menuUseCollapsed;

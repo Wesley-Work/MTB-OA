@@ -63,7 +63,7 @@
 </template>
 
 <script setup lang="tsx">
-import CHANGELOG from '../../hooks/useChangeLog';
+import CHANGELOG from '@hooks/useChangeLog';
 </script>
 
 <script lang="tsx">

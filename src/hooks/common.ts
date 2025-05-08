@@ -74,7 +74,6 @@ export function getRoutePathObj(
 export function verifyPath(path: string, map = routerMap, deep = 0) {
   for (const item of map) {
     if (item?.key === path) {
-      console.warn(item);
       return true;
     }
     if (item?.children) {
