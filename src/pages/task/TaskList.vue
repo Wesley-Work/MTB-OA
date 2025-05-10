@@ -47,8 +47,8 @@
 
 <script setup lang="tsx">
 import { onBeforeMount, onBeforeUnmount, reactive, ref } from 'vue';
-import useRequest from '../../hooks/useRequest';
-import { getToken } from '../../hooks/common';
+import useRequest from '../../hooks/useRequest.ts';
+import { getToken } from '../../hooks/common.ts';
 import { NotifyPlugin } from 'tdesign-vue-next';
 import taskList from './taskList.tsx';
 import { isArray } from 'lodash-es';

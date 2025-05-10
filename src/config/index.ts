@@ -36,14 +36,14 @@ const routerMap: RouteMaps = [
         key: 'TaskList',
         label: '任务列表',
         icon: 'server',
-        component: () => import('@pages/task/TaskList.vue'),
+        component: () => import('@pages/task/taskList.vue'),
       },
       {
-        key: 'AddTask',
+        key: 'TaskManage',
         label: '添加任务',
         icon: 'root-list',
         permissions: ['task.post'],
-        component: () => import('@pages/task/addTask.vue'),
+        component: () => import('@pages/task/taskManage.vue'),
       },
       {
         key: 'MyTask',
