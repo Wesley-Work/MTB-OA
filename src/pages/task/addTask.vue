@@ -84,7 +84,7 @@
                 </t-select>
               </t-form-item>
               <t-form-item label="权重等级" name="weight">
-                <t-rate :value="taskActiveItem.weight"></t-rate>
+                <t-rate v-model="taskActiveItem.weight"></t-rate>
               </t-form-item>
               <t-form-item label="备注" name="remark">
                 <t-input v-model="taskActiveItem.remark" placeholder="请输入内容" />
@@ -105,8 +105,8 @@
           </t-space>
           <t-form-item style="margin-top: 16px">
             <t-space size="small">
-              <t-button theme="primary" type="submit" variant="outline" ghost>提交内容</t-button>
-              <t-popconfirm content="确认删除吗？" @confirm="onDelTask">
+              <t-button theme="primary" type="submit" variant="outline" ghost :loading="requesting">提交内容</t-button>
+              <t-popconfirm theme="danger" content="确认删除吗？" @confirm="onDelTask">
                 <t-button variant="dashed" theme="danger" :disabled="!taskListActive">删除任务</t-button>
               </t-popconfirm>
 
@@ -156,6 +156,7 @@ const taskFormRules = {
   type: [{ required: true, message: '任务类型必填', trigger: 'submit' }],
   finally_time: [{ required: true, message: '预期完成时间必填', trigger: 'submit' }],
 };
+const requesting = ref(false);
 
 const loadUserList = () => {
   useRequest({
@@ -248,6 +249,7 @@ const resetForm = () => {
 const onSubmit = (context) => {
   const validateResult = context.validateResult;
   if (validateResult !== true) return false;
+  requesting.value = true;
   const mode = taskListActive.value ? 'edit' : 'add';
   useRequest({
     url: `/task/${mode}`,
@@ -279,6 +281,9 @@ const onSubmit = (context) => {
         title: '操作失败',
         content: err,
       });
+    },
+    complete: function () {
+      requesting.value = false;
     },
   });
 };
