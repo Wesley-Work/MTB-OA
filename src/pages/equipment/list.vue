@@ -24,6 +24,9 @@ import useRequest from '../../hooks/useRequest';
 import { getToken } from '../../hooks/common';
 import { computed, onMounted, ref } from 'vue';
 
+defineProps({
+  handleChangeComponent: Function,
+});
 const table_Columns = [
   { colKey: 'id', title: '借出编号', width: '100' },
   { colKey: 'lender', title: '借出人', width: '160', align: 'center' },

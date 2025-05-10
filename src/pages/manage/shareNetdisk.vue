@@ -7,7 +7,9 @@
           <span>『取件码』设置</span>
         </template>
         <!---->
-        <div class="pickUpCode-Title">当前『取件码』列表。受系统政策限制，不允许编辑『取件码』内容</div>
+        <div class="pickUpCode-Title">
+          当前『取件码』列表。为保障系统安全，受安全政策限制，因而不允许编辑『取件码』内容
+        </div>
         <div class="pickUpCode-Box">
           <div v-for="(item, index) in pickUpCodeList" :key="item?.id ?? index" class="pickUpCode-Box--item">
             <div>『码』ID：{{ item?.id }}；『码』值:</div>
@@ -115,6 +117,9 @@ interface pickUpCodeListItem {
   type: string;
 }
 
+defineProps({
+  handleChangeComponent: Function,
+});
 const pickUpCodeList = ref([]);
 const pickUpCodeDetail = ref<pickUpCodeListItem>();
 const pickUpCodeDetailDialogVisible = ref(false);

@@ -61,6 +61,9 @@ import { VERSION, packageVersion, versionMode, systemName, systemNameEn } from '
 import { NotifyPlugin } from 'tdesign-vue-next';
 import { onMounted, ref } from 'vue';
 
+defineProps({
+  handleChangeComponent: Function,
+});
 const TdesignVueNextVersion = '1.12.0';
 const latestVersion = ref('0.0.0');
 const systemVType = ref('authorize');

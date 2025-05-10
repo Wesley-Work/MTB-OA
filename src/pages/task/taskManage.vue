@@ -128,6 +128,9 @@ import useRequest from '../../hooks/useRequest';
 import { onMounted, ref } from 'vue';
 import { isArray } from 'lodash-es';
 
+defineProps({
+  handleChangeComponent: Function,
+});
 const userList = ref([]);
 const transferSource = ref([]);
 const defaultItem = {

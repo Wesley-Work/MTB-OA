@@ -26,6 +26,9 @@ import { computed, onMounted, ref } from 'vue';
 import { FilterValue, NotifyPlugin, TableProps } from 'tdesign-vue-next';
 import useRequest from '@hooks/useRequest';
 
+defineProps({
+  handleChangeComponent: Function,
+});
 const tableColumns = [
   {
     colKey: 'id',

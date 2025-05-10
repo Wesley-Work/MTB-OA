@@ -5,65 +5,15 @@
   >
     <div style="display: flex; flex-direction: column; align-items: center">
       <CHANGELOG></CHANGELOG>
-      <!-- <t-timeline mode="same">
-            <t-timeline-item dot-color="primary" class="blueline">
-                <h2>🌈 3.0.3
-                    <t-tag theme="success" variant="light" style="background-color: rgba(2,156,212,.1);color: #029cd4;margin: 0px;font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;padding: 0px 8px;">RC</t-tag>
-                    <t-tag size="large">2024/05/08</t-tag>
-                </h2>
-                <h3 id="💎-features">💎 Features </h3>
-                <ul style="list-style-type: disc;">
-                    <li>
-                        <t-tag size="small" theme="danger" variant="light">Dashboard</t-tag>: 上线部分内容(基础信息、借出/归还数据) @Wesley
-                    </li>
-                    <li>
-                        <t-tag size="small" theme="danger" variant="light">Theme-Toggle</t-tag>: 切换样式的动画 @Wesley
-                    </li>
-                </ul>
-                <h3 id="🐞-bug-fixes">🐞 Bug Fixes </h3>
-                <ul>
-                    <li>
-                        <t-tag size="small" theme="danger" variant="light">EquipmentLend</t-tag>、<t-tag size="small" theme="danger" variant="light">EquipmentReturn</t-tag>: 修复借出/归还后未清空输入框内容 @Wesley
-                    </li>
-                </ul>
-            </t-timeline-item>
-            <t-timeline-item dot-color="primary" class="blueline">
-                <h2>🌈 3.0.1
-                    <t-tag theme="success" variant="light" style="background-color: rgba(2,156,212,.1);color: #029cd4;margin: 0px;font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;padding: 0px 8px;">RC</t-tag>
-                    <t-tag size="large">2024/04/22</t-tag>
-                </h2>
-                <h3 id="🐞-bug-fixes">🐞 Bug Fixes </h3>
-                <ul>
-                    <li>
-                        <t-tag size="small" theme="danger" variant="light">API</t-tag>: 修复无法验证权限的Bug @Wesley
-                    </li>
-                </ul>
-                <h3 id="❗-BREAKING-CHANGES">❗ BREAKING CHANGES</h3>
-                <ul style="list-style-type: disc;">
-                    <li>
-                        <t-tag size="small" theme="danger" variant="light">Return</t-tag>: 取消帮还选项，无需输入借出人Code @Wesley
-                    </li>
-                </ul>
-            </t-timeline-item>
-            <t-timeline-item dot-color="primary" class="blueline">
-                <h2>🌈 3.0.0
-                    <t-tag theme="success" variant="light" style="background-color: rgba(2,156,212,.1);color: #029cd4;margin: 0px;font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;padding: 0px 8px;">RC</t-tag>
-                    <t-tag size="large">2024/04/16</t-tag>
-                </h2>
-                <h3 id="💎-features">💎 Features </h3>
-                <ul style="list-style-type: disc;">
-                    <li>
-                        <t-tag size="small" theme="danger" variant="light">...</t-tag>: 整体重构 @Wesley, @DDoS_LING
-                    </li>
-                </ul>
-            </t-timeline-item>
-        </t-timeline> -->
     </div>
   </div>
 </template>
 
 <script setup lang="tsx">
-import CHANGELOG from '@hooks/useChangeLog';
+import CHANGELOG from '@utils/renderChangelog';
+defineProps({
+  handleChangeComponent: Function,
+});
 </script>
 
 <script lang="tsx">

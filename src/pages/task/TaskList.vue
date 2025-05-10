@@ -53,14 +53,14 @@ import { NotifyPlugin } from 'tdesign-vue-next';
 import taskList from './taskList.tsx';
 import { isArray } from 'lodash-es';
 
+defineProps({
+  handleChangeComponent: Function,
+});
 const showCompleted = ref(false);
 const tab_active = ref('type');
 const tabs_classification = ['type', 'status'];
 const tableLoading = ref(false);
 // const tabs = [...tabs_classification, 'weight'];
-// const props = defineProps({
-//   handleChangeComponent: Function,
-// });
 var timer = null;
 const tableData = reactive({
   all: [],
