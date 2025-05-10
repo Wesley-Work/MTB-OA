@@ -36,6 +36,7 @@
           :tabs="tabs_classification"
           :current-tab="tab_active"
           :show-completed="showCompleted"
+          :loading="tableLoading"
         ></taskList>
       </div>
       <!---->
@@ -55,6 +56,7 @@ import { isArray } from 'lodash-es';
 const showCompleted = ref(false);
 const tab_active = ref('type');
 const tabs_classification = ['type', 'status'];
+const tableLoading = ref(false);
 // const tabs = [...tabs_classification, 'weight'];
 // const props = defineProps({
 //   handleChangeComponent: Function,
@@ -83,6 +85,7 @@ const convertData = () => {
 
 const loadTaskList = () => {
   const TOKEN = getToken();
+  tableLoading.value = true;
   useRequest({
     url: '/task/list',
     methods: 'POST',
@@ -108,6 +111,9 @@ const loadTaskList = () => {
         title: '获取任务列表失败',
         content: '错误：' + err,
       });
+    },
+    complete: function () {
+      tableLoading.value = false;
     },
   });
 };

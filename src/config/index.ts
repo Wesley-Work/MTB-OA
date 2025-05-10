@@ -11,18 +11,18 @@ const packageVersion = version;
 
 const routerMap: RouteMaps = [
   {
-    label: '借出/归还',
+    label: '设备使用登记',
     children: [
       {
         key: 'Lend',
-        label: '借出',
+        label: '设备借出',
         icon: 'logout',
         permissions: ['equipment.lend'],
         component: () => import('@pages/equipment/lend.vue'),
       },
       {
         key: 'Return',
-        label: '归还',
+        label: '设备归还',
         icon: 'login',
         permissions: ['equipment.return'],
         component: () => import('@pages/equipment/return.vue'),
@@ -98,7 +98,26 @@ const routerMap: RouteMaps = [
         key: 'network-portal',
         label: '绑定列表',
         icon: 'internet',
+        permissions: ['network.manage'],
         component: () => import('@pages/manage/network-portal.vue'),
+      },
+    ],
+  },
+  {
+    label: '审计审批',
+    children: [
+      {
+        key: 'auditManage',
+        label: '审批管理',
+        icon: 'seal',
+        permissions: ['audit.manage'],
+        component: () => import('@pages/audit/auditManage.vue'),
+      },
+      {
+        key: 'auditProgress',
+        label: '审批进度',
+        icon: 'user-business',
+        component: () => import('@pages/audit/auditProgress.vue'),
       },
     ],
   },

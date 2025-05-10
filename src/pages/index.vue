@@ -267,6 +267,17 @@ watch(
   },
 );
 
+router.afterEach(() => {
+  // 应用动画
+  setTimeout(() => {
+    MainContent.classOut = false;
+    MainContent.classIn = true;
+    setTimeout(() => {
+      MainContent.classIn = false;
+    }, 280);
+  }, 280);
+});
+
 const viewAllMessage = () => {
   handleChangeComponent('MessageList', true);
 };
@@ -292,10 +303,6 @@ const getMessage = () => {
     },
     error: function (err) {
       console.error(err);
-      NotifyPlugin.error({
-        title: '获取消息内容失败',
-        content: err,
-      });
     },
   });
 };
@@ -478,13 +485,6 @@ const handleChangeComponent = (componentName: string, doNotToggleSideMenu: boole
       },
     });
     MainContent.ComponentValue = componentName;
-    setTimeout(() => {
-      MainContent.classOut = false;
-      MainContent.classIn = true;
-      setTimeout(() => {
-        MainContent.classIn = false;
-      }, 280);
-    }, 280);
   }, 200);
 };
 
@@ -724,6 +724,16 @@ export default {
 </script>
 
 <style lang="scss">
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
+
 .autoPadding {
   padding: 12px;
 }
