@@ -55,11 +55,11 @@ const routerMap: RouteMaps = [
     ],
   },
   {
-    label: '指数',
+    label: '系统数据',
     children: [
       {
         key: 'Dashboard',
-        label: '系统数据',
+        label: '数据概览',
         icon: 'precise-monitor',
         permissions: [],
         component: () => import('@pages/manage/dashboard.vue'),

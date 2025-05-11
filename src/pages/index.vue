@@ -81,9 +81,9 @@
         >
           <t-button variant="text" class="we-tag-headmenu-operations-account" block>
             <t-icon name="user-circle" style="min-width: 20px; min-height: 20px" />
-            <span style="text-overflow: ellipsis; overflow: hidden; max-width: 100%; margin-left: 8px">{{
-              login_info.name
-            }}</span>
+            <span style="text-overflow: ellipsis; overflow: hidden; max-width: 100%; margin-left: 8px">
+              {{ login_info.name }}
+            </span>
             <template #suffix> <t-icon name="chevron-down" size="16" /></template>
           </t-button>
         </t-dropdown>
@@ -212,7 +212,7 @@ const MainContent = reactive({
   classIn: false,
   classOut: false,
   lastChoose: 'Content',
-  ComponentValue: 'Content',
+  ComponentValue: 'login',
   AccountMenuOptions: [
     // { content: '个人中心', value: 1, prefixIcon: <UserIcon /> },
     // {
@@ -388,6 +388,7 @@ const checkToken = () => {
         content: '无法检测Token状态，请尝试重新登录',
         duration: 0,
       });
+      cancelCheckToken();
     },
     complete: function () {
       timer.isChecking = false;
@@ -493,7 +494,7 @@ const logout = () => {
 };
 
 const goChangePws = () => {
-  location.href = getSSOURL() + '?actionType=changePassword';
+  location.href = getSSOURL() + '?actionType=change-Password';
 };
 
 const PageReload = () => {
@@ -580,6 +581,13 @@ onBeforeMount(() => {
   console.info('System Start Running!');
   document.body.style.overflow = 'hidden';
 
+  const init = () => {
+    // update
+    checkUpdate();
+    // load message
+    getMessage();
+    LoadUserPermissions();
+  };
   router.isReady().then(() => {
     const paramsKeys = ['actionType', 'user_token', 'user_code', 'user_name', 'login_time', 'path'];
     const {
@@ -618,7 +626,7 @@ onBeforeMount(() => {
         ...route.query,
       } as Record<string, string>;
       location.replace(
-        `/#/system/${localStorage.getItem('lastPath') ?? MainContent.lastChoose}?${new URLSearchParams(
+        `/#${routerPrefix}/${localStorage.getItem('lastPath') ?? MainContent.lastChoose}?${new URLSearchParams(
           newQuery,
         ).toString()}`,
       );
@@ -628,9 +636,9 @@ onBeforeMount(() => {
     if ((VERIFY_TOKEN == null || !VERIFY_TOKEN) && loginVerify == true) {
       // 没有登录数据，遣返登录页面
       console.warn('未登录，跳转统一认证');
-      // setTimeout(() => {
-      //   location.href = getLoginURL();
-      // }, 1500);
+      setTimeout(() => {
+        location.href = getLoginURL();
+      }, 1500);
     } else if (loginVerify == true) {
       // 验证登录
       setTimeout(async () => {
@@ -665,8 +673,9 @@ onBeforeMount(() => {
             duration: 5000,
           });
           getUserInfoByToken(VERIFY_TOKEN);
+          init();
         } else {
-          // location.href = getLoginURL();
+          location.href = getLoginURL();
         }
       });
     } else {
@@ -681,13 +690,9 @@ onBeforeMount(() => {
         },
         duration: 5000,
       });
+      init();
     }
   });
-  // update
-  checkUpdate();
-  // load message
-  getMessage();
-  LoadUserPermissions();
   const currentPage = getCurrentPage();
   if (currentPage) {
     SideMenu.value = currentPage;

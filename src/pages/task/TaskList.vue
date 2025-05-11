@@ -50,7 +50,7 @@ import { onBeforeMount, onBeforeUnmount, reactive, ref } from 'vue';
 import useRequest from '../../hooks/useRequest.ts';
 import { getToken } from '../../hooks/common.ts';
 import { NotifyPlugin } from 'tdesign-vue-next';
-import taskList from './taskList.tsx';
+import taskList from './taskListTable';
 import { isArray } from 'lodash-es';
 
 defineProps({
