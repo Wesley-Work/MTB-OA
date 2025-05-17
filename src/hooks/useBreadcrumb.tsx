@@ -1,4 +1,4 @@
-import { defineComponent, ref, toRefs, watch } from 'vue';
+import { BaseTransition, defineComponent, ref, toRefs, Transition, watch } from 'vue';
 import { routerMap } from '../config';
 import { Breadcrumb, BreadcrumbItem } from 'tdesign-vue-next';
 import type { RouteMaps } from '@type/type';
@@ -54,7 +54,7 @@ export default defineComponent({
       if (level === 0) {
         return (
           <>
-            <BreadcrumbItem>媒体部管理系统</BreadcrumbItem>
+            <BreadcrumbItem>媒体部信息化协作与管理系统</BreadcrumbItem>
             {renderCrumbItem(componentValue.value, level + 1)}
           </>
         );
@@ -73,7 +73,9 @@ export default defineComponent({
 
     return () => (
       <div style={isHidden.value ? 'display: none' : 'padding-bottom: 24px; user-select: none;'}>
-        <Breadcrumb max-item-width={150}>{renderCrumbItem(componentValue.value)}</Breadcrumb>
+        <Transition name="fade">
+          <Breadcrumb max-item-width={240}>{renderCrumbItem(componentValue.value)}</Breadcrumb>
+        </Transition>
       </div>
     );
   },

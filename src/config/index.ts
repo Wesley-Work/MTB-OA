@@ -114,6 +114,13 @@ const routerMap: RouteMaps = [
         component: () => import('@pages/audit/auditManage.vue'),
       },
       {
+        key: 'auditPost',
+        label: '发起审批',
+        icon: 'send',
+        permissions: [],
+        component: () => import('@pages/audit/auditPost.vue'),
+      },
+      {
         key: 'auditProgress',
         label: '审批进度',
         icon: 'user-business',
@@ -299,7 +306,7 @@ const config = {
   version: '3.3.3',
   versionMode: 'Stable',
   packageVersion: packageVersion,
-  systemName: '顺德中专团委媒体部管理系统',
+  systemName: '顺德中专团委媒体部信息化协作与管理系统',
   systemNameEn: 'MTB OA',
   developMode: false, //开发模式
   loginVerify: true, //登陆验证
