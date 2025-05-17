@@ -122,6 +122,9 @@ import { FilterValue, NotifyPlugin, TableProps } from 'tdesign-vue-next';
 import type { equipmentStatus } from '@type/type';
 import useRequest from '../../hooks/useRequest';
 
+defineProps({
+  handleChangeComponent: Function,
+});
 const equipmentType = [
   {
     id: 0,

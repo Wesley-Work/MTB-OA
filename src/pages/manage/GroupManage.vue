@@ -129,6 +129,9 @@ import { computed, onMounted, reactive, ref } from 'vue';
 import { NotifyPlugin } from 'tdesign-vue-next';
 import { GroupItem, GroupList, GroupPermissionList, GroupUserList, UserList } from '../../types/type';
 
+defineProps({
+  handleChangeComponent: Function,
+});
 const drawerFormEl = ref(null);
 const groupList = ref<GroupList>([]);
 const userGroupList = ref<GroupUserList>([]);

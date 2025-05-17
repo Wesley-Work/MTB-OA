@@ -1,10 +1,13 @@
 <template>
   <div class="info-container">
     <div class="system-info">
-      <div class="title">{{ SystemName }}</div>
+      <div class="title">
+        {{ systemName }}
+        <span>{{ systemVType === 'authorize' ? '授权版' : systemVType }}</span>
+      </div>
       <div class="subtitle">
-        [ {{ SystemNameEn }} ]
-        <span class="versionMode">{{ VersionMode }}</span>
+        [ {{ systemNameEn }} ]
+        <span class="versionMode">{{ versionMode }}</span>
       </div>
     </div>
     <div class="content">
@@ -50,24 +53,29 @@
       </div>
     </div>
   </div>
-  ß
 </template>
 
 <script setup lang="ts">
 import useRequest from '../../hooks/useRequest';
-import { VERSION, packageVersion, VersionMode, SystemName, SystemNameEn } from '../../config';
+import { VERSION, packageVersion, versionMode, systemName, systemNameEn } from '../../config';
 import { NotifyPlugin } from 'tdesign-vue-next';
 import { onMounted, ref } from 'vue';
 
+defineProps({
+  handleChangeComponent: Function,
+});
 const TdesignVueNextVersion = '1.12.0';
 const latestVersion = ref('0.0.0');
+const systemVType = ref('authorize');
+// const systemVTypeDate = ref('2027-01-01');
+
 const sdk = [
   {
     name: 'WESLEY SDK',
     company: 'Wesley',
-    way: '系统基础服务（如设备操作、记录查询等）、系统高级服务（如使用微信登录、系统管理、账号绑定等）',
+    way: '系统基础服务（如设备操作、记录查询等）、系统高级服务（如扫码登录、系统管理、账号绑定等）',
     value:
-      'IP地址、用户行为记录、用户账号信息（如名称、Code等）、网络信息（如网络类型）、设备标识符（如UUID、UA）、设备信息（如设备类型、操作系统）',
+      '用户行为(操作)记录、用户账号信息（如名称、Code等）、网络信息（如网络类型、IP地轴、MAC地址）、设备标识符（如UUID、UA）、设备信息（如设备类型、操作系统）',
     url: 'https://docs.wesley.net.cn/privacy_policy/',
   },
   {

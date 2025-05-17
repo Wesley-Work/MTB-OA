@@ -23,6 +23,6 @@ export default {
     },
     types: ['vite/client', 'vite-plugin-md', 'node'],
   },
-  include: ['vite-env.d.ts', 'src/**/*.ts', 'src/**/*.tsx', 'src/**/*.vue'],
+  include: ['vite-env.d.ts', 'src/**/*.ts', 'src/**/**/*.ts', 'src/**/*.tsx', 'src/**/*.vue'],
   exclude: ['node_modules'],
 };

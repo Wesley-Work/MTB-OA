@@ -1,6 +1,7 @@
 import { defineComponent, ref, toRefs, watch, h } from 'vue';
 import { taskStatus, taskTimeConvert, taskType, getTagPriority } from '../../hooks/common';
 import { Table } from 'tdesign-vue-next';
+import { isEmpty } from 'lodash-es';
 
 export default defineComponent({
   name: 'TaskListRender',
@@ -21,9 +22,13 @@ export default defineComponent({
       type: Boolean,
       default: true,
     },
+    loading: {
+      type: Boolean,
+      default: false,
+    },
   },
   setup(props) {
-    const { data, tabs, currentTab, showCompleted: showCompletedProp } = toRefs(props);
+    const { data, tabs, currentTab, showCompleted: showCompletedProp, loading } = toRefs(props);
 
     const renderData = ref({});
     const showCompleted = ref(showCompletedProp.value);
@@ -233,6 +238,7 @@ export default defineComponent({
 
     const renderInner = (item) => {
       const renderTable = renderTagAndTable(item);
+
       return (
         <div class="Table--view">
           {h(
@@ -241,10 +247,11 @@ export default defineComponent({
               class: renderTable.length !== 0 ? 'hidden--body' : null,
               columns: TableColumns[item],
               bordered: true,
-              loading: renderTable.length === 0,
+              loading: loading.value,
             },
             {
-              empty: () => '暂时没有任务哦！',
+              empty: () =>
+                !isEmpty(renderData) && renderTable.length === 0 ? '所有任务已全部完成' : '暂时没有任务哦！',
             },
           )}
           <div class="tag--body">{renderTable}</div>

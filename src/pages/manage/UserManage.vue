@@ -265,6 +265,9 @@ import { PermissionsArray, userListObject, UserSelectData } from '@type/type.ts'
 import { TransferProps } from 'tdesign-vue-next';
 import ExcelJS from 'exceljs';
 
+defineProps({
+  handleChangeComponent: Function,
+});
 const vipMaps = [
   { value: 'VIP_Normal', label: 'VIP', class: 'normal-vip' },
   { value: 'VIP_Super', label: 'SVIP', class: 'svip-vip' },

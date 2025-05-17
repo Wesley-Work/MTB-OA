@@ -18,7 +18,7 @@ function SpliceParameter(DATA: Object) {
 
 /**
  * 请求后端公共方法
- * @ 支持传入方法或Promise形式获取结果
+ * 支持传入方法或Promise形式获取结果
  * @useRequest
  * @param option
  * @returns Promise

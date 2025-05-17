@@ -9,6 +9,12 @@
   ></iframe>
 </template>
 
+<script setup>
+defineProps({
+  handleChangeComponent: Function,
+});
+</script>
+
 <script>
 export default {
   name: 'FeedBack',

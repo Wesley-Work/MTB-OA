@@ -48,12 +48,6 @@ jobs:
       # 运行代码 lint 检查
       - run: pnpm run lint
 
-      # # 将测试报告上传到 Codecov
-      # - uses: codecov/codecov-action@v2
-      #   with:
-      #     # 使用 GitHub Secrets 中的 Codecov Token
-      #     token: ${{ secrets.CODECOV_TOKEN }}
-
   build:
     # 在最新版本的 Ubuntu 环境中运行
     runs-on: ubuntu-latest
@@ -105,3 +99,17 @@ jobs:
       # 运行构建任务
       - name: Build 
         run: pnpm run build
+
+      - run: |
+          zip -r preview.zip dist
+
+      # 上传站点文件作为构建产物
+      - name: upload preview site artifact
+        uses: actions/upload-artifact@v4
+        with:
+          # 产物名称
+          name: preview
+          # 产物路径
+          path: preview.zip
+          # 产物保留天数
+          retention-days: 5
