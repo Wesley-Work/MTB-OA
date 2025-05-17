@@ -144,6 +144,7 @@
         :user-permissions="login_info.permissions"
         :component-permissions="componentPermissions"
         :component="SideMenu.value"
+        :user-code="login_info.code"
       ></router-view>
       <!---->
       <div id="copyright">
@@ -382,7 +383,6 @@ const checkToken = () => {
     },
     error: function (err) {
       console.error(err);
-      localStorage.removeItem('token');
       NotifyPlugin('error', {
         title: '遇到错误',
         content: '无法检测Token状态，请尝试重新登录',
