@@ -48,13 +48,13 @@ export interface AuditRecordItem {
 
 export interface AuditStepItem {
   // 自增id
-  id: number;
+  id?: number;
   // 外键，关联 approval_application.id
-  application_id: number;
+  application_id?: number;
   // 审批人Code
   approver_user_code: string;
   // 创建时间
-  created_at: string;
+  created_at?: string;
   // 步骤顺序
   step_order: number;
   // 多人同步审批配置，or为或，and为与多人同步审批配置，or为或，and为与，mixed为混合
@@ -79,7 +79,7 @@ export interface AuditDetail {
 export type AuditDetailItem = AuditDetailOfLend | AuditDetailOfNetworkPortal | AuditDetailOfTask | AuditDetailOfOther;
 
 export interface AuditDetailOfLend {
-  equipment_code: string;
+  eq_code: string;
   lend_time: string;
   return_time: string;
   lender: string;
@@ -93,6 +93,9 @@ export interface AuditDetailOfNetworkPortal {
 }
 
 export interface AuditDetailOfTask {
+  // 操作字段
+  operate_type?: 'add' | 'edit' | 'del';
+  id?: number;
   content: string;
   create_user: string;
   equipment: string;
@@ -102,9 +105,9 @@ export interface AuditDetailOfTask {
   remark: string;
   status: number;
   type: number;
-  user: string;
+  user: string[];
   weight: number;
-  work_time: string;
+  work_time: string[];
 }
 
 export interface AuditDetailOfOther {
@@ -120,4 +123,31 @@ export interface AuditTimeLine {
   total: number;
   current: number;
   options: TdTimelineItemProps[];
+}
+
+export interface ApprovalPreviewStepData {
+  approvalEquipment: {
+    approver: string;
+    eq_code: string;
+    eq_name: string;
+  }[];
+  groupPosition: [];
+  positions: {
+    group_id: null | number;
+    id: number;
+    isAdmin: 0 | 1;
+    isOwner: 0 | 1;
+    name: string;
+    type: 0 | 1;
+  }[];
+  rule_expression: string;
+  stepList: {
+    BZ: string[];
+    GL: string[];
+    JS: string[];
+  };
+  userPositions: {
+    position_id: number;
+    user_id: number;
+  }[];
 }

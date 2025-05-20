@@ -1,6 +1,6 @@
 import { Tag } from 'tdesign-vue-next';
 import { defineComponent, PropType, toRefs } from 'vue';
-import type { AuditDetail, AuditDetailItem, AuditItem } from '../type';
+import type { AuditDetail, AuditDetailItem, AuditDetailOfTask, AuditItem } from '../type';
 import { getApplicationTypeItemKeys, getStatusColor, renderStatusText } from '.';
 import StatusTag from './renderStatusTag';
 import dayjs from 'dayjs';
@@ -15,25 +15,30 @@ export default defineComponent({
     return () => {
       if (!data.value) return null;
 
-      const {
-        type,
-        status,
-        details: detailsContent,
-        user_code,
-        created_at,
-        updated_at,
-        current_step,
-        advance_approval,
-        visible_allow,
-      } = data.value;
+      const { type, details: detailsContent } = data.value;
 
       const detailKeysInfo = getApplicationTypeItemKeys(type);
       const detailKeys = Object.keys(detailKeysInfo);
       const details: AuditDetailItem = JSON.parse(detailsContent?.details as string);
 
       const renderDetailInfo = () => {
+        // 忽略的字段，支持自定义配置
+        const discardKeys = {
+          id: {
+            discard: (application: AuditItem) => {
+              if (application?.type === 3 && (details as AuditDetailOfTask)?.operate_type !== 'add') {
+                return true;
+              }
+              return false;
+            },
+          },
+        };
+
         return detailKeys.map((key) => {
           const className = ['detail-info-item', `detail-info-item--${key}`];
+          if (discardKeys[key]?.discard?.(data.value)) {
+            return null;
+          }
           return (
             <div class={className}>
               <div class="detail-info-body__title">{detailKeysInfo[key]}: </div>

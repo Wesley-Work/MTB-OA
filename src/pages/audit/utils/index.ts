@@ -2,6 +2,10 @@ import { TdTimelineItemProps } from 'tdesign-vue-next';
 import { AuditItem, AuditItems, AuditRecordItem, AuditStepItem } from '../type';
 import { APPROVAL_TYPE, AUDIT_TYPE } from './constants';
 import renderTimelineIcon from './renderTimelineIcon';
+import { ApprovalPreviewStepData } from '../type';
+import { merge } from 'lodash-es';
+import renderTimelineSelect from './renderTimelineSelect';
+import { ref } from 'vue';
 
 export const getStatusText = (status: number) => {
   switch (status) {
@@ -230,6 +234,76 @@ export const getTimelineItem = (
   return { label, theme, dot: () => dot };
 };
 
+interface AuditPreviewStepItem extends AuditStepItem {
+  content?: any;
+}
+
+// 发起审批时的预览时间轴
+export const getPreviewTimeLineItem = (steps: AuditPreviewStepItem[]) => {
+  // 按步骤分组（按 step_order 分组）
+  const stepGroups = steps?.reduce((acc: Record<string, AuditPreviewStepItem[]>, cur: AuditPreviewStepItem) => {
+    const key = cur.step_order.toString();
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(cur);
+    return acc;
+  }, {});
+
+  // 生成预览时间轴项
+  return Object.entries(stepGroups || {}).map(([key, steps]) => {
+    // 检查是否为系统自动审批步骤
+    const isSystemAutoStep = steps.every(
+      (step) => step.approver_user_code === 'SYSTEM_AUTO' || !step.approver_user_code,
+    );
+
+    // 获取该步骤下的所有审批人
+    const approverCodes = steps
+      .map((step) =>
+        step.approver_user_code === 'SYSTEM_AUTO' || !step.approver_user_code ? null : step.approver_user_code,
+      )
+      .filter(Boolean);
+
+    // 获取该步骤的第一个审批人的 required_type
+    const baseType = steps[0]?.required_type || 'or';
+
+    // 获取该步骤的第一个审批人的 rule_expression
+    const ruleExpression = steps[0]?.rule_expression;
+
+    const customContent = steps[0]?.content;
+
+    // 根据 required_type 生成连接符
+    const separator = baseType === 'and' ? '和' : '或';
+
+    // 构建显示文本
+    let content;
+    if (isSystemAutoStep) {
+      content = '系统自动审批';
+    } else {
+      content = () =>
+        customContent?.() ??
+        (ruleExpression
+          ? `审批人: ${approverCodes.join('、')}，规则: ${ruleExpression}`
+          : `审批人: ${approverCodes.join(separator)}`);
+    }
+
+    // 预览状态下的显示
+    if (isSystemAutoStep) {
+      return {
+        content,
+        label: '系统自动通过',
+        dorColor: 'success',
+        dot: () => renderTimelineIcon('approve', 'success'),
+      };
+    } else {
+      return {
+        content,
+        label: '待审批',
+        dorColor: 'primary',
+        dot: () => renderTimelineIcon('pending', 'primary'),
+      };
+    }
+  });
+};
+
 // 生成时间轴数据
 export const getAllStepData = (data: AuditItem) => {
   // 首节点
@@ -265,8 +339,17 @@ export const getAllStepData = (data: AuditItem) => {
     options: [
       first,
       ...Object.entries(stepList || {}).map(([key, steps]) => {
+        // 检查是否为系统自动审批步骤
+        const isSystemAutoStep = steps.every(
+          (step) => step.approver_user_code === 'SYSTEM_AUTO' || !step.approver_user_code,
+        );
+
         // 获取该步骤下的所有审批人
-        const approverCodes = steps.map((step) => step.approver_user_code);
+        const approverCodes = steps
+          .map((step) =>
+            step.approver_user_code === 'SYSTEM_AUTO' || !step.approver_user_code ? null : step.approver_user_code,
+          )
+          .filter(Boolean);
 
         // 获取该步骤的第一个审批人的 required_type
         const baseType = steps[0]?.required_type || 'or';
@@ -278,10 +361,25 @@ export const getAllStepData = (data: AuditItem) => {
         const separator = baseType === 'and' ? '和' : '或';
 
         // 构建显示文本
-        const content = ruleExpression ? `审批规则: ${ruleExpression}` : `审批人: ${approverCodes.join(separator)}`;
+        let content;
+        if (isSystemAutoStep) {
+          content = '系统自动审批';
+        } else {
+          content = ruleExpression ? `审批规则: ${ruleExpression}` : `审批人: ${approverCodes.join(separator)}`;
+        }
 
         // 生成时间轴项
-        const timelineItem = getTimelineItem(approverCodes, data, baseType as 'or' | 'and' | 'mixed', ruleExpression);
+        let timelineItem;
+        if (isSystemAutoStep) {
+          // 系统自动审批步骤始终显示为已通过
+          timelineItem = {
+            label: '系统自动通过',
+            theme: 'success',
+            dot: () => renderTimelineIcon('approve', 'success'),
+          };
+        } else {
+          timelineItem = getTimelineItem(approverCodes, data, baseType as 'or' | 'and' | 'mixed', ruleExpression);
+        }
 
         return {
           content,
@@ -307,6 +405,8 @@ export const getApplicationTypeItemKeys = (type: number) => {
       return { ip: 'IP地址', mac: 'MAC地址', info: '申请信息/补充信息', timestamp: '时间戳' };
     case AUDIT_TYPE.TASK:
       return {
+        operate_type: '操作类型',
+        id: '记录id',
         content: '任务内容',
         create_user: '创建人',
         equipment: '使用设备',
@@ -356,6 +456,16 @@ export const checkUserCanApprove = (userCode: string, application: AuditItem) =>
 
   // 获取当前步骤的所有审批人
   const currentStepApprovers = steps.filter((step) => step.step_order === current_step);
+
+  // // 检查当前步骤是否为系统自动审批步骤
+  // const isSystemAutoStep = currentStepApprovers.every(
+  //   (step) => step.approver_user_code === 'SYSTEM_AUTO' || !step.approver_user_code,
+  // );
+
+  // // 如果是系统自动审批步骤，则不需要人工审批
+  // if (isSystemAutoStep) {
+  //   return { result: false, type: 'system_auto_approval' };
+  // }
 
   // 如果当前用户不在当前步骤的审批人列表中，不能审批
   if (!currentStepApprovers.some((step) => step.approver_user_code === userCode)) {
@@ -478,4 +588,119 @@ export const checkUserCanRevert = (userCode: string, application: AuditItem) => 
 
   // 只有当下一步审批人未审批时才能撤销
   return !hasNextApproved;
+};
+
+export const getPreviewStepList = (
+  applicationType: string,
+  preStepData: ApprovalPreviewStepData,
+  data,
+  userList,
+): AuditStepItem[] => {
+  if (!preStepData) {
+    return [];
+  }
+  const departmentOwner = preStepData.stepList.BZ;
+  const departmentTech = preStepData.stepList.JS;
+  const departmentdmin = preStepData.stepList.GL;
+  // 设备列表改成key为设备code的对象，value为数组
+  const approvalEquipment = preStepData.approvalEquipment.reduce((acc, cur) => {
+    acc[cur.eq_code] = [...(acc[cur.eq_code] || []), cur];
+    return acc;
+  }, {});
+  const userGroupAdmin = preStepData.groupPosition;
+
+  // 合并数据并去重
+  const mergeStepList = (...args: string[][]) => {
+    return [...new Set(args.flat())];
+  };
+
+  // 设备借出审批，第一个审批人为部长或技术或管理，第二个审批人为物主
+  if (applicationType === 'equipment') {
+    return [1, 2].flatMap((step_order) => {
+      if (step_order === 1) {
+        return mergeStepList(departmentOwner, departmentTech, departmentdmin).map((approver) => {
+          return {
+            step_order,
+            required_type: 'or',
+            approver_user_code: approver,
+            rule_expression: '',
+          };
+        });
+      } else if (step_order === 2) {
+        const approverList = approvalEquipment[data?.eq_code]?.map((approver) => {
+          return {
+            step_order,
+            required_type: 'or',
+            approver_user_code: approver?.approver ?? '',
+            rule_expression: '',
+          };
+        });
+        if (!approverList) {
+          return {
+            step_order,
+            required_type: 'or',
+            approver_user_code: '[当前设备不需审批]  系统将自动通过',
+            rule_expression: '',
+          };
+        }
+        return approverList;
+      }
+    });
+  }
+
+  // 任务审批，第一个审批人为上级组长，第二个审批人为部长或技术或管理（或签）
+  else if (applicationType === 'task') {
+    return [1, 2].flatMap((step_order) => {
+      if (step_order === 1) {
+        return userGroupAdmin.map((approver) => {
+          return {
+            step_order,
+            required_type: 'or',
+            approver_user_code: approver,
+            rule_expression: '',
+          };
+        });
+      } else if (step_order === 2) {
+        return mergeStepList(departmentOwner, departmentTech, departmentdmin).map((approver) => {
+          return {
+            step_order,
+            required_type: 'or',
+            approver_user_code: approver,
+            rule_expression: '',
+          };
+        });
+      }
+    });
+  }
+
+  // 其他审批，第一个审批人默认为组长，支持自定义，第二个审批人默认为组长部长或技术或管理（或签），支持自定义
+  else {
+    return [1, 2].flatMap((step_order) => {
+      if (step_order === 1) {
+        return userGroupAdmin.map((approver) => {
+          return {
+            step_order,
+            required_type: 'or',
+            approver_user_code: approver,
+            content: () => renderTimelineSelect(userGroupAdmin, userList),
+            rule_expression: '',
+          };
+        });
+      } else if (step_order === 2) {
+        const msl = ref(mergeStepList(departmentOwner, departmentTech, departmentdmin));
+        return msl.value.map((approver) => {
+          return {
+            step_order,
+            required_type: 'or',
+            approver_user_code: approver,
+            content: () =>
+              renderTimelineSelect(msl.value, userList, (value) => {
+                msl.value = value;
+              }),
+            rule_expression: '',
+          };
+        });
+      }
+    });
+  }
 };
