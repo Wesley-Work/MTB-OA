@@ -29,15 +29,15 @@
 
             <!-- 设备借出审批表单 -->
             <template v-if="formData.application === 1">
-              <t-form-item label="设备Code" name="equipment_eq_code">
+              <t-form-item label="设备Code" name="details.equipment.eq_code">
                 <t-input v-model="formData.details.equipment.eq_code" placeholder="请输入设备Code" />
               </t-form-item>
 
-              <t-form-item label="借出人" name="equipment_lender">
+              <t-form-item label="借出人" name="details.equipment.lender">
                 <t-input v-model="formData.details.equipment.lender" placeholder="请输入借出人" />
               </t-form-item>
 
-              <t-form-item :label-width="150" label="借出时间/使用时间" name="equipment_lend_time">
+              <t-form-item :label-width="150" label="借出时间/使用时间" name="details.equipment.lend_time">
                 <t-date-picker
                   v-model="formData.details.equipment.lend_time"
                   placeholder="请选择时间"
@@ -45,7 +45,7 @@
                 />
               </t-form-item>
 
-              <t-form-item label="预期归还时间" name="equipment_return_time">
+              <t-form-item label="预期归还时间" name="details.equipment.return_time">
                 <t-date-picker
                   v-model="formData.details.equipment.return_time"
                   placeholder="请选择时间"
@@ -56,7 +56,7 @@
 
             <!-- 任务审批表单 -->
             <template v-else-if="formData.application === 3">
-              <t-form-item label="操作类型" name="task_operate_type">
+              <t-form-item label="操作类型" name="details.task.operate_type">
                 <t-radio-group v-model="formData.details.task.operate_type" variant="outline">
                   <t-radio-button value="add"> 新增 </t-radio-button>
                   <t-radio-button value="edit"> 编辑 </t-radio-button>
@@ -64,19 +64,19 @@
                 </t-radio-group>
               </t-form-item>
 
-              <t-form-item v-if="formData.details.task.operate_type !== 'add'" label="任务id" name="task_id">
+              <t-form-item v-if="formData.details.task.operate_type !== 'add'" label="任务id" name="details.task.id">
                 <t-input v-model="formData.details.task.id" disabled placeholder="请输入" />
               </t-form-item>
 
-              <t-form-item label="任务名称" name="task_name">
+              <t-form-item label="任务名称" name="details.task.name">
                 <t-input v-model="formData.details.task.name" placeholder="请输入任务名称" />
               </t-form-item>
 
-              <t-form-item label="工作地点" name="task_place">
+              <t-form-item label="工作地点" name="details.task.place">
                 <t-input v-model="formData.details.task.place" placeholder="请输入工作地点" />
               </t-form-item>
 
-              <t-form-item label="工作时间" name="task_work_time">
+              <t-form-item label="工作时间" name="details.task.work_time">
                 <t-date-range-picker
                   v-model="formData.details.task.work_time"
                   enable-time-picker
@@ -86,7 +86,7 @@
                 />
               </t-form-item>
 
-              <t-form-item label="任务内容" name="task_content">
+              <t-form-item label="任务内容" name="details.task.content">
                 <t-textarea
                   v-model="formData.details.task.content"
                   placeholder="请输入任务内容"
@@ -94,7 +94,7 @@
                 />
               </t-form-item>
 
-              <t-form-item :label-width="125" label="预期完成时间" name="task_finally_time">
+              <t-form-item :label-width="125" label="预期完成时间" name="details.task.finally_time">
                 <t-date-picker
                   v-model="formData.details.task.finally_time"
                   placeholder="请选择预期完成时间"
@@ -102,7 +102,7 @@
                 />
               </t-form-item>
 
-              <t-form-item label="任务类型" name="task_type">
+              <t-form-item label="任务类型" name="details.task.type">
                 <t-select
                   v-model="formData.details.task.type"
                   :value-display="(_h, { value }) => selectValueDisplay(taskType, value)"
@@ -113,7 +113,7 @@
                 </t-select>
               </t-form-item>
 
-              <t-form-item label="任务状态" name="task_status">
+              <t-form-item label="任务状态" name="details.task.status">
                 <t-select
                   v-model="formData.details.task.status"
                   :value-display="(_h, { value }) => selectValueDisplay(taskStatus, value)"
@@ -124,22 +124,22 @@
                 </t-select>
               </t-form-item>
 
-              <t-form-item label="权重等级" name="task_weight">
+              <t-form-item label="权重等级" name="details.task.weight">
                 <t-rate v-model="formData.details.task.weight"></t-rate>
               </t-form-item>
 
-              <t-form-item label="分配人员" name="task_user">
+              <t-form-item label="分配人员" name="details.task.user">
                 <t-transfer v-model="formData.details.task.user" :data="transferSource"></t-transfer>
               </t-form-item>
 
-              <t-form-item label="使用设备" name="task_equipment">
+              <t-form-item label="使用设备" name="details.task.equipment">
                 <t-tagInput
                   v-model="formData.details.task.equipment"
                   tips="需要用到的设备，可让工作人员更快速地准备，每输入完一个设备请按回车！"
                 />
               </t-form-item>
 
-              <t-form-item label="备注" name="task_remark">
+              <t-form-item label="备注" name="details.task.remark">
                 <t-textarea
                   v-model="formData.details.task.remark"
                   placeholder="请输入备注"
@@ -150,19 +150,23 @@
 
             <!-- 其他事项审批表单 -->
             <template v-else>
-              <t-form-item label="审批名称" name="other_key">
+              <t-form-item label="审批名称" name="details.other.key">
                 <t-input v-model="formData.details.other.key" placeholder="请输入审批名称" />
               </t-form-item>
 
-              <t-form-item label="审批内容" name="other_content">
-                <t-textarea v-model="formData.details.other.content" placeholder="请输入内容" />
+              <t-form-item label="审批内容" name="details.other.content">
+                <t-textarea
+                  v-model="formData.details.other.content"
+                  :autosize="{ minRows: 5, maxRows: 15 }"
+                  placeholder="请输入内容"
+                />
               </t-form-item>
 
-              <t-form-item label="值" name="other_value">
+              <t-form-item label="值" name="details.other.value">
                 <t-input v-model="formData.details.other.value" placeholder="请输入值" />
               </t-form-item>
 
-              <t-form-item label="其他内容" name="other_extra">
+              <t-form-item label="其他内容" name="details.other.extra">
                 <t-textarea
                   v-model="formData.details.other.extra"
                   placeholder="请输入其他内容"
@@ -173,8 +177,10 @@
           </div>
           <!---->
           <div class="audit-post-timeline" style="width: 50%">
-            <t-timeline mode="same" style="padding: 10px 0px 0px 12px">
-              <t-timeline-item v-for="(item, index) in previewStep" :key="index" v-bind="item" />
+            <div style="font: var(--td-font-title-medium)">审批流程</div>
+            <!---->
+            <t-timeline mode="same" style="padding: 12px 0px 0px 24px">
+              <t-timeline-item v-for="(item, index) in previewTimelineOptions" :key="index" v-bind="item" />
             </t-timeline>
           </div>
           <!---->
@@ -192,19 +198,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { LoadingPlugin, MessagePlugin, NotifyPlugin } from 'tdesign-vue-next';
+import { LoadingPlugin, NotifyPlugin, TdFormProps } from 'tdesign-vue-next';
 import { taskType, taskStatus } from '../../hooks/common';
 import { selectValueDisplay } from '../task/utils';
 import useRequest from '@hooks/useRequest';
-import {
-  ApprovalPreviewStepData,
-  AuditDetailOfLend,
-  AuditDetailOfOther,
-  AuditDetailOfTask,
-  AuditStepItem,
-} from './type';
+import { ApprovalPreviewStepData, AuditDetailOfLend, AuditDetailOfOther, AuditDetailOfTask } from './type';
 import { getPreviewStepList, getPreviewTimeLineItem } from './utils';
 import renderTimelineIcon from './utils/renderTimelineIcon';
 
@@ -266,24 +266,28 @@ const formData = reactive({
 const rules = {
   application: [{ required: true, message: '请选择审批类型', trigger: 'change' }],
   // 设备借出审批
-  equipment_eq_code: [{ required: true, message: '设备Code必填', trigger: 'submit' }],
-  equipment_lender: [{ required: true, message: '借出人必填', trigger: 'submit' }],
-  equipment_lend_time: [{ required: true, message: '借出时间/使用时间必填', trigger: 'submit' }],
-  equipment_return_time: [{ required: true, message: '预期归还时间必填', trigger: 'submit' }],
+  'details.equipment.eq_code': [{ required: true, message: '设备Code必填', trigger: 'change' }],
+  'details.equipment.lender': [{ required: true, message: '借出人必填', trigger: 'change' }],
+  'details.equipment.lend_time': [{ required: true, message: '借出时间/使用时间必填', trigger: 'change' }],
+  'details.equipment.return_time': [{ required: true, message: '预期归还时间必填', trigger: 'change' }],
   // 任务审批
-  task_operate_type: [{ required: true, message: '操作类型必填', trigger: 'submit' }],
-  task_id: [{ required: true, message: '任务id必填', trigger: 'submit' }],
-  task_name: [{ required: true, message: '任务名称必填', trigger: 'submit' }],
-  task_place: [{ required: true, message: '任务地点必填', trigger: 'submit' }],
-  task_content: [{ required: true, message: '任务内容必填', trigger: 'submit' }],
-  task_work_time: [{ required: true, message: '工作时间必填', trigger: 'submit' }],
-  task_status: [{ required: true, message: '任务状态必填', trigger: 'submit' }],
-  task_type: [{ required: true, message: '任务类型必填', trigger: 'submit' }],
-  task_finally_time: [{ required: true, message: '预期完成时间必填', trigger: 'submit' }],
+  'details.task.operate_type': [{ required: true, message: '操作类型必填', trigger: 'change' }],
+  'details.task.id': [{ required: true, message: '任务id必填', trigger: 'change' }],
+  'details.task.name': [{ required: true, message: '任务名称必填', trigger: 'change' }],
+  'details.task.place': [{ required: true, message: '任务地点必填', trigger: 'change' }],
+  'details.task.content': [{ required: true, message: '任务内容必填', trigger: 'change' }],
+  'details.task.work_time': [{ required: true, message: '工作时间必填', trigger: 'change' }],
+  'details.task.status': [{ required: true, message: '任务状态必填', trigger: 'change' }],
+  'details.task.type': [{ required: true, message: '任务类型必填', trigger: 'change' }],
+  'details.task.finally_time': [{ required: true, message: '预期完成时间必填', trigger: 'change' }],
+  // 其他审批
+  'details.other.key': [{ required: true, message: '审批名称必填', trigger: 'change' }],
+  'details.other.content': [{ required: true, message: '审批内容必填', trigger: 'change' }],
 };
 const prepareStepList = ref<ApprovalPreviewStepData>();
 const userList = ref();
-const previewStep = computed(() => {
+const previewStep = ref([]);
+const previewTimelineOptions = computed(() => {
   const appType = formData.application;
   const appKey = appType === 1 ? 'equipment' : appType === 3 ? 'task' : 'other';
   const data = getPreviewStepList(
@@ -291,6 +295,12 @@ const previewStep = computed(() => {
     prepareStepList.value,
     { eq_code: formData.details.equipment.eq_code },
     userList.value,
+    (step_order, stepItems) => {
+      previewStep.value = previewStep.value.filter((item) => {
+        return item.step_order !== step_order;
+      });
+      previewStep.value = [...new Set(previewStep.value), ...new Set(stepItems)];
+    },
   );
   return [
     {
@@ -316,10 +326,16 @@ const handleApplicationTypeChange = async (value: number) => {
   formData.application = value;
 };
 
-const handleSubmit = ({ validateResult }) => {
-  if (validateResult !== true) return false;
+const handleSubmit: TdFormProps['onSubmit'] = ({ validateResult, firstError }) => {
+  if (validateResult !== true) {
+    NotifyPlugin.error({
+      title: '表单校验错误提示',
+      content: firstError,
+    });
+  }
 
   if (validateResult) {
+    console.log(previewStep.value);
   }
 };
 

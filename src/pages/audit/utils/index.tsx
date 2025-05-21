@@ -1,4 +1,4 @@
-import { AuditItem, AuditItems, AuditRecordItem, AuditStepItem } from '../type';
+import { AuditItem, AuditRecordItem, AuditStepItem } from '../type';
 import { AUDIT_TYPE } from './constants';
 import renderTimelineIcon from './renderTimelineIcon';
 import { ApprovalPreviewStepData } from '../type';
@@ -588,11 +588,13 @@ export const checkUserCanRevert = (userCode: string, application: AuditItem) => 
   return !hasNextApproved;
 };
 
+// 获取预览时间线基础数据，通过onChange回调返回select更改后的内容
 export const getPreviewStepList = (
   applicationType: string,
   preStepData: ApprovalPreviewStepData,
   data,
   userList,
+  onChange?: (step_order: number, newData: AuditStepItem[]) => void,
 ): AuditStepItem[] => {
   if (!preStepData) {
     return [];
@@ -616,32 +618,73 @@ export const getPreviewStepList = (
   if (applicationType === 'equipment') {
     return [1, 2].flatMap((step_order) => {
       if (step_order === 1) {
-        return mergeStepList(departmentOwner, departmentTech, departmentAdmin).map((approver) => {
-          return {
-            step_order,
-            required_type: 'or',
-            approver_user_code: approver,
-            rule_expression: '',
-          };
-        });
+        const approvers = mergeStepList(departmentOwner, departmentTech, departmentAdmin);
+
+        // 通过回调方法返回当前步骤的审批人
+        const newData: AuditStepItem[] = approvers.map((approver) => ({
+          step_order,
+          required_type: 'or',
+          approver_user_code: approver,
+          rule_expression: '',
+        }));
+        onChange?.(step_order, newData);
+
+        return approvers.map((approver) => ({
+          step_order,
+          required_type: 'or',
+          approver_user_code: approver,
+          rule_expression: '',
+        }));
       } else if (step_order === 2) {
-        const approverList = approvalEquipment[data?.eq_code]?.map((approver) => {
+        const approverList = approvalEquipment[data?.eq_code];
+
+        if (!approverList || approverList.length === 0) {
+          // 当前设备不需要审批
+          const autoApprover = '[当前设备不需审批]  系统将自动通过';
+
+          // 通过回调方法返回当前步骤的审批人
+          const newData: AuditStepItem[] = [
+            {
+              step_order,
+              required_type: 'or',
+              approver_user_code: autoApprover,
+              rule_expression: '',
+            },
+          ];
+          onChange?.(step_order, newData);
+
           return {
             step_order,
             required_type: 'or',
-            approver_user_code: approver?.approver ?? '',
-            rule_expression: '',
-          };
-        });
-        if (!approverList) {
-          return {
-            step_order,
-            required_type: 'or',
-            approver_user_code: '[当前设备不需审批]  系统将自动通过',
+            approver_user_code: autoApprover,
             rule_expression: '',
           };
         }
-        return approverList;
+
+        // 有物主审批
+        const approvers = approverList.map((item) => item?.approver).filter(Boolean);
+
+        // 通过回调方法返回当前步骤的审批人
+        const newData: AuditStepItem[] = approvers.map((approver) => ({
+          step_order,
+          required_type: 'or',
+          approver_user_code: approver,
+          rule_expression: '',
+        }));
+        onChange?.(step_order, newData);
+
+        return approverList
+          .map((item) => {
+            const approver = item?.approver;
+            if (!approver) return null;
+            return {
+              step_order,
+              required_type: 'or',
+              approver_user_code: approver,
+              rule_expression: '',
+            };
+          })
+          .filter(Boolean);
       }
     });
   }
@@ -650,23 +693,41 @@ export const getPreviewStepList = (
   else if (applicationType === 'task') {
     return [1, 2].flatMap((step_order) => {
       if (step_order === 1) {
-        return userGroupAdmin.map((approver) => {
-          return {
-            step_order,
-            required_type: 'or',
-            approver_user_code: approver,
-            rule_expression: '',
-          };
-        });
+        const approvers = [...userGroupAdmin];
+
+        // 通过回调方法返回当前步骤的审批人
+        const newData: AuditStepItem[] = approvers.map((approver) => ({
+          step_order,
+          required_type: 'or',
+          approver_user_code: approver,
+          rule_expression: '',
+        }));
+        onChange?.(step_order, newData);
+
+        return approvers.map((approver) => ({
+          step_order,
+          required_type: 'or',
+          approver_user_code: approver,
+          rule_expression: '',
+        }));
       } else if (step_order === 2) {
-        return mergeStepList(departmentOwner, departmentTech, departmentAdmin).map((approver) => {
-          return {
-            step_order,
-            required_type: 'or',
-            approver_user_code: approver,
-            rule_expression: '',
-          };
-        });
+        const approvers = mergeStepList(departmentOwner, departmentTech, departmentAdmin);
+
+        // 通过回调方法返回当前步骤的审批人
+        const newData: AuditStepItem[] = approvers.map((approver) => ({
+          step_order,
+          required_type: 'or',
+          approver_user_code: approver,
+          rule_expression: '',
+        }));
+        onChange?.(step_order, newData);
+
+        return approvers.map((approver) => ({
+          step_order,
+          required_type: 'or',
+          approver_user_code: approver,
+          rule_expression: '',
+        }));
       }
     });
   }
@@ -688,7 +749,15 @@ export const getPreviewStepList = (
                 approvers.value = [...newValues];
               };
 
-              return <RenderTimelineSelect value={approvers.value} data={userList} onSelect={handleSelect} />;
+              return (
+                <RenderTimelineSelect
+                  thisStep={step_order}
+                  value={approvers.value}
+                  data={userList}
+                  onSelect={handleSelect}
+                  changeEmit={onChange}
+                />
+              );
             },
             rule_expression: '',
           };
@@ -707,7 +776,15 @@ export const getPreviewStepList = (
                 approvers.value = [...newValues];
               };
 
-              return <RenderTimelineSelect value={approvers.value} data={userList} onSelect={handleSelect} />;
+              return (
+                <RenderTimelineSelect
+                  thisStep={step_order}
+                  value={approvers.value}
+                  data={userList}
+                  onSelect={handleSelect}
+                  changeEmit={onChange}
+                />
+              );
             },
             rule_expression: '',
           };
