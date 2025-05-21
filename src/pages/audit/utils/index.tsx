@@ -1,10 +1,8 @@
-import { TdTimelineItemProps } from 'tdesign-vue-next';
 import { AuditItem, AuditItems, AuditRecordItem, AuditStepItem } from '../type';
-import { APPROVAL_TYPE, AUDIT_TYPE } from './constants';
+import { AUDIT_TYPE } from './constants';
 import renderTimelineIcon from './renderTimelineIcon';
 import { ApprovalPreviewStepData } from '../type';
-import { merge } from 'lodash-es';
-import renderTimelineSelect from './renderTimelineSelect';
+import RenderTimelineSelect from './renderTimelineSelect';
 import { ref } from 'vue';
 
 export const getStatusText = (status: number) => {
@@ -601,13 +599,13 @@ export const getPreviewStepList = (
   }
   const departmentOwner = preStepData.stepList.BZ;
   const departmentTech = preStepData.stepList.JS;
-  const departmentdmin = preStepData.stepList.GL;
+  const departmentAdmin = preStepData.stepList.GL;
   // 设备列表改成key为设备code的对象，value为数组
   const approvalEquipment = preStepData.approvalEquipment.reduce((acc, cur) => {
     acc[cur.eq_code] = [...(acc[cur.eq_code] || []), cur];
     return acc;
   }, {});
-  const userGroupAdmin = preStepData.groupPosition;
+  const userGroupAdmin = preStepData.groupPosition as string[];
 
   // 合并数据并去重
   const mergeStepList = (...args: string[][]) => {
@@ -618,7 +616,7 @@ export const getPreviewStepList = (
   if (applicationType === 'equipment') {
     return [1, 2].flatMap((step_order) => {
       if (step_order === 1) {
-        return mergeStepList(departmentOwner, departmentTech, departmentdmin).map((approver) => {
+        return mergeStepList(departmentOwner, departmentTech, departmentAdmin).map((approver) => {
           return {
             step_order,
             required_type: 'or',
@@ -661,7 +659,7 @@ export const getPreviewStepList = (
           };
         });
       } else if (step_order === 2) {
-        return mergeStepList(departmentOwner, departmentTech, departmentdmin).map((approver) => {
+        return mergeStepList(departmentOwner, departmentTech, departmentAdmin).map((approver) => {
           return {
             step_order,
             required_type: 'or',
@@ -677,26 +675,40 @@ export const getPreviewStepList = (
   else {
     return [1, 2].flatMap((step_order) => {
       if (step_order === 1) {
-        return userGroupAdmin.map((approver) => {
+        const initialApprovers = mergeStepList(userGroupAdmin);
+        const approvers = ref([...userGroupAdmin]);
+
+        return initialApprovers.map((approver) => {
           return {
             step_order,
             required_type: 'or',
             approver_user_code: approver,
-            content: () => renderTimelineSelect(userGroupAdmin, userList),
+            content: () => {
+              const handleSelect = (newValues) => {
+                approvers.value = [...newValues];
+              };
+
+              return <RenderTimelineSelect value={approvers.value} data={userList} onSelect={handleSelect} />;
+            },
             rule_expression: '',
           };
         });
       } else if (step_order === 2) {
-        const msl = ref(mergeStepList(departmentOwner, departmentTech, departmentdmin));
-        return msl.value.map((approver) => {
+        const initialApprovers = mergeStepList(departmentOwner, departmentTech, departmentAdmin);
+        const approvers = ref([...initialApprovers]);
+
+        return initialApprovers.map((approver) => {
           return {
             step_order,
             required_type: 'or',
             approver_user_code: approver,
-            content: () =>
-              renderTimelineSelect(msl.value, userList, (value) => {
-                msl.value = value;
-              }),
+            content: () => {
+              const handleSelect = (newValues) => {
+                approvers.value = [...newValues];
+              };
+
+              return <RenderTimelineSelect value={approvers.value} data={userList} onSelect={handleSelect} />;
+            },
             rule_expression: '',
           };
         });

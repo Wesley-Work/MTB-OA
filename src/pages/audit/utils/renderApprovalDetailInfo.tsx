@@ -1,7 +1,6 @@
-import { Tag } from 'tdesign-vue-next';
 import { defineComponent, PropType, toRefs } from 'vue';
 import type { AuditDetail, AuditDetailItem, AuditDetailOfTask, AuditItem } from '../type';
-import { getApplicationTypeItemKeys, getStatusColor, renderStatusText } from '.';
+import { getApplicationTypeItemKeys } from '.';
 import StatusTag from './renderStatusTag';
 import dayjs from 'dayjs';
 

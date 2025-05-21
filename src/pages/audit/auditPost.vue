@@ -173,15 +173,9 @@
           </div>
           <!---->
           <div class="audit-post-timeline" style="width: 50%">
-            <!-- <t-timeline mode="same" style="padding: 10px 0px 0px 12px">
+            <t-timeline mode="same" style="padding: 10px 0px 0px 12px">
               <t-timeline-item v-for="(item, index) in previewStep" :key="index" v-bind="item" />
-            </t-timeline> -->
-            <previewTimeline
-              :application="formData.application"
-              :prepare-step-list="prepareStepList"
-              :user-list="userList"
-              :data="{ eq_code: formData.details.equipment.eq_code }"
-            ></previewTimeline>
+            </t-timeline>
           </div>
           <!---->
         </div>
@@ -213,7 +207,6 @@ import {
 } from './type';
 import { getPreviewStepList, getPreviewTimeLineItem } from './utils';
 import renderTimelineIcon from './utils/renderTimelineIcon';
-import previewTimeline from './utils/renderPreviewTimeline';
 
 const route = useRoute();
 
