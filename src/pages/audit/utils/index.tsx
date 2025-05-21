@@ -247,7 +247,7 @@ export const getPreviewTimeLineItem = (steps: AuditPreviewStepItem[]) => {
   }, {});
 
   // 生成预览时间轴项
-  return Object.entries(stepGroups || {}).map(([key, steps]) => {
+  return Object.entries(stepGroups || {}).map(([_key, steps]) => {
     // 检查是否为系统自动审批步骤
     const isSystemAutoStep = steps.every(
       (step) => step.approver_user_code === 'SYSTEM_AUTO' || !step.approver_user_code,
@@ -336,7 +336,7 @@ export const getAllStepData = (data: AuditItem) => {
     current: data?.current_step,
     options: [
       first,
-      ...Object.entries(stepList || {}).map(([key, steps]) => {
+      ...Object.entries(stepList || {}).map(([_key, steps]) => {
         // 检查是否为系统自动审批步骤
         const isSystemAutoStep = steps.every(
           (step) => step.approver_user_code === 'SYSTEM_AUTO' || !step.approver_user_code,

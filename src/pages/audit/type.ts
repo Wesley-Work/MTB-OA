@@ -71,7 +71,7 @@ export interface AuditDetail {
   // 审批名称
   content: string;
   // 审批详情，以JSON格式存储不同类型的具体信息
-  details: string; // AuditDetailItem
+  details: string | AuditDetailItem; // AuditDetailItem
   // 其他补充信息
   other_info: string;
 }

@@ -1,5 +1,5 @@
 import { defineComponent, PropType, toRefs } from 'vue';
-import type { AuditDetail, AuditDetailItem, AuditDetailOfTask, AuditItem } from '../type';
+import type { AuditDetailItem, AuditDetailOfTask, AuditItem } from '../type';
 import { getApplicationTypeItemKeys } from '.';
 import StatusTag from './renderStatusTag';
 import dayjs from 'dayjs';

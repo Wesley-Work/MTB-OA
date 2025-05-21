@@ -136,7 +136,7 @@ import statusTag from './utils/renderStatusTag';
 import typeTag from './utils/renderTypeTag';
 import approvalDetailInfo from './utils/renderApprovalDetailInfo';
 import dayjs from 'dayjs';
-import type { AuditItems, AuditItem, AuditTimeLine } from './type';
+import type { AuditItems, AuditTimeLine } from './type';
 import { checkUserCanApprove, checkUserCanOperate, checkUserCanRevert, getAllStepData } from './utils';
 
 const props = defineProps({
