@@ -94,7 +94,7 @@ export default defineComponent({
           );
         });
         return (
-          <div class="application-info-wapper">
+          <div class="application-info-wrapper">
             <div class="application-info">
               <div class="application-info-header__title">基本信息</div>
               <div class="application-info-body">{sys_info}</div>

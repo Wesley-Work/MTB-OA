@@ -2,6 +2,7 @@ import { Tag } from 'tdesign-vue-next';
 import { defineComponent, PropType, toRefs } from 'vue';
 import type { AuditItem } from '../type';
 import { getStatusColor, renderStatusText } from '.';
+import theme from 'echarts/types/src/theme/dark.js';
 
 export default defineComponent({
   name: 'AuditStatusTag',
@@ -11,6 +12,10 @@ export default defineComponent({
     size: {
       type: String,
       default: 'small',
+    },
+    variant: {
+      type: String,
+      default: 'light',
     },
   },
   setup(props) {
@@ -23,7 +28,7 @@ export default defineComponent({
       const statusResultText = renderStatusText(data.value, status.value);
 
       return (
-        <Tag variant="light" theme={statusResultColor} size={size.value ?? 'small'}>
+        <Tag variant={props?.variant} theme={statusResultColor} size={size.value ?? 'small'}>
           {statusResultText}
         </Tag>
       );

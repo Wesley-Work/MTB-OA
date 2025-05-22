@@ -328,7 +328,7 @@ export default {
       }
     }
 
-    &:deep(.application-info-wapper) {
+    &:deep(.application-info-wrapper) {
       display: flex;
       flex-direction: column;
       gap: 12px;
