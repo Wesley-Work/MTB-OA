@@ -54,7 +54,7 @@
               <t-form-item label="工作内容" name="content">
                 <t-input v-model="taskActiveItem.content" placeholder="请输入内容" />
               </t-form-item>
-              <t-form-item label="何时前完成" name="finally_time">
+              <t-form-item :label-width="110" label="何时前完成" name="finally_time">
                 <t-date-picker
                   v-model="taskActiveItem.finally_time"
                   enable-time-picker
@@ -121,16 +121,20 @@
 </template>
 
 <script setup lang="tsx">
+import { useRouter } from 'vue-router';
+import { onMounted, ref, PropType } from 'vue';
+import { isArray } from 'lodash-es';
 import { NotifyPlugin } from 'tdesign-vue-next';
 // import { TaskAddIcon } from 'tdesign-icons-vue-next';
-import { taskType, taskStatus, findObjectByValueAndKeyInArray } from '../../hooks/common';
-import useRequest from '../../hooks/useRequest';
-import { onMounted, ref } from 'vue';
-import { isArray } from 'lodash-es';
+import { taskType, taskStatus } from '@hooks/common';
+import useRequest from '@hooks/useRequest';
+import { selectValueDisplay } from './utils';
+import { HandleChangeComponentFunctionType } from '@type/type';
 
-defineProps({
-  handleChangeComponent: Function,
+const props = defineProps({
+  handleChangeComponent: Function as PropType<HandleChangeComponentFunctionType>,
 });
+const router = useRouter();
 const userList = ref([]);
 const transferSource = ref([]);
 const defaultItem = {
@@ -163,13 +167,13 @@ const requesting = ref(false);
 
 const loadUserList = () => {
   useRequest({
-    url: '/get/userlist',
+    url: '/get/userList',
     methods: 'POST',
     success: function (res) {
       const json = JSON.parse(res);
       if (json.errcode != 0) {
         NotifyPlugin.error({
-          title: '获取任务列表失败',
+          title: '获取用户列表失败[Main]',
           content: json.errmsg,
         });
         return;
@@ -185,7 +189,7 @@ const loadUserList = () => {
     error: function (err) {
       console.error(err);
       NotifyPlugin.error({
-        title: '获取任务列表失败',
+        title: '获取用户列表失败[Error]',
         content: '错误：' + err,
       });
     },
@@ -230,20 +234,6 @@ const handleTaskItemClick = (task) => {
   taskActiveItem.value = active ? defaultItem : task;
 };
 
-const selectValueDisplay = (arr: Array<any>, value: string | number) => {
-  const objectItem = findObjectByValueAndKeyInArray(arr, 'value', value) as {
-    theme: string;
-    color: string;
-    label: string;
-  };
-  if (!objectItem) return null;
-  return (
-    <t-tag variant="light-outline" theme={objectItem?.theme} color={objectItem.color}>
-      {objectItem?.label}
-    </t-tag>
-  );
-};
-
 const resetForm = () => {
   taskListActive.value = null;
   taskActiveItem.value = { ...defaultItem };
@@ -254,41 +244,56 @@ const onSubmit = (context) => {
   if (validateResult !== true) return false;
   requesting.value = true;
   const mode = taskListActive.value ? 'edit' : 'add';
-  useRequest({
-    url: `/task/${mode}`,
-    methods: 'POST',
-    data: taskActiveItem.value,
-    success: function (res) {
-      const json = JSON.parse(res);
-      if (json.errcode == 0) {
-        NotifyPlugin.success({
-          title: '操作成功',
-          content: `${
-            taskListActive.value
-              ? '成功编辑了' + taskActiveItem.value?.id + '号任务'
-              : '添加了' + json.data.id + '号任务'
-          }`,
-        });
-        resetForm();
-        loadTaskList();
-      } else {
-        NotifyPlugin.error({
-          title: '操作失败',
-          content: json.errmsg,
-        });
-      }
-    },
-    error: function (err) {
-      console.error(err);
-      NotifyPlugin.error({
-        title: '操作失败',
-        content: err,
-      });
-    },
-    complete: function () {
-      requesting.value = false;
+
+  // 更新导航栏及面包屑
+  props?.handleChangeComponent?.('AuditPost', true, false);
+
+  router.push({
+    path: 'AuditPost',
+    query: {
+      applicationType: 3,
+      data: JSON.stringify({
+        operate_type: mode,
+        ...taskActiveItem.value,
+      }),
     },
   });
+
+  // useRequest({
+  //   url: `/task/${mode}`,
+  //   methods: 'POST',
+  //   data: taskActiveItem.value,
+  //   success: function (res) {
+  //     const json = JSON.parse(res);
+  //     if (json.errcode == 0) {
+  //       NotifyPlugin.success({
+  //         title: '操作成功',
+  //         content: `${
+  //           taskListActive.value
+  //             ? '成功编辑了' + taskActiveItem.value?.id + '号任务'
+  //             : '添加了' + json.data.id + '号任务'
+  //         }`,
+  //       });
+  //       resetForm();
+  //       loadTaskList();
+  //     } else {
+  //       NotifyPlugin.error({
+  //         title: '操作失败',
+  //         content: json.errmsg,
+  //       });
+  //     }
+  //   },
+  //   error: function (err) {
+  //     console.error(err);
+  //     NotifyPlugin.error({
+  //       title: '操作失败',
+  //       content: err,
+  //     });
+  //   },
+  //   complete: function () {
+  //     requesting.value = false;
+  //   },
+  // });
 };
 
 const onDelTask = () => {
