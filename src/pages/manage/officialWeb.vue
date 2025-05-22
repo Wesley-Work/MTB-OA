@@ -30,6 +30,10 @@
 import { MenuIcon, FormIcon } from 'tdesign-icons-vue-next';
 import HeaderManage from './components/headerManage.vue';
 import BannerManage from './components/bannerManage.vue';
+
+defineProps({
+  handleChangeComponent: Function,
+});
 </script>
 
 <script lang="tsx">

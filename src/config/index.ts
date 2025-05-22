@@ -11,18 +11,18 @@ const packageVersion = version;
 
 const routerMap: RouteMaps = [
   {
-    label: '借出/归还',
+    label: '设备使用登记',
     children: [
       {
         key: 'Lend',
-        label: '借出',
+        label: '设备借出',
         icon: 'logout',
         permissions: ['equipment.lend'],
         component: () => import('@pages/equipment/lend.vue'),
       },
       {
         key: 'Return',
-        label: '归还',
+        label: '设备归还',
         icon: 'login',
         permissions: ['equipment.return'],
         component: () => import('@pages/equipment/return.vue'),
@@ -35,32 +35,31 @@ const routerMap: RouteMaps = [
       {
         key: 'TaskList',
         label: '任务列表',
-        icon: 'server',
-        permissions: ['task.list'],
-        component: () => import('@pages/task/TaskList.vue'),
+        icon: 'task',
+        component: () => import('@pages/task/taskList.vue'),
       },
       {
-        key: 'AddTask',
+        key: 'TaskManage',
         label: '添加任务',
-        icon: 'root-list',
-        permissions: ['task.add'],
-        component: () => import('@pages/task/addTask.vue'),
+        icon: 'task-setting',
+        permissions: ['task.post'],
+        component: () => import('@pages/task/taskManage.vue'),
       },
       {
         key: 'MyTask',
         label: '我的任务',
-        icon: 'control-platform',
+        icon: 'task-visible',
         permissions: [],
         component: () => import('@pages/task/myTask.vue'),
       },
     ],
   },
   {
-    label: '指数',
+    label: '系统数据',
     children: [
       {
         key: 'Dashboard',
-        label: '系统数据',
+        label: '数据概览',
         icon: 'precise-monitor',
         permissions: [],
         component: () => import('@pages/manage/dashboard.vue'),
@@ -93,6 +92,43 @@ const routerMap: RouteMaps = [
     ],
   },
   {
+    label: '上网认证',
+    children: [
+      {
+        key: 'Network-portal',
+        label: '绑定列表',
+        icon: 'internet',
+        permissions: ['network.manage'],
+        component: () => import('@pages/manage/network-portal.vue'),
+      },
+    ],
+  },
+  {
+    label: '审计审批',
+    children: [
+      {
+        key: 'AuditManage',
+        label: '审批管理',
+        icon: 'seal',
+        permissions: ['audit.manage'],
+        component: () => import('@pages/audit/auditManage.vue'),
+      },
+      {
+        key: 'AuditPost',
+        label: '发起审批',
+        icon: 'send',
+        permissions: [],
+        component: () => import('@pages/audit/auditPost.vue'),
+      },
+      {
+        key: 'AuditProgress',
+        label: '审批进度',
+        icon: 'user-business',
+        component: () => import('@pages/audit/auditProgress.vue'),
+      },
+    ],
+  },
+  {
     label: 'Management',
     children: [
       {
@@ -103,13 +139,13 @@ const routerMap: RouteMaps = [
           {
             key: 'LendList',
             label: '借出列表',
-            permissions: ['equipment.list'],
+            permissions: ['equipment.manage.getlist'],
             component: () => import('@pages/equipment/list.vue'),
           },
           {
             key: 'LendCheck',
             label: '借出查询',
-            permissions: ['equipment.check'],
+            permissions: ['equipment.record.get'],
             component: () => import('@pages/equipment/check.vue'),
           },
         ],
@@ -122,7 +158,7 @@ const routerMap: RouteMaps = [
           {
             key: 'EqList',
             label: '设备列表',
-            permissions: ['equipment.list'],
+            permissions: ['equipment.manage.getlist'],
             component: () => import('@pages/manage/eqList.vue'),
           },
           {
@@ -142,13 +178,13 @@ const routerMap: RouteMaps = [
           {
             key: 'AccountManage',
             label: '账号管理',
-            permissions: ['user.list'],
+            permissions: ['account.manage.getlist'],
             component: () => import('@pages/manage/UserManage.vue'),
           },
           {
             key: 'GroupManage',
             label: '组管理',
-            permissions: ['group.add'],
+            permissions: ['account.manage.getlist'],
             component: () => import('@pages/manage/GroupManage.vue'),
           },
         ],
@@ -270,7 +306,7 @@ const config = {
   version: '3.3.3',
   versionMode: 'Stable',
   packageVersion: packageVersion,
-  systemName: '顺德中专团委媒体部管理系统',
+  systemName: '顺德中专团委媒体部 信息化协作与管理系统',
   systemNameEn: 'MTB OA',
   developMode: false, //开发模式
   loginVerify: true, //登陆验证
@@ -295,10 +331,12 @@ export const routerPrefix = config.routerPrefix;
 export { routerMap, config, packageVersion };
 
 export const VERSION = config.version;
-export const VersionMode = config.versionMode;
-export const SystemName = config.systemName;
-export const SystemNameEn = config.systemNameEn;
+export const versionMode = config.versionMode;
+export const systemName = config.systemName;
+export const systemNameEn = config.systemNameEn;
 export const pagePermissionVerify = config.pagePermissionVerify;
 export const menuPermissionVerify = config.menuPermissionVerify;
 export const useViewTransition = config.useViewTransition;
 export const allowHotUpdate = config.allowHotUpdate;
+export const loginVerify = config.loginVerify;
+export const menuUseCollapsed = config.menuUseCollapsed;

@@ -53,16 +53,59 @@ const routerConfig: RouterOptions = {
 
 const router = createRouter(routerConfig);
 
-router.beforeEach((to, from, next) => {
+// 上次路由的有效时间
+const VALID_DURATION = 24 * 60 * 60 * 1000; // 24小时，单位是毫秒
+
+// 防循环保护
+let redirectCount = 0;
+const MAX_REDIRECT_COUNT = 3;
+
+router.beforeEach((to, _from, next) => {
   // 进度条
   if (typeof NProgress !== 'undefined') {
     NProgress.start();
   }
 
-  // 如果是根路径，且有上次访问的路径，则重定向到上次的路径
-  if (to.path === config.routerPrefix + '/' && localStorage.getItem('lastPath')) {
-    next({ path: localStorage.getItem('lastPath') });
+  // 如果是根路径且存在上次记录
+  if (to.path === config.routerPrefix + '/') {
+    const lastPath = localStorage.getItem('lastPath');
+    const lastAccessTime = localStorage.getItem('lastPathAccessTime');
+
+    // 构建完整路径
+    const fullPath = config.routerPrefix + '/' + (lastPath || '');
+
+    // 路径有效性校验
+    const isValidPath = router.getRoutes().some((route) => {
+      return route.path === fullPath;
+    });
+
+    // 时间有效性校验
+    const isTimeValid = lastAccessTime && Date.now() - Number(lastAccessTime) < VALID_DURATION;
+
+    // 防循环校验
+    const isRedirectSafe = redirectCount < MAX_REDIRECT_COUNT;
+
+    if (!isRedirectSafe) {
+      console.warn('Router: Redirect count exceeded.', to, lastPath, lastAccessTime, isValidPath);
+    }
+
+    // 综合判断
+    if (lastPath && isTimeValid && isValidPath && isRedirectSafe) {
+      redirectCount++;
+      next({ path: fullPath, query: to.query });
+    } else {
+      redirectCount = 0;
+      localStorage.removeItem('lastPath');
+      localStorage.removeItem('lastPathAccessTime');
+      next();
+    }
   } else {
+    redirectCount = 0;
+    if (to.path !== config.routerPrefix + '/') {
+      const path = to.path.replace(config.routerPrefix + '/', '');
+      localStorage.setItem('lastPath', path);
+      localStorage.setItem('lastPathAccessTime', Date.now().toString());
+    }
     next();
   }
 });
@@ -71,9 +114,11 @@ router.afterEach((to) => {
   if (typeof NProgress !== 'undefined') {
     NProgress.done();
   }
-  // 保存当前路径
+  // 保存当前路径和访问时间
   if (to.path !== config.routerPrefix + '/') {
-    localStorage.setItem('lastPath', to.path);
+    const path = to.path.replace(config.routerPrefix + '/', '');
+    localStorage.setItem('lastPath', path);
+    localStorage.setItem('lastPathAccessTime', Date.now().toString());
   }
 });
 

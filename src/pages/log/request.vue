@@ -49,6 +49,9 @@ import { NotifyPlugin } from 'tdesign-vue-next';
 import useRequest from '../../hooks/useRequest';
 import { getToken } from '../../hooks/common';
 
+defineProps({
+  handleChangeComponent: Function,
+});
 const table_Columns = ref([
   {
     colKey: 'time',

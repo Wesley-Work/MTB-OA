@@ -23,12 +23,30 @@ jobs:
         id: pr
         run: echo "id=$(<pr-id.txt)" >> $GITHUB_OUTPUT
 
+      - name: download preview site artifact
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          workflow: ${{ github.event.workflow_run.workflow_id }}
+          run_id: ${{ github.event.workflow_run.id }}
+          name: preview site
+      - run: |
+          unzip preview.zip
+
+      - name: Upload surge service and generate preview URL
+        id: deploy
+        run: |
+          repository=${{github.repository}}
+          export DEPLOY_DOMAIN=https://preview-pr-${{ steps.pr.outputs.id }}-mtb-oa.surge.sh
+          npx surge --project dist --domain $DEPLOY_DOMAIN --token ${{ secrets.SURGE_TOKEN }}
+          echo the preview URL is $DEPLOY_DOMAIN
+          echo "url=$DEPLOY_DOMAIN" >> $GITHUB_OUTPUT
+
       - name: update status comment
         uses: actions-cool/maintain-one-comment@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           body: |
-            <a href="javascript:void(1)"><img height="96" alt="完成" src="https://user-images.githubusercontent.com/15634204/150816437-9f5bb788-cd67-4cbc-9897-b82d74e9aa65.png" /></a>
+            <a href="${{steps.deploy.outputs.url}}"><img height="96" alt="完成" src="https://user-images.githubusercontent.com/15634204/150816437-9f5bb788-cd67-4cbc-9897-b82d74e9aa65.png" /></a>
             <!-- [工作流地址](${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}) -->
             <!-- AUTO_PREVIEW_HOOK -->
           number: ${{ steps.pr.outputs.id }}
