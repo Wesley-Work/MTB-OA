@@ -152,7 +152,7 @@ export default defineComponent({
 
     return () => (
       <t-menu
-        value={value}
+        value={value.value}
         height="550px"
         collapsed={!visiable.value && config.menuUseCollapsed}
         class={

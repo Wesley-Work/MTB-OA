@@ -95,7 +95,7 @@ const routerMap: RouteMaps = [
     label: '上网认证',
     children: [
       {
-        key: 'network-portal',
+        key: 'Network-portal',
         label: '绑定列表',
         icon: 'internet',
         permissions: ['network.manage'],
@@ -107,21 +107,21 @@ const routerMap: RouteMaps = [
     label: '审计审批',
     children: [
       {
-        key: 'auditManage',
+        key: 'AuditManage',
         label: '审批管理',
         icon: 'seal',
         permissions: ['audit.manage'],
         component: () => import('@pages/audit/auditManage.vue'),
       },
       {
-        key: 'auditPost',
+        key: 'AuditPost',
         label: '发起审批',
         icon: 'send',
         permissions: [],
         component: () => import('@pages/audit/auditPost.vue'),
       },
       {
-        key: 'auditProgress',
+        key: 'AuditProgress',
         label: '审批进度',
         icon: 'user-business',
         component: () => import('@pages/audit/auditProgress.vue'),
@@ -306,7 +306,7 @@ const config = {
   version: '3.3.3',
   versionMode: 'Stable',
   packageVersion: packageVersion,
-  systemName: '顺德中专团委媒体部信息化协作与管理系统',
+  systemName: '顺德中专团委媒体部 信息化协作与管理系统',
   systemNameEn: 'MTB OA',
   developMode: false, //开发模式
   loginVerify: true, //登陆验证
