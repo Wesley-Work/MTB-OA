@@ -8,7 +8,7 @@
         </div>
       </template>
       <!---->
-      <t-tabs v-model="activeTab">
+      <t-tabs v-model="activeTab" @change="handleTabChange">
         <!---->
         <t-tab-panel value="myRequest" label="我发起的">
           <t-table
@@ -44,46 +44,28 @@
         <div class="audit-content">
           <ApprovalDetailInfo :data="currentShowDetailsData" />
         </div>
-
-        <div class="audit-timeline">
-          <h4>审批流程</h4>
-          <!-- <t-timeline>
-            <t-timeline-item v-for="(record, index) in currentAudit.records" :key="index">
-              <template #dot>
-                <t-icon :name="getActionIcon(record.action)" :style="{ color: getActionColor(record.action) }" />
-              </template>
-              <div class="timeline-content">
-                <div class="timeline-title">
-                  {{ record.approver_user_name }} ({{ record.approver_user_code }})
-                  {{ getActionText(record.action) }}
-                </div>
-                <div class="timeline-time">{{ formatDate(record.created_at) }}</div>
-                <div v-if="record.comment" class="timeline-comment">意见: {{ record.comment }}</div>
-              </div>
-            </t-timeline-item>
-          </t-timeline> -->
-        </div>
       </div>
     </t-dialog>
   </div>
 </template>
 
 <script lang="tsx" setup>
-import useRequest from '@/hooks/useRequest';
-import { NotifyPlugin } from 'tdesign-vue-next';
-import { defineComponent, onMounted, ref } from 'vue';
-import { AuditItem } from './type';
+import { defineComponent, onMounted, PropType, ref } from 'vue';
 import dayjs from 'dayjs';
+import { NotifyPlugin } from 'tdesign-vue-next';
 import ApprovalDetailInfo from './utils/renderApprovalDetailInfo';
 import RenderTypeTag from './utils/renderTypeTag';
 import RenderStatusTag from './utils/renderStatusTag';
+import useRequest from '@hooks/useRequest';
+import type { TdTabsProps } from 'tdesign-vue-next';
+import type { HandleChangeComponentFunctionType } from '@type/type';
+import type { AuditItem } from './type';
 
-type MyRequestListData = Omit<AuditItem, 'steps' | 'records'>;
 type MyApprovalListData = Omit<AuditItem, 'records'>;
 
 const props = defineProps({
   handleChangeComponent: {
-    type: Function,
+    type: Function as PropType<HandleChangeComponentFunctionType>,
     default: null,
   },
   userCode: {
@@ -161,7 +143,9 @@ const myApproveTableColumns = [
           <t-link theme="primary" onClick={() => showDetail(row)}>
             查看详情
           </t-link>
-          <t-link theme="primary">前往审批</t-link>
+          <t-link theme="primary" onClick={() => handleGoApprove(row?.id)}>
+            前往审批
+          </t-link>
         </t-space>
       );
     },
@@ -171,14 +155,27 @@ const tableLoading = ref(false);
 const myRequestTableData = ref([]);
 const myApproveTableData = ref([]);
 const detailVisible = ref(false);
-const currentShowDetailsData = ref(null);
+const currentShowDetailsData = ref<MyApprovalListData>(null);
 
-const showDetail = (data: MyRequestListData | MyApprovalListData) => {
+const showDetail = (data: MyApprovalListData) => {
   detailVisible.value = true;
   currentShowDetailsData.value = data;
 };
 
+const handleGoApprove = (id: number) => {
+  props?.handleChangeComponent('AuditManage', true, true, { aid: id });
+};
+
+const handleTabChange: TdTabsProps['onChange'] = (value) => {
+  if (value === 'myRequest') {
+    loadMyRequestList();
+  } else {
+    loadMyApprovalList();
+  }
+};
+
 const loadMyRequestList = () => {
+  tableLoading.value = true;
   useRequest({
     url: '/approval/myRequestList',
     methods: 'POST',
@@ -191,7 +188,7 @@ const loadMyRequestList = () => {
         });
         return;
       }
-      myRequestTableData.value = json.data as MyRequestListData[];
+      myRequestTableData.value = json.data as MyApprovalListData[];
     },
     error: function (err) {
       NotifyPlugin.error({
@@ -199,10 +196,14 @@ const loadMyRequestList = () => {
         content: '错误：' + err,
       });
     },
+    complete: function () {
+      tableLoading.value = false;
+    },
   });
 };
 
 const loadMyApprovalList = () => {
+  tableLoading.value = true;
   useRequest({
     url: '/approval/myApprovalList',
     methods: 'POST',
@@ -222,6 +223,9 @@ const loadMyApprovalList = () => {
         title: '获取待我审批列表失败[Error]',
         content: '错误：' + err,
       });
+    },
+    complete: function () {
+      tableLoading.value = false;
     },
   });
 };

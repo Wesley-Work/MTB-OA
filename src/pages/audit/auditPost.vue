@@ -198,15 +198,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, PropType, reactive, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { LoadingPlugin, NotifyPlugin, TdFormProps } from 'tdesign-vue-next';
-import { taskType, taskStatus } from '../../hooks/common';
-import { selectValueDisplay } from '../task/utils';
-import useRequest from '@hooks/useRequest';
-import { ApprovalPreviewStepData, AuditDetailOfLend, AuditDetailOfOther, AuditDetailOfTask } from './type';
+import { LoadingPlugin, NotifyPlugin } from 'tdesign-vue-next';
 import { getPreviewStepList, getPreviewTimeLineItem } from './utils';
 import renderTimelineIcon from './utils/renderTimelineIcon';
+import { selectValueDisplay } from '../task/utils';
+import { taskType, taskStatus } from '@hooks/common';
+import useRequest from '@hooks/useRequest';
+import type { TdFormProps } from 'tdesign-vue-next';
+import type { ApprovalPreviewStepData, AuditDetailOfLend, AuditDetailOfOther, AuditDetailOfTask } from './type';
+import type { HandleChangeComponentFunctionType } from '@type/type';
 
 const route = useRoute();
 
@@ -219,7 +221,7 @@ const radioGroupOptions = [
 const transferSource = ref([]);
 const props = defineProps({
   handleChangeComponent: {
-    type: Function,
+    type: Function as PropType<HandleChangeComponentFunctionType>,
     default: null,
   },
   userCode: {

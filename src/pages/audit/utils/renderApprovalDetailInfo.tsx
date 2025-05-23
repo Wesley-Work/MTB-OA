@@ -7,7 +7,7 @@ import dayjs from 'dayjs';
 export default defineComponent({
   name: 'AuditDetailInfo',
   props: {
-    data: Object as PropType<AuditItem>,
+    data: Object as PropType<Omit<AuditItem, 'records'>>,
   },
   setup(props) {
     const { data } = toRefs(props);

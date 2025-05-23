@@ -97,6 +97,7 @@
             size="large"
             :disabled="!canApproval"
             :title="whyCannotOperate('Approve')"
+            @click="() => handleApprove('approve')"
           >
             Approve · 同意审批</t-button
           >
@@ -107,6 +108,7 @@
             size="large"
             :disabled="!canApproval"
             :title="whyCannotOperate('Reject')"
+            @click="() => handleApprove('reject')"
           >
             Reject · 拒绝审批
           </t-button>
@@ -117,6 +119,7 @@
             size="large"
             :disabled="!canRevert"
             :title="whyCannotOperate('Revert')"
+            @click="() => handleApprove('revert')"
           >
             Revert · 撤销审批
           </t-button>
@@ -128,20 +131,23 @@
 </template>
 
 <script setup lang="tsx">
-import { computed, onBeforeMount, ref } from 'vue';
+import { computed, onBeforeMount, PropType, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { omit } from 'lodash-es';
 import { NotifyPlugin } from 'tdesign-vue-next';
 import { User1Icon } from 'tdesign-icons-vue-next';
-import useRequest from '@hooks/useRequest';
+import dayjs from 'dayjs';
 import statusTag from './utils/renderStatusTag';
 import typeTag from './utils/renderTypeTag';
 import approvalDetailInfo from './utils/renderApprovalDetailInfo';
-import dayjs from 'dayjs';
-import type { AuditItems, AuditTimeLine } from './type';
+import useRequest from '@hooks/useRequest';
 import { checkUserCanApprove, checkUserCanOperate, checkUserCanRevert, getAllStepData } from './utils';
+import type { AuditItems, AuditTimeLine } from './type';
+import type { HandleChangeComponentFunctionType } from '@type/type';
 
 const props = defineProps({
   handleChangeComponent: {
-    type: Function,
+    type: Function as PropType<HandleChangeComponentFunctionType>,
     default: null,
   },
   userCode: {
@@ -149,7 +155,8 @@ const props = defineProps({
     default: '',
   },
 });
-
+const route = useRoute();
+const router = useRouter();
 const approvalList = ref<AuditItems>([]);
 const currentActive = ref<number>(0);
 const loading = ref<boolean>(true);
@@ -204,6 +211,49 @@ const handleCardActive = (index: number) => {
   currentActive.value = index;
 };
 
+const checkQuery = () => {
+  const { aid } = route.query;
+  if (aid) {
+    const index = approvalList.value.findIndex((item) => item.id === Number(aid));
+    if (index !== -1) {
+      handleCardActive(index);
+      // 处理以后，去除aid参数
+      router.replace({
+        query: {
+          ...omit(route.query, 'aid'),
+        },
+      });
+    }
+  }
+};
+
+const handleApprove = (type: string) => {
+  useRequest({
+    url: '/approval/operate',
+    methods: 'POST',
+    data: {
+      id: approvalList.value[currentActive.value].id,
+      type,
+    },
+    success: function (res) {
+      const result = JSON.parse(res);
+      if (result.errcode !== 0) {
+        NotifyPlugin.error({
+          title: '无法完成审批操作[Main]',
+          content: result.errmsg,
+        });
+      }
+    },
+    error: function (err) {
+      console.error(err);
+      NotifyPlugin.error({
+        title: '无法完成审批操作[Error]',
+        content: err,
+      });
+    },
+  });
+};
+
 const loadApprovalList = () => {
   useRequest({
     url: '/approval/list',
@@ -212,6 +262,7 @@ const loadApprovalList = () => {
       const result = JSON.parse(res);
       if (result.errcode === 0) {
         approvalList.value = result.data as AuditItems;
+        checkQuery();
       } else {
         NotifyPlugin.error({
           title: '获取审批列表数据失败[Main]',
