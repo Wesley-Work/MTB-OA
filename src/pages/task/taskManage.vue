@@ -124,7 +124,7 @@
 import { useRouter } from 'vue-router';
 import { onMounted, ref, PropType } from 'vue';
 import { isArray } from 'lodash-es';
-import { NotifyPlugin } from 'tdesign-vue-next';
+import { DialogPlugin, NotifyPlugin } from 'tdesign-vue-next';
 // import { TaskAddIcon } from 'tdesign-icons-vue-next';
 import { taskType, taskStatus } from '@hooks/common';
 import useRequest from '@hooks/useRequest';
@@ -245,55 +245,66 @@ const onSubmit = (context) => {
   requesting.value = true;
   const mode = taskListActive.value ? 'edit' : 'add';
 
-  // 更新导航栏及面包屑
-  props?.handleChangeComponent?.('AuditPost', true, false);
-
-  router.push({
-    path: 'AuditPost',
-    query: {
-      applicationType: 3,
-      data: JSON.stringify({
-        operate_type: mode,
-        ...taskActiveItem.value,
-      }),
+  useRequest({
+    url: `/task/${mode}`,
+    methods: 'POST',
+    data: taskActiveItem.value,
+    success: function (res) {
+      const json = JSON.parse(res);
+      if (json.errcode == 0) {
+        NotifyPlugin.success({
+          title: '操作成功',
+          content: `${
+            taskListActive.value
+              ? '成功编辑了' + taskActiveItem.value?.id + '号任务'
+              : '添加了' + json.data.id + '号任务'
+          }`,
+        });
+        resetForm();
+        loadTaskList();
+      } else if (json.errcode === -60060) {
+        const dialog = DialogPlugin.confirm({
+          header: '需要审批',
+          body: json.errmsg,
+          confirmBtn: {
+            content: '去发起审批',
+            theme: 'primary',
+            onClick: () => {
+              props?.handleChangeComponent?.('AuditPost', true, true, {
+                applicationType: 3,
+                data: json.data?.details,
+              });
+              dialog.destroy();
+            },
+          },
+          cancelBtn: {
+            content: '关闭',
+            onClick: () => {
+              dialog.destroy();
+            },
+          },
+          onClose: () => {
+            dialog.destroy();
+          },
+        });
+      } else {
+        NotifyPlugin.error({
+          title: '操作失败',
+          content: json.errmsg,
+        });
+      }
+    },
+    error: function (err) {
+      console.error(err);
+      NotifyPlugin.error({
+        title: '操作失败',
+        content: err,
+      });
+    },
+    complete: function () {
+      requesting.value = false;
     },
   });
-
-  // useRequest({
-  //   url: `/task/${mode}`,
-  //   methods: 'POST',
-  //   data: taskActiveItem.value,
-  //   success: function (res) {
-  //     const json = JSON.parse(res);
-  //     if (json.errcode == 0) {
-  //       NotifyPlugin.success({
-  //         title: '操作成功',
-  //         content: `${
-  //           taskListActive.value
-  //             ? '成功编辑了' + taskActiveItem.value?.id + '号任务'
-  //             : '添加了' + json.data.id + '号任务'
-  //         }`,
-  //       });
-  //       resetForm();
-  //       loadTaskList();
-  //     } else {
-  //       NotifyPlugin.error({
-  //         title: '操作失败',
-  //         content: json.errmsg,
-  //       });
-  //     }
-  //   },
-  //   error: function (err) {
-  //     console.error(err);
-  //     NotifyPlugin.error({
-  //       title: '操作失败',
-  //       content: err,
-  //     });
-  //   },
-  //   complete: function () {
-  //     requesting.value = false;
-  //   },
-  // });
 };
 
 const onDelTask = () => {

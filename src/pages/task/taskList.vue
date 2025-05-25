@@ -83,9 +83,9 @@ const convertData = () => {
   });
 };
 
-const loadTaskList = () => {
+const loadTaskList = (loading = true) => {
   const TOKEN = getToken();
-  tableLoading.value = true;
+  tableLoading.value = loading;
   useRequest({
     url: '/task/list',
     methods: 'POST',
@@ -121,7 +121,7 @@ const loadTaskList = () => {
 onBeforeMount(() => {
   loadTaskList();
   timer = setInterval(() => {
-    loadTaskList();
+    loadTaskList(false);
   }, 30000);
 });
 
