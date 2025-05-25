@@ -274,7 +274,7 @@ export const getPreviewTimeLineItem = (steps: AuditPreviewStepItem[]) => {
     // 构建显示文本
     let content;
     if (isSystemAutoStep) {
-      content = '系统自动审批';
+      content = () => customContent?.() ?? '当前无审批人，系统将自动通过审批';
     } else {
       content = () =>
         customContent?.() ??
@@ -287,9 +287,9 @@ export const getPreviewTimeLineItem = (steps: AuditPreviewStepItem[]) => {
     if (isSystemAutoStep) {
       return {
         content,
-        label: '系统自动通过',
-        dorColor: 'success',
-        dot: () => renderTimelineIcon('approve', 'success'),
+        label: !!customContent?.() ? '当前无审批人，系统将自动通过审批' : '',
+        dorColor: 'primary',
+        dot: () => renderTimelineIcon('pending', 'primary'),
       };
     } else {
       return {
@@ -695,6 +695,11 @@ export const getPreviewStepList = (
       if (step_order === 1) {
         const approvers = [...userGroupAdmin];
 
+        // 如果没有上级组长，则系统自动
+        if (approvers.length === 0) {
+          approvers.push('SYSTEM_AUTO');
+        }
+
         // 通过回调方法返回当前步骤的审批人
         const newData: AuditStepItem[] = approvers.map((approver) => ({
           step_order,
@@ -732,7 +737,7 @@ export const getPreviewStepList = (
     });
   }
 
-  // 其他审批，第一个审批人默认为组长，支持自定义，第二个审批人默认为组长部长或技术或管理（或签），支持自定义
+  // 其他审批，第一个审批人默认为组长，支持自定义，第二个审批人默认为部长或技术或管理（或签），支持自定义
   else {
     return [1, 2].flatMap((step_order) => {
       if (step_order === 1) {
