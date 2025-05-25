@@ -42,7 +42,7 @@ const routerMap: RouteMaps = [
         key: 'TaskManage',
         label: '添加任务',
         icon: 'task-setting',
-        permissions: ['task.post'],
+        permissions: [],
         component: () => import('@pages/task/taskManage.vue'),
       },
       {
