@@ -90,39 +90,45 @@
           </div>
         </div>
         <div class="action">
-          <t-button
-            variant="outline"
-            theme="success"
-            block
-            size="large"
-            :disabled="!canApproval"
-            :title="whyCannotOperate('Approve')"
-            @click="() => handleApprove('approve')"
-          >
-            Approve · 同意审批</t-button
-          >
-          <t-button
-            variant="outline"
-            theme="danger"
-            block
-            size="large"
-            :disabled="!canApproval"
-            :title="whyCannotOperate('Reject')"
-            @click="() => handleApprove('reject')"
-          >
-            Reject · 拒绝审批
-          </t-button>
-          <t-button
-            variant="outline"
-            theme="warning"
-            block
-            size="large"
-            :disabled="!canRevert"
-            :title="whyCannotOperate('Revert')"
-            @click="() => handleApprove('revert')"
-          >
-            Revert · 撤销审批
-          </t-button>
+          <div>
+            <div style="font: var(--td-font-title-medium); margin-bottom: 8px">审批意见</div>
+            <t-textarea v-model="formData.comment" :autosize="{ minRows: 5, maxRows: 15 }" placeholder="请输入内容" />
+          </div>
+          <div class="btn-group">
+            <t-button
+              variant="outline"
+              theme="success"
+              block
+              size="large"
+              :disabled="!canApproval"
+              :title="whyCannotOperate('Approve')"
+              @click="() => handleApprove('approve')"
+            >
+              Approve · 同意审批</t-button
+            >
+            <t-button
+              variant="outline"
+              theme="danger"
+              block
+              size="large"
+              :disabled="!canApproval"
+              :title="whyCannotOperate('Reject')"
+              @click="() => handleApprove('reject')"
+            >
+              Reject · 拒绝审批
+            </t-button>
+            <t-button
+              variant="outline"
+              theme="warning"
+              block
+              size="large"
+              :disabled="!canRevert"
+              :title="whyCannotOperate('Revert')"
+              @click="() => handleApprove('revert')"
+            >
+              Revert · 撤销审批
+            </t-button>
+          </div>
         </div>
       </div>
       <!---->
@@ -131,15 +137,15 @@
 </template>
 
 <script setup lang="tsx">
-import { computed, onBeforeMount, PropType, ref } from 'vue';
+import { computed, onBeforeMount, PropType, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { omit } from 'lodash-es';
 import { NotifyPlugin } from 'tdesign-vue-next';
 import { User1Icon } from 'tdesign-icons-vue-next';
 import dayjs from 'dayjs';
-import statusTag from './utils/renderStatusTag';
-import typeTag from './utils/renderTypeTag';
-import approvalDetailInfo from './utils/renderApprovalDetailInfo';
+import statusTag from './components/renderStatusTag';
+import typeTag from './components/renderTypeTag';
+import approvalDetailInfo from './components/renderApprovalDetailInfo';
 import useRequest from '@hooks/useRequest';
 import { checkUserCanApprove, checkUserCanOperate, checkUserCanRevert, getAllStepData } from './utils';
 import type { AuditItems, AuditTimeLine } from './type';
@@ -177,6 +183,10 @@ const canApproval = computed(() => {
 const canRevert = computed(() => {
   return canOperate.value && checkUserCanRevert(props.userCode, approvalList.value[currentActive.value]);
 });
+const formData = reactive({
+  comment: '',
+});
+
 const whyCannotOperate = (btn: string) => {
   if (!canOperate.value) {
     return '您不是该审批单的审批人！无法操作！';
@@ -186,10 +196,8 @@ const whyCannotOperate = (btn: string) => {
       const type = canApprovalSource.value.type;
       if (type === 'steps_has_rejected') {
         return '上级审批已拒绝，无法操作！';
-      } else if (type === 'user_already_approved' || type === 'mixed_already_approved') {
+      } else if (type === 'user_already_approved') {
         return '当前已同意审批，无法操作！';
-      } else if (type === 'mixed_no_rule_expression') {
-        return '审批单规则表达式不满足，无法操作！';
       }
       return '同意审批';
     case 'Reject':
@@ -228,21 +236,29 @@ const checkQuery = () => {
 };
 
 const handleApprove = (type: string) => {
+  const id = approvalList.value[currentActive.value].id;
   useRequest({
     url: '/approval/operate',
     methods: 'POST',
     data: {
-      id: approvalList.value[currentActive.value].id,
+      id,
       type,
+      comment: formData.comment,
     },
     success: function (res) {
       const result = JSON.parse(res);
       if (result.errcode !== 0) {
         NotifyPlugin.error({
-          title: '无法完成审批操作[Main]',
+          title: `${result.errcode}无法完成审批操作[Main]`,
           content: result.errmsg,
         });
+        return;
       }
+      NotifyPlugin.success({
+        title: '操作审批成功',
+        content: `审批了单号为${id}的审批单，操作：${type}`,
+      });
+      loadApprovalList();
     },
     error: function (err) {
       console.error(err);
@@ -425,12 +441,17 @@ export default {
     }
 
     .action {
-      width: 50%;
       display: flex;
-      flex-direction: row;
-      gap: 12px;
-      margin: 0 auto;
+      flex-direction: column;
+      gap: 24px;
       padding-bottom: 24px;
+      .btn-group {
+        display: flex;
+        flex-direction: row;
+        gap: 12px;
+        width: 50%;
+        margin: 0 auto;
+      }
       .t-button--variant-outline {
         &.t-button--theme-success {
           background-color: var(--td-success-color-light);

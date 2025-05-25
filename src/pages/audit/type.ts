@@ -57,10 +57,8 @@ export interface AuditStepItem {
   created_at?: string;
   // 步骤顺序
   step_order: number;
-  // 多人同步审批配置，or为或，and为与多人同步审批配置，or为或，and为与，mixed为混合
-  required_type: 'and' | 'or' | 'mixed';
-  // 审批流程混合审批逻辑
-  rule_expression: string;
+  // 多人同步审批配置，or为或，and为与多人同步审批配置，or为或，and为与
+  required_type: 'and' | 'or';
 }
 
 export interface AuditDetail {
@@ -97,17 +95,17 @@ export interface AuditDetailOfTask {
   operate_type?: 'add' | 'edit' | 'del';
   id?: number;
   content: string;
-  create_user: string;
-  equipment: string;
+  create_user?: string;
+  equipment: string | string[];
   finally_time: string;
   name: string;
   place: string;
   remark: string;
   status: number;
   type: number;
-  user: string[];
+  user: string | string[];
   weight: number;
-  work_time: string[];
+  work_time: string | string[];
 }
 
 export interface AuditDetailOfOther {
@@ -140,7 +138,6 @@ export interface ApprovalPreviewStepData {
     name: string;
     type: 0 | 1;
   }[];
-  rule_expression: string;
   stepList: {
     BZ: string[];
     GL: string[];
