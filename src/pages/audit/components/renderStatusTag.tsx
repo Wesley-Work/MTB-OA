@@ -1,8 +1,7 @@
-import { Tag } from 'tdesign-vue-next';
 import { defineComponent, PropType, toRefs } from 'vue';
+import { Tag } from 'tdesign-vue-next';
+import { getStatusColor, renderStatusText } from '../utils';
 import type { AuditItem } from '../type';
-import { getStatusColor, renderStatusText } from '.';
-import theme from 'echarts/types/src/theme/dark.js';
 
 export default defineComponent({
   name: 'AuditStatusTag',

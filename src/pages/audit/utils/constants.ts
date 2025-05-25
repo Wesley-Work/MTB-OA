@@ -10,7 +10,6 @@ export const AUDIT_STATUS = {
 export const APPROVAL_TYPE = {
   AND: 'and', // 会签
   OR: 'or', // 或签
-  MIXED: 'mixed', // 混合签
 } as const;
 
 // 审批类型常量

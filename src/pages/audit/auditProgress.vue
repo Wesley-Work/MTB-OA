@@ -53,9 +53,9 @@
 import { defineComponent, onMounted, PropType, ref } from 'vue';
 import dayjs from 'dayjs';
 import { NotifyPlugin } from 'tdesign-vue-next';
-import ApprovalDetailInfo from './utils/renderApprovalDetailInfo';
-import RenderTypeTag from './utils/renderTypeTag';
-import RenderStatusTag from './utils/renderStatusTag';
+import ApprovalDetailInfo from './components/renderApprovalDetailInfo';
+import RenderTypeTag from './components/renderTypeTag';
+import RenderStatusTag from './components/renderStatusTag';
 import useRequest from '@hooks/useRequest';
 import type { TdTabsProps } from 'tdesign-vue-next';
 import type { HandleChangeComponentFunctionType } from '@type/type';

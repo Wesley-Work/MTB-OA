@@ -1,7 +1,7 @@
-import { Tag } from 'tdesign-vue-next';
 import { defineComponent, toRefs } from 'vue';
-import { AUDIT_TYPE, THEME_COLOR } from './constants';
+import { Tag } from 'tdesign-vue-next';
 import { isObject } from 'lodash-es';
+import { AUDIT_TYPE, THEME_COLOR } from '../utils/constants';
 
 /**
  * 获取审批类型文本

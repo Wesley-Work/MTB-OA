@@ -1,7 +1,7 @@
-import { ErrorCircleIcon, GestureRanslationIcon, PendingIcon, TaskChecked1Icon } from 'tdesign-icons-vue-next';
-import { ICON_TYPE, THEME_COLOR } from './constants';
-import { IconType, ThemeColor } from './types';
 import { VNode } from 'vue';
+import { ErrorCircleIcon, GestureRanslationIcon, PendingIcon, TaskChecked1Icon } from 'tdesign-icons-vue-next';
+import { ICON_TYPE, THEME_COLOR } from '../utils/constants';
+import type { IconType, ThemeColor } from '../utils/types';
 
 /**
  * 主题颜色映射到CSS变量

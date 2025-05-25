@@ -1,8 +1,8 @@
 import { defineComponent, PropType, toRefs } from 'vue';
-import type { AuditDetailItem, AuditDetailOfTask, AuditItem } from '../type';
-import { getApplicationTypeItemKeys } from '.';
-import StatusTag from './renderStatusTag';
 import dayjs from 'dayjs';
+import { getApplicationTypeItemKeys } from '../utils';
+import StatusTag from './renderStatusTag';
+import type { AuditDetailItem, AuditDetailOfTask, AuditItem } from '../type';
 
 export default defineComponent({
   name: 'AuditDetailInfo',

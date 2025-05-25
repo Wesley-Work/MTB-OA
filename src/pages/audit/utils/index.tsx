@@ -1,9 +1,6 @@
 import { AuditItem, AuditRecordItem, AuditStepItem } from '../type';
 import { AUDIT_TYPE } from './constants';
 import renderTimelineIcon from './renderTimelineIcon';
-import { ApprovalPreviewStepData } from '../type';
-import RenderTimelineSelect from './renderTimelineSelect';
-import { ref } from 'vue';
 
 export const getStatusText = (status: number) => {
   switch (status) {
@@ -116,25 +113,8 @@ export const thisUserWasApproval = (approver_user_code: string, stepData: AuditR
     .includes(approver_user_code);
 };
 
-// 表达式解析器
-function evaluateRule(rule: string, context: Record<string, boolean>): boolean {
-  try {
-    // 使用with语句注入上下文
-    const fn = new Function('context', `with(context) { return (${rule}); }`);
-    return fn(context);
-  } catch (e) {
-    console.error('表达式解析失败:', e);
-    return false;
-  }
-}
-
 // 时间轴项生成
-export const getTimelineItem = (
-  approverUserCodes: string[],
-  data: AuditItem,
-  requiredType: 'or' | 'and' | 'mixed',
-  ruleExpression?: string,
-) => {
+export const getTimelineItem = (approverUserCodes: string[], data: AuditItem, requiredType: 'or' | 'and') => {
   // 过滤掉discard为true的记录
   const records = (data?.records || []).filter((record) => !record.discard);
 
@@ -163,27 +143,8 @@ export const getTimelineItem = (
     theme = 'primary',
     dot = renderTimelineIcon('pending', 'primary');
 
-  // 混合逻辑处理
-  if (requiredType === 'mixed' && ruleExpression) {
-    try {
-      const result = evaluateRule(ruleExpression, context);
-      if (result) {
-        label = `已审批（符合逻辑）`;
-        theme = 'success';
-        dot = renderTimelineIcon('approve', 'success');
-      } else {
-        label = `待审批`;
-        theme = 'primary';
-        dot = renderTimelineIcon('pending', 'primary');
-      }
-    } catch (e) {
-      label = `逻辑错误`;
-      theme = 'danger';
-      dot = renderTimelineIcon('error', 'danger');
-    }
-  }
   // 或签逻辑
-  else if (requiredType === 'or') {
+  if (requiredType === 'or') {
     // 优先判断是否拒绝
     if (isAnyRejected) {
       const rejectReasons = approverUserCodes
@@ -230,76 +191,6 @@ export const getTimelineItem = (
   }
 
   return { label, theme, dot: () => dot };
-};
-
-interface AuditPreviewStepItem extends AuditStepItem {
-  content?: any;
-}
-
-// 发起审批时的预览时间轴
-export const getPreviewTimeLineItem = (steps: AuditPreviewStepItem[]) => {
-  // 按步骤分组（按 step_order 分组）
-  const stepGroups = steps?.reduce((acc: Record<string, AuditPreviewStepItem[]>, cur: AuditPreviewStepItem) => {
-    const key = cur.step_order.toString();
-    if (!acc[key]) acc[key] = [];
-    acc[key].push(cur);
-    return acc;
-  }, {});
-
-  // 生成预览时间轴项
-  return Object.entries(stepGroups || {}).map(([_key, steps]) => {
-    // 检查是否为系统自动审批步骤
-    const isSystemAutoStep = steps.every(
-      (step) => step.approver_user_code === 'SYSTEM_AUTO' || !step.approver_user_code,
-    );
-
-    // 获取该步骤下的所有审批人
-    const approverCodes = steps
-      .map((step) =>
-        step.approver_user_code === 'SYSTEM_AUTO' || !step.approver_user_code ? null : step.approver_user_code,
-      )
-      .filter(Boolean);
-
-    // 获取该步骤的第一个审批人的 required_type
-    const baseType = steps[0]?.required_type || 'or';
-
-    // 获取该步骤的第一个审批人的 rule_expression
-    const ruleExpression = steps[0]?.rule_expression;
-
-    const customContent = steps[0]?.content;
-
-    // 根据 required_type 生成连接符
-    const separator = baseType === 'and' ? '和' : '或';
-
-    // 构建显示文本
-    let content;
-    if (isSystemAutoStep) {
-      content = () => customContent?.() ?? '当前无审批人，系统将自动通过审批';
-    } else {
-      content = () =>
-        customContent?.() ??
-        (ruleExpression
-          ? `审批人: ${approverCodes.join('、')}，规则: ${ruleExpression}`
-          : `审批人: ${approverCodes.join(separator)}`);
-    }
-
-    // 预览状态下的显示
-    if (isSystemAutoStep) {
-      return {
-        content,
-        label: !!customContent?.() ? '当前无审批人，系统将自动通过审批' : '',
-        dorColor: 'primary',
-        dot: () => renderTimelineIcon('pending', 'primary'),
-      };
-    } else {
-      return {
-        content,
-        label: '待审批',
-        dorColor: 'primary',
-        dot: () => renderTimelineIcon('pending', 'primary'),
-      };
-    }
-  });
 };
 
 // 生成时间轴数据
@@ -352,9 +243,6 @@ export const getAllStepData = (data: AuditItem) => {
         // 获取该步骤的第一个审批人的 required_type
         const baseType = steps[0]?.required_type || 'or';
 
-        // 获取该步骤的第一个审批人的 rule_expression
-        const ruleExpression = steps[0]?.rule_expression;
-
         // 根据 required_type 生成连接符
         const separator = baseType === 'and' ? '和' : '或';
 
@@ -363,7 +251,7 @@ export const getAllStepData = (data: AuditItem) => {
         if (isSystemAutoStep) {
           content = '系统自动审批';
         } else {
-          content = ruleExpression ? `审批规则: ${ruleExpression}` : `审批人: ${approverCodes.join(separator)}`;
+          content = `审批人: ${approverCodes.join(separator)}`;
         }
 
         // 生成时间轴项
@@ -376,7 +264,7 @@ export const getAllStepData = (data: AuditItem) => {
             dot: () => renderTimelineIcon('approve', 'success'),
           };
         } else {
-          timelineItem = getTimelineItem(approverCodes, data, baseType as 'or' | 'and' | 'mixed', ruleExpression);
+          timelineItem = getTimelineItem(approverCodes, data, baseType as 'or' | 'and');
         }
 
         return {
@@ -472,7 +360,6 @@ export const checkUserCanApprove = (userCode: string, application: AuditItem) =>
 
   // 获取当前步骤的审批类型（使用第一个审批人的类型，因为同一步骤的审批类型应该相同）
   const requiredType = currentStepApprovers[0]?.required_type || 'or';
-  const ruleExpression = currentStepApprovers[0]?.rule_expression;
 
   // 过滤掉discard为true的记录
   const validRecords = records.filter((record) => !record.discard);
@@ -507,29 +394,6 @@ export const checkUserCanApprove = (userCode: string, application: AuditItem) =>
     case 'or': // 或签
       // 或签情况下，如果没有人审批过，或者虽然有人审批过但还未通过，当前用户都可以审批
       return { result: true, type: 'or' };
-
-    case 'mixed': // 混合签
-      if (!ruleExpression) {
-        return { result: false, type: 'mixed_no_rule_expression' };
-      }
-
-      // 构建当前状态的上下文
-      const context = Object.fromEntries(
-        currentStepApprovers.map((step) => [
-          step.approver_user_code,
-          currentStepRecords.some(
-            (record) => record.approver_user_code === step.approver_user_code && record.action === 1,
-          ),
-        ]),
-      );
-
-      // 使用已有的 evaluateRule 函数评估表达式
-      // 如果表达式已经满足，则不需要再审批
-      if (evaluateRule(ruleExpression, context)) {
-        return { result: false, type: 'mixed_already_approved' };
-      }
-      // 否则当前用户可以审批
-      return { result: true, type: 'mixed' };
 
     default:
       return { result: false, type: 'default' };
@@ -586,215 +450,4 @@ export const checkUserCanRevert = (userCode: string, application: AuditItem) => 
 
   // 只有当下一步审批人未审批时才能撤销
   return !hasNextApproved;
-};
-
-// 获取预览时间线基础数据，通过onChange回调返回select更改后的内容
-export const getPreviewStepList = (
-  applicationType: string,
-  preStepData: ApprovalPreviewStepData,
-  data,
-  userList,
-  onChange?: (step_order: number, newData: AuditStepItem[]) => void,
-): AuditStepItem[] => {
-  if (!preStepData) {
-    return [];
-  }
-  const departmentOwner = preStepData.stepList.BZ;
-  const departmentTech = preStepData.stepList.JS;
-  const departmentAdmin = preStepData.stepList.GL;
-  // 设备列表改成key为设备code的对象，value为数组
-  const approvalEquipment = preStepData.approvalEquipment.reduce((acc, cur) => {
-    acc[cur.eq_code] = [...(acc[cur.eq_code] || []), cur];
-    return acc;
-  }, {});
-  const userGroupAdmin = preStepData.groupPosition as string[];
-
-  // 合并数据并去重
-  const mergeStepList = (...args: string[][]) => {
-    return [...new Set(args.flat())];
-  };
-
-  // 设备借出审批，第一个审批人为部长或技术或管理，第二个审批人为物主
-  if (applicationType === 'equipment') {
-    return [1, 2].flatMap((step_order) => {
-      if (step_order === 1) {
-        const approvers = mergeStepList(departmentOwner, departmentTech, departmentAdmin);
-
-        // 通过回调方法返回当前步骤的审批人
-        const newData: AuditStepItem[] = approvers.map((approver) => ({
-          step_order,
-          required_type: 'or',
-          approver_user_code: approver,
-          rule_expression: '',
-        }));
-        onChange?.(step_order, newData);
-
-        return approvers.map((approver) => ({
-          step_order,
-          required_type: 'or',
-          approver_user_code: approver,
-          rule_expression: '',
-        }));
-      } else if (step_order === 2) {
-        const approverList = approvalEquipment[data?.eq_code];
-
-        if (!approverList || approverList.length === 0) {
-          // 当前设备不需要审批
-          const autoApprover = '[当前设备不需审批]  系统将自动通过';
-
-          // 通过回调方法返回当前步骤的审批人
-          const newData: AuditStepItem[] = [
-            {
-              step_order,
-              required_type: 'or',
-              approver_user_code: autoApprover,
-              rule_expression: '',
-            },
-          ];
-          onChange?.(step_order, newData);
-
-          return {
-            step_order,
-            required_type: 'or',
-            approver_user_code: autoApprover,
-            rule_expression: '',
-          };
-        }
-
-        // 有物主审批
-        const approvers = approverList.map((item) => item?.approver).filter(Boolean);
-
-        // 通过回调方法返回当前步骤的审批人
-        const newData: AuditStepItem[] = approvers.map((approver) => ({
-          step_order,
-          required_type: 'or',
-          approver_user_code: approver,
-          rule_expression: '',
-        }));
-        onChange?.(step_order, newData);
-
-        return approverList
-          .map((item) => {
-            const approver = item?.approver;
-            if (!approver) return null;
-            return {
-              step_order,
-              required_type: 'or',
-              approver_user_code: approver,
-              rule_expression: '',
-            };
-          })
-          .filter(Boolean);
-      }
-    });
-  }
-
-  // 任务审批，第一个审批人为上级组长，第二个审批人为部长或技术或管理（或签）
-  else if (applicationType === 'task') {
-    return [1, 2].flatMap((step_order) => {
-      if (step_order === 1) {
-        const approvers = [...userGroupAdmin];
-
-        // 如果没有上级组长，则系统自动
-        if (approvers.length === 0) {
-          approvers.push('SYSTEM_AUTO');
-        }
-
-        // 通过回调方法返回当前步骤的审批人
-        const newData: AuditStepItem[] = approvers.map((approver) => ({
-          step_order,
-          required_type: 'or',
-          approver_user_code: approver,
-          rule_expression: '',
-        }));
-        onChange?.(step_order, newData);
-
-        return approvers.map((approver) => ({
-          step_order,
-          required_type: 'or',
-          approver_user_code: approver,
-          rule_expression: '',
-        }));
-      } else if (step_order === 2) {
-        const approvers = mergeStepList(departmentOwner, departmentTech, departmentAdmin);
-
-        // 通过回调方法返回当前步骤的审批人
-        const newData: AuditStepItem[] = approvers.map((approver) => ({
-          step_order,
-          required_type: 'or',
-          approver_user_code: approver,
-          rule_expression: '',
-        }));
-        onChange?.(step_order, newData);
-
-        return approvers.map((approver) => ({
-          step_order,
-          required_type: 'or',
-          approver_user_code: approver,
-          rule_expression: '',
-        }));
-      }
-    });
-  }
-
-  // 其他审批，第一个审批人默认为组长，支持自定义，第二个审批人默认为部长或技术或管理（或签），支持自定义
-  else {
-    return [1, 2].flatMap((step_order) => {
-      if (step_order === 1) {
-        const initialApprovers = mergeStepList(userGroupAdmin);
-        const approvers = ref([...userGroupAdmin]);
-
-        return initialApprovers.map((approver) => {
-          return {
-            step_order,
-            required_type: 'or',
-            approver_user_code: approver,
-            content: () => {
-              const handleSelect = (newValues) => {
-                approvers.value = [...newValues];
-              };
-
-              return (
-                <RenderTimelineSelect
-                  thisStep={step_order}
-                  value={approvers.value}
-                  data={userList}
-                  onSelect={handleSelect}
-                  changeEmit={onChange}
-                />
-              );
-            },
-            rule_expression: '',
-          };
-        });
-      } else if (step_order === 2) {
-        const initialApprovers = mergeStepList(departmentOwner, departmentTech, departmentAdmin);
-        const approvers = ref([...initialApprovers]);
-
-        return initialApprovers.map((approver) => {
-          return {
-            step_order,
-            required_type: 'or',
-            approver_user_code: approver,
-            content: () => {
-              const handleSelect = (newValues) => {
-                approvers.value = [...newValues];
-              };
-
-              return (
-                <RenderTimelineSelect
-                  thisStep={step_order}
-                  value={approvers.value}
-                  data={userList}
-                  onSelect={handleSelect}
-                  changeEmit={onChange}
-                />
-              );
-            },
-            rule_expression: '',
-          };
-        });
-      }
-    });
-  }
 };

@@ -1,6 +1,6 @@
-import { PropType, defineComponent, ref, toRefs, watch, nextTick, onMounted } from 'vue';
+import { PropType, defineComponent, ref, toRefs, watch, nextTick, onMounted, computed } from 'vue';
 import { Select } from 'tdesign-vue-next';
-import { AuditStepItem } from '../type';
+import type { AuditStepItem } from '../type';
 
 interface UserOption {
   name: string;
@@ -70,10 +70,13 @@ export default defineComponent({
       { immediate: true },
     );
 
-    const options = data.value.map((item) => ({
-      label: `${item.name}  [${item.code}]`,
-      value: item.code,
-    }));
+    const options = computed(() => {
+      return data.value.map((item) => ({
+        label: `${item.name}  [${item.code}]`,
+        value: item.code,
+        disabled: item?.disabled,
+      }));
+    });
 
     // 处理选择变化
     const handleChange = (values: string[]) => {
@@ -97,7 +100,7 @@ export default defineComponent({
         tagProps={{
           closable: false,
         }}
-        options={options}
+        options={options.value}
         onChange={handleChange}
         filter={handleSearch}
       />
