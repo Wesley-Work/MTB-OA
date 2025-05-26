@@ -1,6 +1,7 @@
 import { AuditItem, AuditRecordItem, AuditStepItem } from '../type';
 import { AUDIT_TYPE } from './constants';
-import renderTimelineIcon from './renderTimelineIcon';
+import renderTimelineIcon from '../components/renderTimelineIcon';
+import { isEmpty } from 'lodash-es';
 
 export const getStatusText = (status: number) => {
   switch (status) {
@@ -19,8 +20,15 @@ export const getStatusText = (status: number) => {
 
 // 获取状态对应的颜色
 export const getStatusColor = (data: AuditItem, status: number) => {
-  const { current_step: currentStep, steps } = data;
-  const totalStep = steps?.length;
+  const { current_step: currentStep, records } = data;
+  // 审批记录分组（按 step 分组）
+  const recordsList = records?.reduce((acc: Record<string, AuditRecordItem[]>, cur: AuditRecordItem) => {
+    const key = cur.step.toString(); // 仅按步骤分组
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(cur);
+    return acc;
+  }, {});
+  const totalStep = Object.keys(recordsList).length;
   if (currentStep === totalStep && status === 1) {
     return 'success';
   } else if (status === 1) {
@@ -50,8 +58,15 @@ export const getStatusValue = (status: number) => {
 };
 
 export const renderStatusText = (data: AuditItem, status: number) => {
-  const { current_step: currentStep, steps } = data;
-  const totalStep = steps?.length;
+  const { current_step: currentStep, records } = data;
+  // 审批记录分组（按 step 分组）
+  const recordsList = records?.reduce((acc: Record<string, AuditRecordItem[]>, cur: AuditRecordItem) => {
+    const key = cur.step.toString(); // 仅按步骤分组
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(cur);
+    return acc;
+  }, {});
+  const totalStep = Object.keys(recordsList).length;
   if (currentStep === totalStep && status === 1) {
     return '已审批 Approve';
   } else if (status === 1) {
@@ -133,7 +148,7 @@ export const getTimelineItem = (approverUserCodes: string[], data: AuditItem, re
     .filter((code) => records.some((r) => r.approver_user_code === code && r.action === 1))
     .map((code) => {
       const record = records.find((r) => r.approver_user_code === code && r.action === 1);
-      return `${code}: ${record?.comment}`;
+      return `${code}: ${isEmpty(record?.comment) ? '-' : record.comment}`;
     });
 
   const approverCount = approverUserCodes.length;
@@ -151,7 +166,7 @@ export const getTimelineItem = (approverUserCodes: string[], data: AuditItem, re
         .filter((code) => records.some((r) => r.approver_user_code === code && r.action === 2))
         .map((code) => {
           const record = records.find((r) => r.approver_user_code === code && r.action === 2);
-          return `${record?.approver_user_code}: ${record?.comment}`;
+          return `${record?.approver_user_code}: ${isEmpty(record?.comment) ? '-' : record.comment}`;
         });
       label = `已拒绝，${rejectReasons.join('；')}`;
       theme = 'danger';
@@ -172,7 +187,7 @@ export const getTimelineItem = (approverUserCodes: string[], data: AuditItem, re
         .filter((code) => records.some((r) => r.approver_user_code === code && r.action === 2))
         .map((code) => {
           const record = records.find((r) => r.approver_user_code === code && r.action === 2);
-          return `${record?.approver_user_code}: ${record?.comment}`;
+          return `${record?.approver_user_code}: ${isEmpty(record?.comment) ? '-' : record.comment}`;
         });
       label = `已拒绝，${rejectReasons.join('；')}`;
       theme = 'danger';
@@ -195,24 +210,6 @@ export const getTimelineItem = (approverUserCodes: string[], data: AuditItem, re
 
 // 生成时间轴数据
 export const getAllStepData = (data: AuditItem) => {
-  // 首节点
-  const first = {
-    content: `${data?.user_code} 提交审批`,
-    label: data?.details.content,
-    dotColor: 'success',
-    dot: () => renderTimelineIcon('approve', 'success'),
-  };
-
-  // 尾节点
-  const last = {
-    content: '流程结束',
-    dotColor: 'primary',
-    dot: () =>
-      data.current_step === data.steps.length
-        ? renderTimelineIcon('approve', 'success')
-        : renderTimelineIcon('cancel', 'primary'),
-  };
-
   // 步骤分组（按 step_order 分组）
   const stepList = data?.steps?.reduce((acc: Record<string, AuditStepItem[]>, cur: AuditStepItem) => {
     const key = cur.step_order.toString(); // 仅按步骤分组
@@ -220,6 +217,31 @@ export const getAllStepData = (data: AuditItem) => {
     acc[key].push(cur);
     return acc;
   }, {});
+
+  // 审批记录分组（按 step 分组）
+  const recordsList = data?.records?.reduce((acc: Record<string, AuditRecordItem[]>, cur: AuditRecordItem) => {
+    const key = cur.step.toString(); // 仅按步骤分组
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(cur);
+    return acc;
+  }, {});
+
+  // 首节点
+  const first = {
+    content: `${data?.user_code} 提交审批`,
+    label: data?.details.content,
+    dotColor: 'success',
+    dot: () => renderTimelineIcon('approve', 'success'),
+  };
+  // 尾节点
+  const last = {
+    content: '流程结束',
+    dotColor: 'primary',
+    dot: () =>
+      data.current_step === Object.keys(recordsList).length && data?.status !== 2
+        ? renderTimelineIcon('approve', 'success')
+        : renderTimelineIcon('cancel', data?.status === 2 ? 'danger' : 'primary'),
+  };
 
   // 生成时间轴节点
   return {

@@ -232,7 +232,6 @@ import type {
   AuditStepItem,
 } from './type';
 import type { HandleChangeComponentFunctionType } from '@type/type';
-import { isEmpty } from 'lodash-es';
 
 const route = useRoute();
 
@@ -243,7 +242,7 @@ const radioGroupOptions = [
   { label: '其他事项审批', value: 4, key: 'other' },
 ];
 const transferSource = ref([]);
-const props = defineProps({
+defineProps({
   handleChangeComponent: {
     type: Function as PropType<HandleChangeComponentFunctionType>,
     default: null,
@@ -288,7 +287,6 @@ const formData = reactive({
     },
   },
 });
-
 const rules = {
   application: [{ required: true, message: '请选择审批类型', trigger: 'change' }],
   // 设备借出审批
@@ -360,22 +358,51 @@ const handleSubmit: TdFormProps['onSubmit'] = ({ validateResult, firstError }) =
     const stepList = previewStep;
     const appKey = formData.application === 1 ? 'equipment' : formData.application === 3 ? 'task' : 'other';
     const appDetails = formData.details[appKey];
-
+    const loadingInstance = LoadingPlugin({
+      attach: () => wrapper.value,
+      showOverlay: true,
+      text: '加载中...',
+      size: '20px',
+    });
     useRequest({
       url: '/approval/post',
       methods: 'POST',
       data: {
-        type: appKey,
+        type: formData.application,
         steps: JSON.stringify(stepList),
         details: JSON.stringify(appDetails),
+        other_info:
+          appKey === 'equipment'
+            ? `申请借出Code为${(appDetails as AuditDetailOfLend).eq_code}的设备`
+            : appKey === 'task'
+            ? `申请${(appDetails as AuditDetailOfTask).operate_type === 'add' ? '添加' : '修改'}任务ID为${
+                (appDetails as AuditDetailOfTask).id
+              }的任务`
+            : '',
       },
       success: function (res) {
         const json = JSON.parse(res);
         if (json.errcode != 0) {
           NotifyPlugin.error({
-            title: '添加审批失败[Main]',
+            title: '发起审批失败[Main]',
+            content: json.errmsg,
           });
+          return;
         }
+        NotifyPlugin.success({
+          title: '发起审批成功',
+          content: `审批单号[${json.data.id}]，请等待审批人审批`,
+        });
+      },
+      error: function (err) {
+        console.error(err);
+        NotifyPlugin.error({
+          title: '发起审批失败[Error]',
+          content: '错误：' + err,
+        });
+      },
+      complete: () => {
+        loadingInstance.hide();
       },
     });
   }

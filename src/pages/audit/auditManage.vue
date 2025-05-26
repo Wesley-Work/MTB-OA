@@ -237,6 +237,7 @@ const checkQuery = () => {
 
 const handleApprove = (type: string) => {
   const id = approvalList.value[currentActive.value].id;
+  loading.value = true;
   useRequest({
     url: '/approval/operate',
     methods: 'POST',
@@ -266,6 +267,9 @@ const handleApprove = (type: string) => {
         title: '无法完成审批操作[Error]',
         content: err,
       });
+    },
+    complete: () => {
+      loading.value = false;
     },
   });
 };
