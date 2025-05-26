@@ -57,7 +57,11 @@
             <!-- 任务审批表单 -->
             <template v-else-if="formData.application === 3">
               <t-form-item label="操作类型" name="details.task.operate_type">
-                <t-radio-group v-model="formData.details.task.operate_type" variant="outline">
+                <t-radio-group
+                  v-model="formData.details.task.operate_type"
+                  variant="outline"
+                  :disabled="!!formData.details.task.id"
+                >
                   <t-radio-button value="add"> 新增 </t-radio-button>
                   <t-radio-button value="edit"> 编辑 </t-radio-button>
                   <t-radio-button value="del"> 删除 </t-radio-button>
@@ -65,7 +69,7 @@
               </t-form-item>
 
               <t-form-item v-if="formData.details.task.operate_type !== 'add'" label="任务id" name="details.task.id">
-                <t-input v-model="formData.details.task.id" disabled placeholder="请输入" />
+                <t-input v-model="formData.details.task.id" disabled placeholder="字段无效，请重试" />
               </t-form-item>
 
               <t-form-item label="任务名称" name="details.task.name">
@@ -177,11 +181,24 @@
           </div>
           <!---->
           <div class="audit-post-timeline" style="width: 50%">
-            <div style="font: var(--td-font-title-medium)">审批流程</div>
+            <div style="font: var(--td-font-title-medium); display: flex; align-items: center; gap: 4px">
+              <span>审批流程</span>
+              <t-popup :content="() => helpInfo()">
+                <HelpCircleIcon />
+              </t-popup>
+            </div>
             <!---->
-            <t-timeline mode="same" style="padding: 12px 0px 0px 24px">
+            <!-- <t-timeline mode="same" style="padding: 12px 0px 0px 24px">
               <t-timeline-item v-for="(item, index) in previewTimelineOptions" :key="index" v-bind="item" />
-            </t-timeline>
+            </t-timeline> -->
+            <RenderPreviewTimeline
+              :type="formData.application === 1 ? 'equipment' : formData.application === 3 ? 'task' : 'other'"
+              :source-data="{ eq_code: formData.details.equipment.eq_code }"
+              :user-list="userList"
+              :prepare-step-list="prepareStepList"
+              :user-code="userCode"
+              @change="handlePreviewTimelineChange"
+            />
           </div>
           <!---->
         </div>
@@ -197,18 +214,25 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed, onMounted, PropType, reactive, ref } from 'vue';
+<script setup lang="tsx">
+import { onMounted, PropType, reactive, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { LoadingPlugin, NotifyPlugin } from 'tdesign-vue-next';
-import { getPreviewStepList, getPreviewTimeLineItem } from './utils';
-import renderTimelineIcon from './utils/renderTimelineIcon';
+import { HelpCircleIcon } from 'tdesign-icons-vue-next';
+import RenderPreviewTimeline from './components/renderPreviewTimeline';
 import { selectValueDisplay } from '../task/utils';
 import { taskType, taskStatus } from '@hooks/common';
 import useRequest from '@hooks/useRequest';
 import type { TdFormProps } from 'tdesign-vue-next';
-import type { ApprovalPreviewStepData, AuditDetailOfLend, AuditDetailOfOther, AuditDetailOfTask } from './type';
+import type {
+  ApprovalPreviewStepData,
+  AuditDetailOfLend,
+  AuditDetailOfOther,
+  AuditDetailOfTask,
+  AuditStepItem,
+} from './type';
 import type { HandleChangeComponentFunctionType } from '@type/type';
+import { isEmpty } from 'lodash-es';
 
 const route = useRoute();
 
@@ -230,7 +254,7 @@ const props = defineProps({
   },
 });
 const formData = reactive({
-  application: 1, // 默认选择其他事项审批
+  application: 4, // 默认选择其他事项审批
   details: {
     // 设备借出审批字段
     equipment: {
@@ -288,37 +312,33 @@ const rules = {
 };
 const prepareStepList = ref<ApprovalPreviewStepData>();
 const userList = ref();
-const previewStep = ref([]);
-const previewTimelineOptions = computed(() => {
-  const appType = formData.application;
-  const appKey = appType === 1 ? 'equipment' : appType === 3 ? 'task' : 'other';
-  const data = getPreviewStepList(
-    appKey,
-    prepareStepList.value,
-    { eq_code: formData.details.equipment.eq_code },
-    userList.value,
-    (step_order, stepItems) => {
-      previewStep.value = previewStep.value.filter((item) => {
-        return item.step_order !== step_order;
-      });
-      previewStep.value = [...new Set(previewStep.value), ...new Set(stepItems)];
-    },
+const helpInfo = () => {
+  return formData.application === 1 ? (
+    <div style="display: flex; flex-direction: column;">
+      <span>设备借出审批：</span>
+      <span>第一审批人为 部门部长或部门技术或部门技术</span>
+      <span>第二审批人为 设备物主</span>
+    </div>
+  ) : formData.application === 3 ? (
+    <div style="display: flex; flex-direction: column;">
+      <span>任务审批：</span>
+      <span>第一审批人为 上级组长（若无组长则系统自动通过该流程）</span>
+      <span>第二审批人为 部门部长或部门管理或部门技术</span>
+    </div>
+  ) : (
+    <div style="display: flex; flex-direction: column;">
+      <span>其他事项审批：</span>
+      <span>第一审批人默认为 上级组长（若无组长则系统自动通过该流程），支持自定义选择</span>
+      <span>第二审批人默认为 部长或技术或管理，支持自定义选择</span>
+    </div>
   );
-  return [
-    {
-      content: `${props?.userCode}，提交审批`,
-      label: '等待中',
-      dotColor: 'success',
-      dot: () => renderTimelineIcon('pending', 'primary'),
-    },
-    ...getPreviewTimeLineItem(data),
-    {
-      content: '流程结束',
-      dotColor: 'primary',
-      dot: () => renderTimelineIcon('pending', 'primary'),
-    },
-  ];
-});
+};
+let previewStep = [];
+
+const handlePreviewTimelineChange = (step_order: number, data: AuditStepItem[]) => {
+  previewStep = previewStep.filter((item) => item.step_order !== step_order);
+  previewStep.push(...data);
+};
 
 const handleApplicationTypeChange = async (value: number) => {
   if (value === 3) {
@@ -337,7 +357,27 @@ const handleSubmit: TdFormProps['onSubmit'] = ({ validateResult, firstError }) =
   }
 
   if (validateResult) {
-    console.log(previewStep.value);
+    const stepList = previewStep;
+    const appKey = formData.application === 1 ? 'equipment' : formData.application === 3 ? 'task' : 'other';
+    const appDetails = formData.details[appKey];
+
+    useRequest({
+      url: '/approval/post',
+      methods: 'POST',
+      data: {
+        type: appKey,
+        steps: JSON.stringify(stepList),
+        details: JSON.stringify(appDetails),
+      },
+      success: function (res) {
+        const json = JSON.parse(res);
+        if (json.errcode != 0) {
+          NotifyPlugin.error({
+            title: '添加审批失败[Main]',
+          });
+        }
+      },
+    });
   }
 };
 
@@ -451,14 +491,27 @@ onMounted(() => {
   let data: AuditDetailOfLend | AuditDetailOfTask | AuditDetailOfOther;
 
   try {
-    if (data) {
+    if (sourceData) {
       data = JSON.parse(sourceData as string);
     }
   } catch (e) {
+    console.error(e);
     NotifyPlugin.error({
       title: '设置审批内容失败',
       content: '错误：' + e,
     });
+    return;
+  }
+  if (applicationType === '1') {
+    // 设置字段
+    const { eq_code, lend_time, return_time, lender } = data as AuditDetailOfLend;
+    // 主字段
+    formData.application = 1;
+    // 表单字段
+    formData.details.equipment.eq_code = eq_code;
+    formData.details.equipment.lend_time = lend_time;
+    formData.details.equipment.return_time = return_time;
+    formData.details.equipment.lender = lender;
   }
 
   if (applicationType === '3') {
@@ -489,25 +542,11 @@ onMounted(() => {
     formData.details.task.status = status;
     formData.details.task.type = type;
     formData.details.task.finally_time = finally_time;
-    formData.details.task.work_time = work_time;
-    formData.details.task.user = user;
+    formData.details.task.work_time = (work_time as string)?.split(',');
+    formData.details.task.user = (user as string).split(',').filter((item) => !!item);
     formData.details.task.weight = weight;
-
-    console.log(
-      operate_type,
-      id,
-      content,
-      equipment,
-      finally_time,
-      name,
-      place,
-      remark,
-      status,
-      type,
-      user,
-      weight,
-      work_time,
-    );
+    formData.details.task.equipment = (equipment as string).split(',').filter((item) => !!item);
+    formData.details.task.remark = remark;
   }
 
   loadStepList();

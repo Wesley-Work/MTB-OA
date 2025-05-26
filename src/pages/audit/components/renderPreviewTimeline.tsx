@@ -63,16 +63,18 @@ export default defineComponent({
       }),
     },
     onChange: {
-      type: Function as PropType<(step_order: number, newData: AuditStepItem[]) => void>,
+      type: Function as PropType<(step_order: number, data: AuditStepItem[]) => void>,
       default: () => {},
     },
   },
+  emits: ['update:previewStep'],
   setup(props) {
     const { type, prepareStepList, userList, sourceData } = toRefs(props);
 
     const isEquipment = computed(() => type.value === 'equipment');
     const isTask = computed(() => type.value === 'task');
     const isOther = computed(() => type.value === 'other');
+    const isInitDone = ref(false);
 
     // 最小审批步骤量
     const minStep = 2;
@@ -112,28 +114,23 @@ export default defineComponent({
 
     // 通知上层组件更新step
     const emitStep = (step_order: number, data: string | string[]) => {
-      const emitList: { [k: number]: AuditStepItem[] } = {};
+      const emitList: AuditStepItem[] = [];
       if (isArray(data)) {
         data.forEach((item) => {
-          if (!isArray(emitList[step_order])) {
-            emitList[step_order] = [];
-          }
-          emitList[step_order].push({
+          emitList.push({
             step_order,
             required_type: 'or',
             approver_user_code: item,
           });
         });
       } else {
-        emitList[step_order] = [
-          {
-            step_order,
-            required_type: 'or',
-            approver_user_code: data,
-          },
-        ];
+        emitList.push({
+          step_order,
+          required_type: 'or',
+          approver_user_code: data,
+        });
       }
-      props?.onChange?.(step_order, emitList[step_order]);
+      props?.onChange?.(step_order, emitList);
     };
 
     const matchUsername = (code) => {
@@ -295,8 +292,14 @@ export default defineComponent({
         // 第一审批人
         if (index === 0) {
           // 判断有没有组长，没有的话就推默认选框
-          if (userGroupAdmin.value && userGroupAdmin.value?.length !== 0 && step1Cache.value?.length === 0) {
+          if (
+            userGroupAdmin.value &&
+            userGroupAdmin.value?.length !== 0 &&
+            step1Cache.value?.length === 0 &&
+            !isInitDone.value
+          ) {
             setStep1Cache(userGroupAdmin.value);
+            isInitDone.value = true;
           }
           emitStep(index + 1, step1Cache.value?.length === 0 ? 'SYSTEM_AUTO' : step1Cache.value);
           list.push(
