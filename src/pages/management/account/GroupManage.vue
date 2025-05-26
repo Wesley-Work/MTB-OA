@@ -124,10 +124,10 @@
 
 <script setup lang="tsx">
 import { Edit2Icon, ListIcon, DeleteIcon, AddRectangleIcon } from 'tdesign-icons-vue-next';
-import useRequest from '../../hooks/useRequest';
+import useRequest from '../../../hooks/useRequest';
 import { computed, onMounted, reactive, ref } from 'vue';
 import { NotifyPlugin } from 'tdesign-vue-next';
-import { GroupItem, GroupList, GroupPermissionList, GroupUserList, UserList } from '../../types/type';
+import { GroupItem, GroupList, GroupPermissionList, GroupUserList, UserList } from '../../../types/type';
 
 defineProps({
   handleChangeComponent: Function,
