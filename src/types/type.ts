@@ -158,3 +158,14 @@ export interface GroupPermissionObject {
 }
 
 export type GroupPermissionList = GroupPermissionObject[];
+
+export type HandleChangeComponentFunctionType = (
+  // 组件名
+  componentName: string,
+  // 是否切换侧边栏状态
+  doNotToggleSideMenu?: boolean,
+  // 是否需要推送路由
+  needPush?: boolean,
+  // 路由参数
+  query?: object | null,
+) => void;

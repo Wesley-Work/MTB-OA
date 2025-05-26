@@ -152,11 +152,20 @@
           Powered By
           <a href="https://www.wesley.net.cn/" we-a-tag target="_blank" @click.prevent="NotClick">Wesley</a>
           | Designed By
-          <a href="https://tdesign.tencent.com/" we-a-tag target="_blank" @click.prevent="NotClick">Tencent.</a>
+          <a href="https://tdesign.tencent.com/" we-a-tag target="_blank" @click.prevent="NotClick">Tencent</a>
+          |
+          <a href="https://github.com/Wesley-Work/MTB-OA" we-a-tag target="_blank" @click.prevent="NotClick"
+            >Repository·Github</a
+          >
         </div>
         <!-- 广告位 -->
         <!-- <div>由 <a href="javaScript:void(0);" we-a-tag>DEBUG-SDZZ</a> 提供技术支持</div> -->
-        <div>Copyright © 2021-2025 MTB All right reserved.</div>
+        <div></div>
+        <div>
+          Copyright © 2025
+          <a href="https://www.wesley.net.cn/" we-a-tag target="_blank" @click.prevent="NotClick">Wesley.</a>
+          All Right Reserved. | Used by MTB with permission
+        </div>
       </div>
     </section>
   </div>
@@ -462,7 +471,12 @@ const ToggleSideMenu = () => {
   SideMenu.show = !SideMenu.show;
 };
 
-const handleChangeComponent = (componentName: string, doNotToggleSideMenu: boolean, query: object | null = {}) => {
+const handleChangeComponent = (
+  componentName: string,
+  doNotToggleSideMenu = false,
+  needPush = true,
+  query: object | null = {},
+) => {
   // 与当前页面相同或
   if (!VerifyPath(componentName)) {
     console.error(`[handleChangeComponent]: 不会切换到页面(组件)[${componentName}]，因为页面不存在！`);
@@ -478,13 +492,15 @@ const handleChangeComponent = (componentName: string, doNotToggleSideMenu: boole
   // 应用动画
   MainContent.classOut = true;
   setTimeout(() => {
-    router.push({
-      path: `${routerPrefix}/${componentName}`,
-      query: {
-        ...route.query,
-        ...(query as LocationQueryRaw),
-      },
-    });
+    if (needPush) {
+      router.push({
+        path: `${routerPrefix}/${componentName}`,
+        query: {
+          ...route.query,
+          ...(query as LocationQueryRaw),
+        },
+      });
+    }
     MainContent.ComponentValue = componentName;
   }, 200);
 };
