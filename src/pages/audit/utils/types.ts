@@ -1,5 +1,4 @@
 import { APPROVAL_TYPE, AUDIT_STATUS, THEME_COLOR, ICON_TYPE } from './constants';
-import { AuditItem, AuditRecordItem } from '../type';
 import { VNode } from 'vue';
 
 // 常量类型

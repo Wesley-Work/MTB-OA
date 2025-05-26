@@ -121,7 +121,6 @@
 </template>
 
 <script setup lang="tsx">
-import { useRouter } from 'vue-router';
 import { onMounted, ref, PropType } from 'vue';
 import { isArray } from 'lodash-es';
 import { DialogPlugin, NotifyPlugin } from 'tdesign-vue-next';
@@ -134,7 +133,6 @@ import { HandleChangeComponentFunctionType } from '@type/type';
 const props = defineProps({
   handleChangeComponent: Function as PropType<HandleChangeComponentFunctionType>,
 });
-const router = useRouter();
 const userList = ref([]);
 const transferSource = ref([]);
 const defaultItem = {

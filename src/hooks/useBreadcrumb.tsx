@@ -1,4 +1,4 @@
-import { BaseTransition, defineComponent, ref, toRefs, Transition, watch } from 'vue';
+import { defineComponent, ref, toRefs, Transition, watch } from 'vue';
 import { routerMap } from '../config';
 import { Breadcrumb, BreadcrumbItem } from 'tdesign-vue-next';
 import type { RouteMaps } from '@type/type';

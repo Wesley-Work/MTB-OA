@@ -479,36 +479,36 @@ const loadUserList = () => {
 };
 
 // 获取审信息
-const loadApproverList = () => {
-  useRequest({
-    url: '/approve/userList',
-    methods: 'POST',
-    success: function (res) {
-      const json = JSON.parse(res);
-      if (json.errcode != 0) {
-        NotifyPlugin.error({
-          title: '获取审批人列表失败[Main]',
-          content: json.errmsg,
-        });
-        return;
-      }
-      // userList.value = json.data;
-      transferSource.value = json.data.map((user) => {
-        return {
-          label: `${user.name}`,
-          value: user.name,
-        };
-      });
-    },
-    error: function (err) {
-      console.error(err);
-      NotifyPlugin.error({
-        title: '获取审批人列表失败[Error]',
-        content: '错误：' + err,
-      });
-    },
-  });
-};
+// const loadApproverList = () => {
+//   useRequest({
+//     url: '/approve/userList',
+//     methods: 'POST',
+//     success: function (res) {
+//       const json = JSON.parse(res);
+//       if (json.errcode != 0) {
+//         NotifyPlugin.error({
+//           title: '获取审批人列表失败[Main]',
+//           content: json.errmsg,
+//         });
+//         return;
+//       }
+//       // userList.value = json.data;
+//       transferSource.value = json.data.map((user) => {
+//         return {
+//           label: `${user.name}`,
+//           value: user.name,
+//         };
+//       });
+//     },
+//     error: function (err) {
+//       console.error(err);
+//       NotifyPlugin.error({
+//         title: '获取审批人列表失败[Error]',
+//         content: '错误：' + err,
+//       });
+//     },
+//   });
+// };
 
 onMounted(() => {
   const { applicationType, data: sourceData } = route.query;

@@ -134,9 +134,9 @@ export const getTimelineItem = (approverUserCodes: string[], data: AuditItem, re
   const records = (data?.records || []).filter((record) => !record.discard);
 
   // 构建变量上下文（审批通过）
-  const context = Object.fromEntries(
-    approverUserCodes.map((code) => [code, records.some((r) => r.approver_user_code === code && r.action === 1)]),
-  );
+  // const context = Object.fromEntries(
+  //   approverUserCodes.map((code) => [code, records.some((r) => r.approver_user_code === code && r.action === 1)]),
+  // );
 
   // 判断是否拒绝
   const isAnyRejected = approverUserCodes.some((code) =>
