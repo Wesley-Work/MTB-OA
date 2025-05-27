@@ -38,17 +38,15 @@ import {
   FilterValue,
   Form,
   FormItem,
-  FormProps,
   Input,
   InputNumber,
   MessagePlugin,
   NotifyPlugin,
-  Space,
-  TableProps,
 } from 'tdesign-vue-next';
 import { AddRectangleIcon } from 'tdesign-icons-vue-next';
-import useRequest from '@hooks/useRequest';
 import dayjs from 'dayjs';
+import useRequest from '@hooks/useRequest';
+import type { TableProps, FormProps } from 'tdesign-vue-next';
 
 defineProps({
   handleChangeComponent: Function,

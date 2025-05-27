@@ -23,8 +23,9 @@
 
 <script setup lang="tsx">
 import { computed, onMounted, ref } from 'vue';
-import { FilterValue, NotifyPlugin, TableProps } from 'tdesign-vue-next';
+import { FilterValue, NotifyPlugin } from 'tdesign-vue-next';
 import useRequest from '@hooks/useRequest';
+import type { TableProps } from 'tdesign-vue-next';
 
 defineProps({
   handleChangeComponent: Function,
