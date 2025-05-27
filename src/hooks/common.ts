@@ -96,8 +96,8 @@ export function getToken() {
 }
 
 const getAPIURL = () => {
-  return 'http://localhost:51001/v2';
-  // return 'https://oa-api.mtb.wesley.net.cn/v2';
+  // return 'http://localhost:51001/v2';
+  return 'https://oa-api.mtb.wesley.net.cn/v2';
 };
 
 const getSSOURL = () => {
