@@ -1,4 +1,27 @@
 
+## 🌈 3.4.0 `2025-05-27` 
+### 🚀 Features
+- `Audit`:
+  - `Manage`: 审批管理功能 @Wesley-0808 ([#56](https://github.com/Wesley-Work/MTB-OA/pull/56))
+  - `Post`: 发起审批功能，仅支持发起`设备借出审批 / 任务审批 / 其他审批` @Wesley-0808 ([#56](https://github.com/Wesley-Work/MTB-OA/pull/56))
+  - `Progress`: 审批进度功能 @Wesley-0808 ([#56](https://github.com/Wesley-Work/MTB-OA/pull/56))
+- `Network`:
+  - `Verify`: 用户上网绑定设备管理 @Wesley-0808 ([#56](https://github.com/Wesley-Work/MTB-OA/pull/56))
+  - `Code`: 上网码管理 @Wesley-0808 ([#56](https://github.com/Wesley-Work/MTB-OA/pull/56))
+- `Route`: 新增路由记忆功能，将记录上次访问的页面，记录24小时内有效 @Wesley-0808 ([#56](https://github.com/Wesley-Work/MTB-OA/pull/56))
+- `RecordList`: 支持筛选单页记录 @Wesley-0808 ([#56](https://github.com/Wesley-Work/MTB-OA/pull/56))
+- `SSO`: 适配`SSO v3.0` @Wesley-0808 ([#56](https://github.com/Wesley-Work/MTB-OA/pull/56))
+- `API`: `v2.6.10 -> v2.7.16` @Wesley-0808 ([#56](https://github.com/Wesley-Work/MTB-OA/pull/56))
+### 🐞 Bug Fixes
+- `Index`:
+  - 修复系统初始化时修改`地址参数`不符合预期效果的问题 @Wesley-0808 ([#56](https://github.com/Wesley-Work/MTB-OA/pull/56))
+  - 修复`3.3.3`版本，切换组件时动画异常的问题 @Wesley-0808 ([#56](https://github.com/Wesley-Work/MTB-OA/pull/56))
+  - 修复`Token`过期后，出现多个弹窗的异常现象 @Wesley-0808 ([#56](https://github.com/Wesley-Work/MTB-OA/pull/56))
+- `TaskList`: 修复全部任务已经完成时，表格一直显示为加载态的问题 @Wesley-0808 ([#56](https://github.com/Wesley-Work/MTB-OA/pull/56))
+- `TaskManage`: 修复编辑任务，权重等级无法修改的问题 @Wesley-0808 ([#56](https://github.com/Wesley-Work/MTB-OA/pull/56))
+### 🚧 Others
+- 更新`任务管理`三个功能的菜单图标 @Wesley-0808 ([#56](https://github.com/Wesley-Work/MTB-OA/pull/56))
+- 优化项目，移除无用内容 @Wesley-0808 ([#56](https://github.com/Wesley-Work/MTB-OA/pull/56))
 ## 🌈 3.3.3 `2025-04-25` 
 ### 🐞 Bug Fixes
 - `UserManage`: 修复提交更新用户信息后，遇后端错误无错误内容显示的问题 @Wesley-0808 ([#53](https://github.com/Wesley-Work/MTB-OA/pull/53))
