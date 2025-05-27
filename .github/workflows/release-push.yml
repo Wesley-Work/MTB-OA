@@ -1,0 +1,195 @@
+name: Release Push
+
+on:
+  push:
+    tags:
+      - '*.*.*'
+      - '*.*.*-alpha.*'
+      - '*.*.*-beta.*'
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 7
+          run_install: true
+
+      - name: Get latest release PR
+        id: get-pr
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const tag = context.ref.replace('refs/tags/', '');
+            console.log(`Looking for release PR for tag: ${tag}`);
+            
+            // 查找以 'release/' 开头的分支的最近合并的PR
+            const query = `is:pr is:merged head:release/${tag} base:develop`;
+            const searchResult = await github.rest.search.issuesAndPullRequests({
+              q: query,
+              sort: 'updated',
+              order: 'desc',
+              per_page: 1
+            });
+            
+            if (searchResult.data.items.length === 0) {
+              console.log('No matching PR found');
+              return {
+                pr_number: null,
+                changelog: null
+              };
+            }
+            
+            const pr = searchResult.data.items[0];
+            console.log(`Found PR #${pr.number}: ${pr.title}`);
+            
+            // 获取PR评论，查找changelog
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number
+            });
+            
+            let changelog = null;
+            for (const comment of comments.data) {
+              if (comment.body.startsWith('## 🌈 ')) {
+                changelog = comment.body;
+                break;
+              }
+            }
+            
+            return {
+              pr_number: pr.number,
+              changelog: changelog
+            };
+
+      - name: Read CHANGELOG.md
+        id: read-changelog
+        if: steps.get-pr.outputs.changelog == null
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const tag = context.ref.replace('refs/tags/', '');
+            
+            try {
+              const changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
+              const versionHeader = `## ${tag}`;
+              const startIndex = changelog.indexOf(versionHeader);
+              
+              if (startIndex === -1) {
+                console.log(`Version ${tag} not found in CHANGELOG.md`);
+                return { content: null };
+              }
+              
+              const nextVersionIndex = changelog.indexOf('## ', startIndex + 2);
+              const releaseNotes = nextVersionIndex === -1
+                ? changelog.slice(startIndex)
+                : changelog.slice(startIndex, nextVersionIndex);
+              
+              return { content: releaseNotes.trim() };
+            } catch (error) {
+              console.error(`Error reading CHANGELOG.md: ${error}`);
+              return { content: null };
+            }
+
+      - name: Build WESLEY version
+        run: pnpm run open:build
+
+      - name: Create WESLEY zip
+        run: |
+          VERSION=$(echo ${{ github.ref_name }} | sed 's/\./_/g' | sed 's/-/_/g')
+          zip -r MTB-OA-WESLEY-BuildPackage-$VERSION.zip dist/*
+
+      - name: Build HMH version
+        run: pnpm run hmh:build
+
+      - name: Create HMH zip
+        run: |
+          VERSION=$(echo ${{ github.ref_name }} | sed 's/\./_/g' | sed 's/-/_/g')
+          zip -r MTB-OA-HMH-BuildPackage-$VERSION.zip dist/*
+
+      - name: Build default version
+        run: pnpm run build
+
+      - name: Create default zip
+        run: |
+          VERSION=$(echo ${{ github.ref_name }} | sed 's/\./_/g' | sed 's/-/_/g')
+          zip -r MTB-OA-BuildPackage-$VERSION.zip dist/*
+
+      - name: Create Release
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const tag = context.ref.replace('refs/tags/', '');
+            const version = tag.replace(/\./g, '_').replace(/-/g, '_');
+            
+            // 优先使用PR评论中的changelog，如果没有则使用CHANGELOG.md中的内容
+            let releaseBody = steps.get-pr.outputs.changelog;
+            if (!releaseBody) {
+              releaseBody = steps.read-changelog.outputs.content;
+            }
+            
+            // 如果仍然没有changelog，使用默认消息
+            if (!releaseBody) {
+              releaseBody = `Release ${tag}`;
+            }
+            
+            // 判断是否为预发布版本（alpha或beta）
+            const isPrerelease = tag.includes('-alpha.') || tag.includes('-beta.');
+            
+            // 创建release
+            const release = await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: tag,
+              name: `Release ${tag}`,
+              body: releaseBody,
+              draft: false,
+              prerelease: isPrerelease
+            });
+
+            // 上传构建包
+            const fs = require('fs');
+            const globby = require('globby');
+            
+            const assets = [
+              `MTB-OA-WESLEY-BuildPackage-${version}.zip`,
+              `MTB-OA-HMH-BuildPackage-${version}.zip`,
+              `MTB-OA-BuildPackage-${version}.zip`
+            ];
+            
+            for (const asset of assets) {
+              if (fs.existsSync(asset)) {
+                await github.rest.repos.uploadReleaseAsset({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  release_id: release.data.id,
+                  name: asset,
+                  data: fs.readFileSync(asset)
+                });
+              }
+            }
+            
+            console.log(`Created release for tag ${tag} with assets`);
+
+      - name: Clean up
+        if: always()
+        run: |
+          rm -f MTB-OA-*-BuildPackage-*.zip
