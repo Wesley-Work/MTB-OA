@@ -1,12 +1,12 @@
 name: Release Push
 
 on:
-  pull_request_review:
-    types: [submitted] 
+  pull_request:
+    types: [closed]
 
 jobs:
   create-release:
-    if: github.event.review.state == 'approved' && github.event.pull_request && startsWith(github.head_ref, 'release/')
+    if: github.event.pull_request && startsWith(github.head_ref, 'release/')
     runs-on: ubuntu-latest
     permissions:
       contents: write
