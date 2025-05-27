@@ -3,6 +3,7 @@ name: Release Push
 on:
   pull_request:
     types: [closed]
+  workflow_dispatch:
 
 jobs:
   create-release:
