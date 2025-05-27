@@ -1,5 +1,14 @@
 <template>
-  <t-loading size="small" :loading="loading" show-overlay style="min-height: 480px; display: flex; flex-direction: row">
+  <t-loading
+    size="small"
+    :loading="loading"
+    show-overlay
+    style="min-height: 480px; display: flex; flex-direction: row; box-shadow: var(--td-shadow-2)"
+  >
+    <!---->
+    <div v-if="initDone && approvalList.length === 0" class="empty">
+      <div>审计列表为空</div>
+    </div>
     <!---->
     <div class="approval-list">
       <!---->
@@ -163,9 +172,10 @@ const props = defineProps({
 });
 const route = useRoute();
 const router = useRouter();
+const initDone = ref(false);
 const approvalList = ref<AuditItems>([]);
 const currentActive = ref<number>(0);
-const loading = ref<boolean>(true);
+const loading = ref(true);
 const stepInfo = computed<AuditTimeLine>(() => {
   if (!approvalList.value[currentActive.value]) return null;
   return getAllStepData(approvalList.value[currentActive.value]);
@@ -283,6 +293,7 @@ const loadApprovalList = () => {
       if (result.errcode === 0) {
         approvalList.value = result.data as AuditItems;
         checkQuery();
+        initDone.value = true;
       } else {
         NotifyPlugin.error({
           title: '获取审批列表数据失败[Main]',
@@ -323,6 +334,19 @@ export default {
 </style>
 
 <style lang="scss" scoped>
+.empty {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: var(--td-mask-active);
+  color: var(--td-text-color-anti);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: var(--td-font-headline-small);
+  border-radius: 10px;
+}
+
 .audit-manage {
   min-height: 484px;
   max-height: calc(100vh - 262px);
