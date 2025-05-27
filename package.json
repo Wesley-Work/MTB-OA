@@ -1,7 +1,7 @@
 {
   "name": "mtb-oa",
   "private": true,
-  "version": "3.4.0",
+  "version": "3.4.0-alpha.1",
   "type": "module",
   "packageManager": "pnpm@9.5.0",
   "scripts": {
