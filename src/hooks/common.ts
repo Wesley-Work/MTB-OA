@@ -74,7 +74,6 @@ export function getRoutePathObj(
 export function verifyPath(path: string, map = routerMap, deep = 0) {
   for (const item of map) {
     if (item?.key === path) {
-      console.warn(item);
       return true;
     }
     if (item?.children) {
@@ -97,7 +96,8 @@ export function getToken() {
 }
 
 const getAPIURL = () => {
-  return 'https://oa-api.mtb.wesley.net.cn/v2';
+  return 'http://localhost:51001/v2';
+  // return 'https://oa-api.mtb.wesley.net.cn/v2';
 };
 
 const getSSOURL = () => {
@@ -146,20 +146,20 @@ export function Wesley() {
 
 export const taskType = [
   { label: '常规任务', value: 0, theme: 'primary' },
-  { label: '优先', value: 1, theme: 'self', color: 'rgb(177, 31, 38)' },
+  { label: '优先', value: 1, theme: null, color: 'rgb(177, 31, 38)' },
   { label: '加急', value: 2, theme: 'warning' },
   { label: '暂缓（保留任务）', value: 3, theme: 'default' },
 ];
 
 export const taskStatus = [
-  { label: '待办', value: 0, theme: 'self', color: 'rgb(177, 31, 38)' },
-  { label: '统筹中', value: 1, theme: 'self', color: 'rgb(247, 199, 151)' },
-  { label: '拍摄中', value: 2, theme: 'self', color: 'rgb(105, 158, 245)' },
-  { label: '后期中', value: 3, theme: 'self', color: 'rgb(217, 113, 185)' },
+  { label: '待办', value: 0, theme: null, color: 'rgb(177, 31, 38)' },
+  { label: '统筹中', value: 1, theme: null, color: 'rgb(247, 199, 151)' },
+  { label: '拍摄中', value: 2, theme: null, color: 'rgb(105, 158, 245)' },
+  { label: '后期中', value: 3, theme: null, color: 'rgb(217, 113, 185)' },
   { label: '审核中', value: 4, theme: 'warning' },
   { label: '进行中', value: 5, theme: 'primary' },
   { label: '已完成', value: 6, theme: 'success' },
-  { label: '未知', value: 7, theme: 'self', color: 'rgb(250, 145, 152)' },
+  { label: '未知', value: 7, theme: null, color: 'rgb(250, 145, 152)' },
   { label: '暂缓', value: 8, theme: 'default' },
 ];
 

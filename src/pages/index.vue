@@ -78,13 +78,12 @@
               width: `${triggerElem.offsetWidth}px`,
             }),
           }"
-          @click="handleAccountMenu"
         >
           <t-button variant="text" class="we-tag-headmenu-operations-account" block>
             <t-icon name="user-circle" style="min-width: 20px; min-height: 20px" />
-            <span style="text-overflow: ellipsis; overflow: hidden; max-width: 100%; margin-left: 8px">{{
-              login_info.name
-            }}</span>
+            <span style="text-overflow: ellipsis; overflow: hidden; max-width: 100%; margin-left: 8px">
+              {{ login_info.name }}
+            </span>
             <template #suffix> <t-icon name="chevron-down" size="16" /></template>
           </t-button>
         </t-dropdown>
@@ -125,11 +124,11 @@
     class="MainContent"
     :class="{
       'SideMenuShow-MainContent': SideMenu.show,
-      SideMenuUseCollapsed: config.menuUseCollapsed && !SideMenu.show,
+      SideMenuUseCollapsed: menuUseCollapsed && !SideMenu.show,
     }"
     :NoShowMenu="!TitleMenu.show"
   >
-    <BreadCrumb :value="SideMenu.ComponentValue"></BreadCrumb>
+    <BreadCrumb :value="MainContent.ComponentValue"></BreadCrumb>
     <section
       class="loading-change-components-animation"
       :class="{
@@ -145,23 +144,28 @@
         :user-permissions="login_info.permissions"
         :component-permissions="componentPermissions"
         :component="SideMenu.value"
+        :user-code="login_info.code"
       ></router-view>
-      <!---->
-      <!-- <Component :page="SideMenu.ComponentValue" @mounted="Components_LoadEnd" :UserPermissions="login_info.permissions" :PagePermissions="Page_permissions" :ChangePageUrl="SideMenuValueChange"
-                @Apply-Url-Param="applyUrlParam" @Get-Url-Param="getUrlParam"/> -->
       <!---->
       <div id="copyright">
         <div>
           Powered By
           <a href="https://www.wesley.net.cn/" we-a-tag target="_blank" @click.prevent="NotClick">Wesley</a>
           | Designed By
-          <a href="https://tdesign.tencent.com/" we-a-tag target="_blank" @click.prevent="NotClick">Tencent.</a>
+          <a href="https://tdesign.tencent.com/" we-a-tag target="_blank" @click.prevent="NotClick">Tencent</a>
+          |
+          <a href="https://github.com/Wesley-Work/MTB-OA" we-a-tag target="_blank" @click.prevent="NotClick"
+            >Repository·Github</a
+          >
         </div>
         <!-- 广告位 -->
-        <!-- <div>
-                    由 <a href="javaScript:void(0);" we-a-tag>DEBUG-SDZZ</a> 提供技术支持
-                </div> -->
-        <div>Copyright © 2021-2025 MTB All right reserved.</div>
+        <!-- <div>由 <a href="javaScript:void(0);" we-a-tag>DEBUG-SDZZ</a> 提供技术支持</div> -->
+        <div></div>
+        <div>
+          Copyright © 2025
+          <a href="https://www.wesley.net.cn/" we-a-tag target="_blank" @click.prevent="NotClick">Wesley.</a>
+          All Right Reserved. | Used by MTB with permission
+        </div>
       </div>
     </section>
   </div>
@@ -172,56 +176,81 @@ import SideMenus from '../hooks/useMenu';
 import BreadCrumb from '../hooks/useBreadcrumb';
 import { computed, onBeforeMount, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { themeMode, toggleTheme } from '../utils/theme';
-import { config, routerMap, useViewTransition, allowHotUpdate, packageVersion } from '../config';
-import { PoweroffIcon, ChatBubbleHelpIcon } from 'tdesign-icons-vue-next';
+import {
+  config,
+  routerMap,
+  useViewTransition,
+  allowHotUpdate,
+  packageVersion,
+  routerPrefix,
+  systemName,
+  loginVerify,
+  menuUseCollapsed,
+} from '../config';
+import { PoweroffIcon, UserPasswordIcon } from 'tdesign-icons-vue-next';
 import { NotifyPlugin } from 'tdesign-vue-next';
 import { getCurrentPage, verifyPath, getSSOURL, getLoginURL, getRoutePathObj, VerifyToken } from '../hooks/common';
 import { useRequest } from '../hooks/useRequest';
 import PageTooSmall from '../components/pages/PageSmall.vue';
-import router from '../routes';
+import { useRoute, useRouter } from 'vue-router';
 import type { LocationQueryRaw } from 'vue-router';
+import { getParams, getURLAllParams } from '@hooks/useParams';
+import { isEmpty, isObject } from 'lodash-es';
+
+const router = useRouter();
+const route = useRoute();
 
 watch(
   () => router.currentRoute.value.path,
   (val) => {
-    const v = val.replace(config.routerPrefix + '/', '');
-    SideMenu.ComponentValue = v;
+    const v = val.replace(routerPrefix + '/', '');
     SideMenu.value = v;
   },
 );
 
+const getParamsData = getParams();
 const componentPermissions = ref([]);
 const TitleMenu = reactive({
-  text: config.systemName,
+  text: systemName,
   show: true,
 });
 const SideMenu = reactive({
   value: 'Content',
-  ComponentValue: 'Content',
   show: false,
 });
 const MainContent = reactive({
   classIn: false,
   classOut: false,
   lastChoose: 'Content',
-  ComponentValue: 'Content',
-  breadcrumb: {
-    show: true,
-    parent: '设备操作',
-    current: '借出',
-    changing1: false,
-    changing2: false,
-  },
+  ComponentValue: 'login',
   AccountMenuOptions: [
-    // { content: "个人中心", value: 1, prefixIcon: <UserIcon /> },
-    { content: '遇到问题', value: 2, prefixIcon: <ChatBubbleHelpIcon /> },
-    { content: '退出登录', value: 3, prefixIcon: <PoweroffIcon /> },
+    // { content: '个人中心', value: 1, prefixIcon: <UserIcon /> },
+    // {
+    //   content: '遇到问题',
+    //   value: 2,
+    //   prefixIcon: <ChatBubbleHelpIcon />,
+    // },
+    {
+      content: '修改密码',
+      value: 4,
+      prefixIcon: <UserPasswordIcon />,
+      onClick: () => {
+        goChangePws();
+      },
+    },
+    {
+      content: '退出登录',
+      value: 3,
+      prefixIcon: <PoweroffIcon />,
+      onClick: () => {
+        logout();
+      },
+    },
   ],
 });
 const login_info = reactive({
   name: '-',
   code: '-',
-  class: '-',
   permissions: [],
   login_time: '',
 });
@@ -248,6 +277,17 @@ watch(
   },
 );
 
+router.afterEach(() => {
+  // 应用动画
+  setTimeout(() => {
+    MainContent.classOut = false;
+    MainContent.classIn = true;
+    setTimeout(() => {
+      MainContent.classIn = false;
+    }, 280);
+  }, 280);
+});
+
 const viewAllMessage = () => {
   handleChangeComponent('MessageList', true);
 };
@@ -273,10 +313,6 @@ const getMessage = () => {
     },
     error: function (err) {
       console.error(err);
-      NotifyPlugin.error({
-        title: '获取消息内容失败',
-        content: err,
-      });
     },
   });
 };
@@ -324,7 +360,6 @@ const getUserInfoByToken = (TOKEN) => {
       if (RES.errcode == 0) {
         login_info.code = RES.data.usercode;
         login_info.name = RES.data.name;
-        login_info.class = RES.data.class;
         login_info.login_time = RES.data.login_time;
       }
     },
@@ -357,12 +392,12 @@ const checkToken = () => {
     },
     error: function (err) {
       console.error(err);
-      localStorage.removeItem('token');
       NotifyPlugin('error', {
         title: '遇到错误',
         content: '无法检测Token状态，请尝试重新登录',
         duration: 0,
       });
+      cancelCheckToken();
     },
     complete: function () {
       timer.isChecking = false;
@@ -436,7 +471,12 @@ const ToggleSideMenu = () => {
   SideMenu.show = !SideMenu.show;
 };
 
-const handleChangeComponent = (componentName: string, doNotToggleSideMenu: boolean, query: object | null = {}) => {
+const handleChangeComponent = (
+  componentName: string,
+  doNotToggleSideMenu = false,
+  needPush = true,
+  query: object | null = {},
+) => {
   // 与当前页面相同或
   if (!VerifyPath(componentName)) {
     console.error(`[handleChangeComponent]: 不会切换到页面(组件)[${componentName}]，因为页面不存在！`);
@@ -445,41 +485,32 @@ const handleChangeComponent = (componentName: string, doNotToggleSideMenu: boole
   componentPermissions.value = getComponentPermissions(componentName);
   MainContent.lastChoose = componentName;
   SideMenu.value = componentName;
-  SideMenu.ComponentValue = componentName;
   // 若菜单不是Collapsed模式，则判断当前菜单是否为展开状态，若是则关闭
-  if (config.menuUseCollapsed && SideMenu.show && !config.menuUseCollapsed) {
+  if (menuUseCollapsed && SideMenu.show && !menuUseCollapsed) {
     doNotToggleSideMenu ? null : ToggleSideMenu();
   }
   // 应用动画
   MainContent.classOut = true;
   setTimeout(() => {
-    router.push({
-      path: `${config.routerPrefix}/${componentName}`,
-      query: query as LocationQueryRaw,
-    });
+    if (needPush) {
+      router.push({
+        path: `${routerPrefix}/${componentName}`,
+        query: {
+          ...route.query,
+          ...(query as LocationQueryRaw),
+        },
+      });
+    }
     MainContent.ComponentValue = componentName;
-    setTimeout(() => {
-      MainContent.classOut = false;
-      MainContent.classIn = true;
-      setTimeout(() => {
-        MainContent.classIn = false;
-      }, 280);
-    }, 280);
   }, 200);
-};
-
-/**
- * @handleAccountMenu
- * @处理右上角菜单选择内容
- * @param {*} e 选择数据项
- */
-const handleAccountMenu = (e) => {
-  e.value == 1 ? handleChangeComponent('PersonCenter', true) : e.value == 2 ? null : logout();
-  SideMenu.show = false;
 };
 
 const logout = () => {
   location.href = getSSOURL() + '?actionType=logout';
+};
+
+const goChangePws = () => {
+  location.href = getSSOURL() + '?actionType=change-Password';
 };
 
 const PageReload = () => {
@@ -546,206 +577,146 @@ const checkUpdate = () => {
  * @getUrlParam
  * @desc 获取参数
  * @param id 参数名
+ * @deprecated  已弃用，请使用 getParams() hooks
  */
-const getUrlParam = (variable) => {
-  // 先尝试从 hash 后的参数中获取
-  const hashParts = window.location.hash.split('?');
-  if (hashParts.length > 1) {
-    const hashParams = new URLSearchParams(hashParts[1]);
-    const value = hashParams.get(variable);
-    if (value) return value;
-  }
+// const getUrlParam = (variable) => {
+//   // 先尝试从 hash 后的参数中获取
+//   const hashParts = window.location.hash.split('?');
+//   if (hashParts.length > 1) {
+//     const hashParams = new URLSearchParams(hashParts[1]);
+//     const value = hashParams.get(variable);
+//     if (value) return value;
+//   }
 
-  // 如果在 hash 后没有找到，再尝试从 URL 参数中获取
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get(variable);
-};
-
-/**
- * @applyUrlParam
- * @desc 获取参数
- * @param new_param 参数名
- * @param value 参数值
- */
-// const applyUrlParam = (new_param, value, location = window.location) => {
-//   if (!new_param || !value) {
-//     return false;
-//   }
-//   var regUrl = location.search == '' ? false : true;
-//   var regParam = location.search.indexOf(new_param) == -1 ? true : false;
-//   var UrlH = location.origin + location.pathname;
-//   var UrlS = location.href;
-//   if (regUrl) {
-//     //有参数了，追加
-//     if (regParam) {
-//       //没有参数，直接加
-//       var newurl = UrlS + '&' + new_param + '=' + value;
-//       window.history.pushState(null, null, newurl);
-//     } else {
-//       //有参数，替换
-//       var newurl = updateUrlParam(new_param, value);
-//       window.history.pushState(null, null, newurl);
-//     }
-//   } else {
-//     //没有参数，直接加
-//     var newurl = UrlH + '?' + new_param + '=' + value;
-//     window.history.pushState(null, null, newurl);
-//   }
-// };
-
-/**
- * @updateUrlParam
- * @desc 获取参数
- * @param key 参数名
- * @param value 参数值
- */
-// const updateUrlParam = (key, value) => {
-//   var uri = window.location.href;
-//   if (!value) {
-//     return uri;
-//   }
-//   var re = new RegExp('([?&])' + key + '=.*?(&|$)', 'i');
-//   var separator = uri.indexOf('?') !== -1 ? '&' : '?';
-//   if (uri.match(re)) {
-//     return uri.replace(re, '$1' + key + '=' + value + '$2');
-//   } else {
-//     return uri + separator + key + '=' + value;
-//   }
-// };
-
-// const removeParam = (key, sourceURL) => {
-//   var rtn = sourceURL.split('?')[0],
-//     param,
-//     params_arr = [],
-//     queryString = sourceURL.indexOf('?') !== -1 ? sourceURL.split('?')[1] : '';
-//   if (queryString !== '') {
-//     params_arr = queryString.split('&');
-//     for (var i = params_arr.length - 1; i >= 0; i -= 1) {
-//       param = params_arr[i].split('=')[0];
-//       if (param === key) {
-//         params_arr.splice(i, 1);
-//       }
-//     }
-//     rtn = rtn + '?' + params_arr.join('&');
-//   }
-//   return rtn;
+//   // 如果在 hash 后没有找到，再尝试从 URL 参数中获取
+//   const urlParams = new URLSearchParams(window.location.search);
+//   return urlParams.get(variable);
 // };
 
 onBeforeMount(() => {
   console.info('System Start Running!');
   document.body.style.overflow = 'hidden';
-  const searchParams = new URLSearchParams(window.location.search);
-  const actionType = searchParams.get('actionType');
 
-  if (actionType == 'Login_Back') {
-    // 登录页面返回
-    const TOKEN = searchParams.get('user_token');
-    if (TOKEN) {
-      localStorage.setItem('token', TOKEN);
-      const USER_INFO = {
-        code: searchParams.get('user_code'),
-        name: searchParams.get('user_name'),
-        class: searchParams.get('user_class'),
-        login_time: searchParams.get('login_time'),
-      };
-      login_info.code = searchParams.get('user_code');
-      login_info.name = searchParams.get('user_name');
-      login_info.class = searchParams.get('user_class');
-      login_info.login_time = searchParams.get('login_time');
-      localStorage.setItem('user_info', JSON.stringify(USER_INFO));
+  const init = () => {
+    // update
+    checkUpdate();
+    // load message
+    getMessage();
+    LoadUserPermissions();
+  };
+  router.isReady().then(() => {
+    const paramsKeys = ['actionType', 'user_token', 'user_code', 'user_name', 'login_time', 'path'];
+    const {
+      actionType,
+      user_token: TOKEN,
+      user_code,
+      user_name,
+      login_time,
+      path: param_path,
+    } = getParamsData(route.query, location, paramsKeys);
+    const actionType_LowerCase = actionType?.toLowerCase();
+    if (actionType_LowerCase == 'login_back') {
+      // 登录页面返回
+      if (TOKEN) {
+        localStorage.setItem('token', TOKEN);
+        const USER_INFO = {
+          code: user_code,
+          name: user_name,
+          login_time: login_time,
+        };
+        localStorage.setItem('userInfo', decodeURIComponent(JSON.stringify(USER_INFO)));
 
-      // 获取当前路由路径
-      const hashParams = new URLSearchParams();
-      hashParams.set('user_token', TOKEN);
-
-      // 更新 URL，只修改 search 参数
-      const newUrl = new URL(window.location.href);
-      newUrl.search = `?${hashParams.toString()}`;
-      window.history.replaceState(null, '', newUrl.toString());
-    }
-  }
-  // 查询Token
-  const VERIFY_TOKEN = localStorage.getItem('token');
-  if ((VERIFY_TOKEN == null || !VERIFY_TOKEN) && config.loginVerify == true) {
-    // 没有登录数据，遣返登录页面
-    console.warn('未登录，跳转统一认证');
-    setTimeout(() => {
-      location.href = getLoginURL();
-    }, 1500);
-  } else if (config.loginVerify == true) {
-    // 验证登录
-    setTimeout(async () => {
-      if (await VerifyToken()) {
-        // 设置userInfo
-        const userInfo = localStorage.getItem('user_info');
-        if (userInfo) {
-          const { code, name, class: class_name, login_time } = JSON.parse(userInfo);
-          login_info.code = code;
-          login_info.name = name;
-          login_info.class = class_name;
-          login_info.login_time = login_time;
-        }
-        // pass
-        var param_path = getUrlParam('path');
-        if (param_path) {
-          console.info('检测到 Path 参数,跳转至指定页面。');
-          if (VerifyPath(param_path) === true) {
-            handleChangeComponent(param_path, true);
-          }
-        }
-        // 下方是为了修复刷新时跳到默认页面（首页）的问题
-        handleChangeComponent(localStorage.getItem('lastPath') ?? MainContent.lastChoose, true);
-        localStorage.setItem('token', VERIFY_TOKEN);
-        NotifyPlugin('success', {
-          title: '温馨提示',
-          content: () => {
-            return (
-              <div style="color: var(--text-color);font: var(--td-font-title-medium);letter-spacing: 0.3px;">
-                欢迎使用媒体部管理系统，祝您今日工作顺利！
-              </div>
-            );
-          },
-          duration: 5000,
-        });
-        getUserInfoByToken(VERIFY_TOKEN);
-      } else {
-        location.href = getLoginURL();
+        login_info.code = user_code;
+        login_info.name = user_name;
+        login_info.login_time = login_time;
       }
-    });
-  } else {
-    NotifyPlugin('success', {
-      title: '温馨提示',
-      content: () => {
-        return (
-          <div style="color: var(--text-color);font: var(--td-font-title-medium);letter-spacing: 0.3px;">
-            当前已关闭登录检测，请确认当前非生产环境！！
-          </div>
-        );
-      },
-      duration: 5000,
-    });
-    // handleChangeComponent(MainContent.lastChoose,true,false)
-    // var param_path = getUrlParam("path");
-    // if (param_path) {
-    //     console.log("检测到 Path 参数,跳转至指定页面。");
-    //     if (VerifyPath(param_path) === true) {
-    //         handleChangeComponent(param_path, true);
-    //     }
-    // }
-  }
-  // update
-  checkUpdate();
-  // load message
-  getMessage();
-  LoadUserPermissions();
+    }
+    const currentURLParams = getURLAllParams(location);
+    // 有内容时，将url的seaarch参数转成router的参数
+    if (isObject(currentURLParams) && !isEmpty(currentURLParams)) {
+      // 只保留token参数
+      const newQuery = {
+        ...{
+          user_token: currentURLParams?.user_token,
+        },
+        ...route.query,
+      } as Record<string, string>;
+      location.replace(
+        `/#${routerPrefix}/${localStorage.getItem('lastPath') ?? MainContent.lastChoose}?${new URLSearchParams(
+          newQuery,
+        ).toString()}`,
+      );
+    }
+    // url没有Token，从内存查询Token，并验证是否有效
+    const VERIFY_TOKEN = localStorage.getItem('token');
+    if ((VERIFY_TOKEN == null || !VERIFY_TOKEN) && loginVerify == true) {
+      // 没有登录数据，遣返登录页面
+      console.warn('未登录，跳转统一认证');
+      setTimeout(() => {
+        location.href = getLoginURL();
+      }, 1500);
+    } else if (loginVerify == true) {
+      // 验证登录
+      setTimeout(async () => {
+        if (await VerifyToken()) {
+          // 设置userInfo
+          const userInfo = localStorage.getItem('userInfo');
+          if (userInfo) {
+            const { code, name, login_time } = JSON.parse(userInfo);
+            login_info.code = code;
+            login_info.name = name;
+            login_info.login_time = login_time;
+          }
+          // pass
+          if (param_path) {
+            console.info('检测到 Path 参数,跳转至指定页面。');
+            if (VerifyPath(param_path) === true) {
+              handleChangeComponent(param_path, true);
+            }
+          }
+          // 下方是为了修复刷新时跳到默认页面（首页）的问题
+          handleChangeComponent(localStorage.getItem('lastPath') ?? MainContent.lastChoose, true);
+          localStorage.setItem('token', VERIFY_TOKEN);
+          NotifyPlugin('success', {
+            title: '温馨提示',
+            content: () => {
+              return (
+                <div style="color: var(--text-color);font: var(--td-font-title-medium);letter-spacing: 0.3px;">
+                  欢迎使用媒体部管理系统，祝您今日工作顺利！
+                </div>
+              );
+            },
+            duration: 5000,
+          });
+          getUserInfoByToken(VERIFY_TOKEN);
+          init();
+        } else {
+          location.href = getLoginURL();
+        }
+      });
+    } else {
+      NotifyPlugin('success', {
+        title: '温馨提示',
+        content: () => {
+          return (
+            <div style="color: var(--text-color);font: var(--td-font-title-medium);letter-spacing: 0.3px;">
+              当前已关闭登录检测，请确认当前非生产环境！！
+            </div>
+          );
+        },
+        duration: 5000,
+      });
+      init();
+    }
+  });
   const currentPage = getCurrentPage();
   if (currentPage) {
-    SideMenu.ComponentValue = currentPage;
     SideMenu.value = currentPage;
   }
 });
 
 onMounted(() => {
+  const { __DEBUG_DONTCHECKLOGINSTATUS } = getParamsData(route.query, location, '__DEBUG_DONTCHECKLOGINSTATUS');
   document.body.style.overflow = '';
   // document.getElementById("loading").display = "none"
   theme.value = ThemeMode();
@@ -755,7 +726,8 @@ onMounted(() => {
   window.addEventListener('resize', (e) => {
     GetPageWidth(e);
   });
-  if (getUrlParam('__DEBUG_DONTCHECKLOGINSTATUS') != 'yes') {
+  // DEBUG-前端不检测登录状态
+  if (__DEBUG_DONTCHECKLOGINSTATUS != 'yes') {
     // 开始检测
     startCheckToken();
   }
@@ -773,6 +745,16 @@ export default {
 </script>
 
 <style lang="scss">
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
+
 .autoPadding {
   padding: 12px;
 }

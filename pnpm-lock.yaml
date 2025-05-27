@@ -48,8 +48,8 @@ importers:
         specifier: ^0.3.6
         version: 0.3.6(vue@3.5.13(typescript@5.8.3))
       tdesign-vue-next:
-        specifier: ^1.12.0
-        version: 1.12.0(vue@3.5.13(typescript@5.8.3))
+        specifier: ^1.13.0
+        version: 1.13.0(vue@3.5.13(typescript@5.8.3))
       vue:
         specifier: ^3.5.12
         version: 3.5.13(typescript@5.8.3)
@@ -2400,8 +2400,8 @@ packages:
     peerDependencies:
       vue: ^3.0.0
 
-  tdesign-vue-next@1.12.0:
-    resolution: {integrity: sha512-ll2QVZDpDFcx4IZlfPaJVyUHsH9nq1ooda6nn+tgK7DObzXL8ejYBqwzJXNJBG1NS0rR3H572fODuDRqLWXtow==}
+  tdesign-vue-next@1.13.0:
+    resolution: {integrity: sha512-TEJawGwJHg5vyG3uFHvmwV4u/5PjmE27eXd4QOneCD+pguEJ0zvcEno5pete85XFBRVTBZeqmldTbTtwakoQ9g==}
     engines: {node: '>= 18'}
     peerDependencies:
       vue: '>=3.1.0'
@@ -5174,7 +5174,7 @@ snapshots:
       '@babel/runtime': 7.26.10
       vue: 3.5.13(typescript@5.8.3)
 
-  tdesign-vue-next@1.12.0(vue@3.5.13(typescript@5.8.3)):
+  tdesign-vue-next@1.13.0(vue@3.5.13(typescript@5.8.3)):
     dependencies:
       '@babel/runtime': 7.26.10
       '@popperjs/core': 2.11.8

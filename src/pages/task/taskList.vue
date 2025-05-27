@@ -36,6 +36,7 @@
           :tabs="tabs_classification"
           :current-tab="tab_active"
           :show-completed="showCompleted"
+          :loading="tableLoading"
         ></taskList>
       </div>
       <!---->
@@ -46,19 +47,20 @@
 
 <script setup lang="tsx">
 import { onBeforeMount, onBeforeUnmount, reactive, ref } from 'vue';
-import useRequest from '../../hooks/useRequest';
-import { getToken } from '../../hooks/common';
+import useRequest from '../../hooks/useRequest.ts';
+import { getToken } from '../../hooks/common.ts';
 import { NotifyPlugin } from 'tdesign-vue-next';
-import taskList from './taskList.tsx';
+import taskList from './taskListTable';
 import { isArray } from 'lodash-es';
 
+defineProps({
+  handleChangeComponent: Function,
+});
 const showCompleted = ref(false);
 const tab_active = ref('type');
 const tabs_classification = ['type', 'status'];
+const tableLoading = ref(false);
 // const tabs = [...tabs_classification, 'weight'];
-// const props = defineProps({
-//   handleChangeComponent: Function,
-// });
 var timer = null;
 const tableData = reactive({
   all: [],
@@ -81,8 +83,9 @@ const convertData = () => {
   });
 };
 
-const loadTaskList = () => {
+const loadTaskList = (loading = true) => {
   const TOKEN = getToken();
+  tableLoading.value = loading;
   useRequest({
     url: '/task/list',
     methods: 'POST',
@@ -109,13 +112,16 @@ const loadTaskList = () => {
         content: '错误：' + err,
       });
     },
+    complete: function () {
+      tableLoading.value = false;
+    },
   });
 };
 
 onBeforeMount(() => {
   loadTaskList();
   timer = setInterval(() => {
-    loadTaskList();
+    loadTaskList(false);
   }, 30000);
 });
 

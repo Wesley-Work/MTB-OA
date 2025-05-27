@@ -298,7 +298,7 @@ const getTime = () => {
 };
 
 onMounted(() => {
-  var USER_INFO_STR = localStorage.getItem('user_info');
+  var USER_INFO_STR = localStorage.getItem('userInfo');
   try {
     let a = JSON.parse(USER_INFO_STR);
     if (a) {

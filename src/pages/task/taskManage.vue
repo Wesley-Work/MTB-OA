@@ -54,7 +54,7 @@
               <t-form-item label="工作内容" name="content">
                 <t-input v-model="taskActiveItem.content" placeholder="请输入内容" />
               </t-form-item>
-              <t-form-item label="何时前完成" name="finally_time">
+              <t-form-item :label-width="110" label="何时前完成" name="finally_time">
                 <t-date-picker
                   v-model="taskActiveItem.finally_time"
                   enable-time-picker
@@ -84,7 +84,7 @@
                 </t-select>
               </t-form-item>
               <t-form-item label="权重等级" name="weight">
-                <t-rate :value="taskActiveItem.weight"></t-rate>
+                <t-rate v-model="taskActiveItem.weight"></t-rate>
               </t-form-item>
               <t-form-item label="备注" name="remark">
                 <t-input v-model="taskActiveItem.remark" placeholder="请输入内容" />
@@ -105,8 +105,8 @@
           </t-space>
           <t-form-item style="margin-top: 16px">
             <t-space size="small">
-              <t-button theme="primary" type="submit" variant="outline" ghost>提交内容</t-button>
-              <t-popconfirm content="确认删除吗？" @confirm="onDelTask">
+              <t-button theme="primary" type="submit" variant="outline" ghost :loading="requesting">提交内容</t-button>
+              <t-popconfirm theme="danger" content="确认删除吗？" @confirm="onDelTask">
                 <t-button variant="dashed" theme="danger" :disabled="!taskListActive">删除任务</t-button>
               </t-popconfirm>
 
@@ -121,13 +121,18 @@
 </template>
 
 <script setup lang="tsx">
-import { NotifyPlugin } from 'tdesign-vue-next';
-// import { TaskAddIcon } from 'tdesign-icons-vue-next';
-import { taskType, taskStatus, findObjectByValueAndKeyInArray } from '../../hooks/common';
-import useRequest from '../../hooks/useRequest';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, PropType } from 'vue';
 import { isArray } from 'lodash-es';
+import { DialogPlugin, NotifyPlugin } from 'tdesign-vue-next';
+// import { TaskAddIcon } from 'tdesign-icons-vue-next';
+import { taskType, taskStatus } from '@hooks/common';
+import useRequest from '@hooks/useRequest';
+import { selectValueDisplay } from './utils';
+import { HandleChangeComponentFunctionType } from '@type/type';
 
+const props = defineProps({
+  handleChangeComponent: Function as PropType<HandleChangeComponentFunctionType>,
+});
 const userList = ref([]);
 const transferSource = ref([]);
 const defaultItem = {
@@ -156,16 +161,17 @@ const taskFormRules = {
   type: [{ required: true, message: '任务类型必填', trigger: 'submit' }],
   finally_time: [{ required: true, message: '预期完成时间必填', trigger: 'submit' }],
 };
+const requesting = ref(false);
 
 const loadUserList = () => {
   useRequest({
-    url: '/get/userlist',
+    url: '/get/userList',
     methods: 'POST',
     success: function (res) {
       const json = JSON.parse(res);
       if (json.errcode != 0) {
         NotifyPlugin.error({
-          title: '获取任务列表失败',
+          title: '获取用户列表失败[Main]',
           content: json.errmsg,
         });
         return;
@@ -181,7 +187,7 @@ const loadUserList = () => {
     error: function (err) {
       console.error(err);
       NotifyPlugin.error({
-        title: '获取任务列表失败',
+        title: '获取用户列表失败[Error]',
         content: '错误：' + err,
       });
     },
@@ -226,20 +232,6 @@ const handleTaskItemClick = (task) => {
   taskActiveItem.value = active ? defaultItem : task;
 };
 
-const selectValueDisplay = (arr: Array<any>, value: string | number) => {
-  const objectItem = findObjectByValueAndKeyInArray(arr, 'value', value) as {
-    theme: string;
-    color: string;
-    label: string;
-  };
-  if (!objectItem) return null;
-  return (
-    <t-tag variant="light-outline" theme={objectItem?.theme} color={objectItem.color}>
-      {objectItem?.label}
-    </t-tag>
-  );
-};
-
 const resetForm = () => {
   taskListActive.value = null;
   taskActiveItem.value = { ...defaultItem };
@@ -248,7 +240,9 @@ const resetForm = () => {
 const onSubmit = (context) => {
   const validateResult = context.validateResult;
   if (validateResult !== true) return false;
+  requesting.value = true;
   const mode = taskListActive.value ? 'edit' : 'add';
+
   useRequest({
     url: `/task/${mode}`,
     methods: 'POST',
@@ -266,6 +260,31 @@ const onSubmit = (context) => {
         });
         resetForm();
         loadTaskList();
+      } else if (json.errcode === -60060) {
+        const dialog = DialogPlugin.confirm({
+          header: '需要审批',
+          body: json.errmsg,
+          confirmBtn: {
+            content: '去发起审批',
+            theme: 'primary',
+            onClick: () => {
+              props?.handleChangeComponent?.('AuditPost', true, true, {
+                applicationType: 3,
+                data: json.data?.details,
+              });
+              dialog.destroy();
+            },
+          },
+          cancelBtn: {
+            content: '关闭',
+            onClick: () => {
+              dialog.destroy();
+            },
+          },
+          onClose: () => {
+            dialog.destroy();
+          },
+        });
       } else {
         NotifyPlugin.error({
           title: '操作失败',
@@ -279,6 +298,9 @@ const onSubmit = (context) => {
         title: '操作失败',
         content: err,
       });
+    },
+    complete: function () {
+      requesting.value = false;
     },
   });
 };

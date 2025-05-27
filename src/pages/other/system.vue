@@ -1,10 +1,13 @@
 <template>
   <div class="info-container">
     <div class="system-info">
-      <div class="title">{{ SystemName }}</div>
+      <div class="title">
+        {{ systemName }}
+        <span>{{ systemVType === 'authorize' ? '授权版' : systemVType }}</span>
+      </div>
       <div class="subtitle">
-        [ {{ SystemNameEn }} ]
-        <span class="versionMode">{{ VersionMode }}</span>
+        [ {{ systemNameEn }} ]
+        <span class="versionMode">{{ versionMode }}</span>
       </div>
     </div>
     <div class="content">
@@ -12,6 +15,25 @@
       <div>包版本 [Package Version]: {{ packageVersion ?? '无法获取' }}</div>
       <div>API版本 [WESLEY SDK Version]: {{ latestVersion }}</div>
       <div>TDesign版本: {{ TdesignVueNextVersion }}</div>
+    </div>
+  </div>
+  <div class="info-container copyright">
+    <div class="title-group">
+      <div class="title">版权信息</div>
+      <div class="subtitle minWidth" style="flex-direction: column; gap: 8px">
+        <div style="display: flex; flex-direction: column; align-items: center">
+          <span>
+            本系统所属源代码及其它附属内容已申请《中华人民共和国 计算机软件著作权》
+            <t-link theme="primary" :href="cert" target="_blank">证书明细</t-link>
+          </span>
+          <span>未经著作权人许可，任何单位或个人不得以任何形式复制。</span>
+        </div>
+        <p>系统名称：顺德中专团委媒体部 信息化协作与管理系统</p>
+        <p>开发团队：媒体部·技术组</p>
+        <p>开发时间：2023年2月 – 2025年6月</p>
+        <p>代码状态：托管于 GitHub 仓库</p>
+        <span>如遇任何事宜，请联系邮箱：<t-link theme="primary">985189328@qq.com</t-link></span>
+      </div>
     </div>
   </div>
   <div class="info-container TPIS">
@@ -50,24 +72,31 @@
       </div>
     </div>
   </div>
-  ß
 </template>
 
 <script setup lang="ts">
-import useRequest from '../../hooks/useRequest';
-import { VERSION, packageVersion, VersionMode, SystemName, SystemNameEn } from '../../config';
+import useRequest from '@hooks/useRequest';
+import { VERSION, packageVersion, versionMode, systemName, systemNameEn } from '@config/index';
 import { NotifyPlugin } from 'tdesign-vue-next';
 import { onMounted, ref } from 'vue';
+import cert from '@/assets/cn-software-copyright.pdf';
 
+defineProps({
+  handleChangeComponent: Function,
+});
 const TdesignVueNextVersion = '1.12.0';
+// 2025-05-26 v2_7_16
 const latestVersion = ref('0.0.0');
+const systemVType = ref('authorize');
+// const systemVTypeDate = ref('2027-01-01');
+
 const sdk = [
   {
     name: 'WESLEY SDK',
     company: 'Wesley',
-    way: '系统基础服务（如设备操作、记录查询等）、系统高级服务（如使用微信登录、系统管理、账号绑定等）',
+    way: '系统基础服务（如设备操作、记录查询等）、系统高级服务（如扫码登录、系统管理、账号绑定等）',
     value:
-      'IP地址、用户行为记录、用户账号信息（如名称、Code等）、网络信息（如网络类型）、设备标识符（如UUID、UA）、设备信息（如设备类型、操作系统）',
+      '用户行为(操作)记录、用户账号信息（如名称、Code等）、网络信息（如网络类型、IP地轴、MAC地址）、设备标识符（如UUID、UA）、设备信息（如设备类型、操作系统）',
     url: 'https://docs.wesley.net.cn/privacy_policy/',
   },
   {

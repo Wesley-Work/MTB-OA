@@ -119,7 +119,7 @@
 <script setup lang="tsx">
 import useRequest from '@hooks/useRequest';
 import scrollNumber from '@components/scrollNumber';
-import { NotifyPlugin } from 'tdesign-vue-next';
+import { DialogPlugin, NotifyPlugin } from 'tdesign-vue-next';
 import { CheckCircleFilledIcon, CloseCircleFilledIcon } from 'tdesign-icons-vue-next';
 import { ref, reactive } from 'vue';
 import { LendTableDataItem } from '@type/type';
@@ -297,6 +297,31 @@ const Lend = () => {
             content: '设备已借出！',
           });
           errmsg = '设备已借出';
+        } else if (RES.errcode === -60060) {
+          const dialog = DialogPlugin.confirm({
+            header: '需要审批',
+            body: RES.errmsg,
+            confirmBtn: {
+              content: '去发起审批',
+              theme: 'primary',
+              onClick: () => {
+                props?.handleChangeComponent?.('AuditPost', true, true, {
+                  applicationType: 1,
+                  data: RES.data?.details,
+                });
+                dialog.destroy();
+              },
+            },
+            cancelBtn: {
+              content: '关闭',
+              onClick: () => {
+                dialog.destroy();
+              },
+            },
+            onClose: () => {
+              dialog.destroy();
+            },
+          });
         } else {
           // Unknown
           NotifyPlugin('error', {
@@ -314,9 +339,9 @@ const Lend = () => {
             theme: ecodeOK ? 'success' : 'danger',
             icon: ecodeOK ? <CheckCircleFilledIcon /> : <CloseCircleFilledIcon />,
           },
-          user: ecodeOK ? RES.data.lend_user ?? '未知用户' : '-',
+          user: ecodeOK || RES.errcode === -60060 ? RES.data.lend_user ?? '未知用户' : '-',
           lendtime: RES.data.lend_time ?? getTime(),
-          dothisthinguser: ecodeOK ? RES.data.operator : '-',
+          dothisthinguser: ecodeOK || RES.errcode === -60060 ? RES.data.operator : '-',
           more: ecodeOK ? RES.data.remark ?? errmsg : errmsg,
           SHA: RES.data.SHA ?? null,
         };

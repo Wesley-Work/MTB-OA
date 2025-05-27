@@ -261,6 +261,9 @@ import { getCurrentInstance, onBeforeUnmount, onMounted, reactive, ref } from 'v
 import useRequest from '@hooks/useRequest';
 import { getToken } from '@hooks/common';
 
+defineProps({
+  handleChangeComponent: Function,
+});
 const objectResizeRef = ref(null);
 var echarts;
 var Chartslist = [];
