@@ -1,5 +1,5 @@
 <template>
-  <div style="padding-top: 16px">
+  <div>
     <t-table
       row-key="id"
       :columns="tableColumns"
@@ -89,7 +89,9 @@ const tableColumns = [
     cell: (h, { row }) => {
       return (
         <t-space>
-          <t-link theme="danger">删除</t-link>
+          <t-popconfirm theme="danger" content="确认删除吗？" onConfirm={() => handleDel(row.id)}>
+            <t-link theme="danger">删除</t-link>
+          </t-popconfirm>
         </t-space>
       );
     },
@@ -113,6 +115,38 @@ const tablePagination = computed(() => {
   };
 });
 
+const handleDel = (id: number) => {
+  useRequest({
+    url: '/network-portal/bindDel',
+    methods: 'POST',
+    data: {
+      id: id,
+    },
+    success: function (res) {
+      var RES = JSON.parse(res);
+      if (RES.errcode !== 0) {
+        NotifyPlugin('success', {
+          title: '删除MAC绑定关系失败[Main]',
+          content: RES.errmsg,
+        });
+        return;
+      }
+      NotifyPlugin('success', {
+        title: '删除MAC绑定关系成功',
+        content: `删除了ID为${id}的绑定关系`,
+      });
+      initTableData();
+    },
+    error: function (err) {
+      console.error(err);
+      NotifyPlugin('error', {
+        title: '删除MAC绑定关系失败[Error]',
+        content: err,
+      });
+    },
+  });
+};
+
 const initTableData = () => {
   const { current: currentPage, pageSize } = tablePagination.value;
   tableLoading.value = true;
@@ -126,7 +160,7 @@ const initTableData = () => {
         tableData_Backup.value = RES.data;
         // 保留分页
         const total = tableData.value.length;
-        const totalPages = Math.ceil(total / pageSize);
+        const totalPages = Math.max(Math.ceil(total / pageSize), 1);
         const newCurrentPage = currentPage > totalPages ? totalPages : currentPage;
         tablePagination.value.current = newCurrentPage;
         tablePagination.value.pageSize = pageSize;
