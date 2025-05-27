@@ -6,7 +6,7 @@ on:
 
 jobs:
   create-release:
-    if: github.event.review.state == 'approved' && github.event.pull_request && startsWith(github.head_ref, 'release/')
+    if: github.event.review.state == 'merged' && github.event.pull_request && startsWith(github.head_ref, 'release/')
     runs-on: ubuntu-latest
     permissions:
       contents: write
