@@ -34,13 +34,13 @@ const routerMap: RouteMaps = [
     children: [
       {
         key: 'TaskList',
-        label: '任务列表',
+        label: '任务看板',
         icon: 'task',
         component: () => import('@pages/task/taskList.vue'),
       },
       {
         key: 'TaskManage',
-        label: '添加任务',
+        label: '任务管理',
         icon: 'task-setting',
         permissions: [],
         component: () => import('@pages/task/taskManage.vue'),

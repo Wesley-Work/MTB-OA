@@ -7,8 +7,6 @@ import TDesign from 'tdesign-vue-next';
 import './global.scss';
 // import 'nprogress/nprogress.css'
 
-//import ElementPlus from 'element-plus'
-
 // 引入组件库全局样式资源
 import 'tdesign-vue-next/es/style/index.css';
 

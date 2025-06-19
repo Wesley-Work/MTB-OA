@@ -9,6 +9,8 @@
       z-index: 10;
       user-select: none;
     "
+    class="headmenu"
+    :class="{ 'fullscreen--hidden': isFullscreen }"
   >
     <template #logo>
       <div style="width: 40px; height: 40px; margin-left: 13px; display: flex; align-items: center">
@@ -98,6 +100,7 @@
     height="550px"
     :visiable="SideMenu.show"
     :value-change="handleChangeComponent"
+    :class="{ 'fullscreen--hidden': isFullscreen }"
   ></SideMenus>
   <!--BackTop-->
   <div
@@ -125,10 +128,16 @@
     :class="{
       'SideMenuShow-MainContent': SideMenu.show,
       SideMenuUseCollapsed: menuUseCollapsed && !SideMenu.show,
+      'fullscreen--no-margin-top': isFullscreen,
+      'fullscreen--no-margin-left': isFullscreen,
     }"
     :NoShowMenu="!TitleMenu.show"
   >
-    <BreadCrumb :value="MainContent.ComponentValue"></BreadCrumb>
+    <BreadCrumb
+      class="breadcrumb"
+      :value="MainContent.ComponentValue"
+      :class="{ 'fullscreen--hidden': isFullscreen }"
+    />
     <section
       class="loading-change-components-animation"
       :class="{
@@ -145,6 +154,8 @@
         :component-permissions="componentPermissions"
         :component="SideMenu.value"
         :user-code="login_info.code"
+        :fullscreen="isFullscreen"
+        :fullscreen-toggle="fullscreenToggle"
       ></router-view>
       <!---->
       <div id="copyright">
@@ -194,11 +205,13 @@ import { useRequest } from '../hooks/useRequest';
 import PageTooSmall from '../components/pages/PageSmall.vue';
 import { useRoute, useRouter } from 'vue-router';
 import type { LocationQueryRaw } from 'vue-router';
+import { useFullscreen } from '@vueuse/core';
 import { getParams, getURLAllParams } from '@hooks/useParams';
 import { isEmpty, isObject } from 'lodash-es';
 
 const router = useRouter();
 const route = useRoute();
+const { isFullscreen, toggle: fullscreenToggle } = useFullscreen();
 
 watch(
   () => router.currentRoute.value.path,
@@ -891,11 +904,19 @@ a[we-a-tag]:hover {
 
 .SideMenuUseCollapsed {
   margin-left: 64px;
+
+  &.fullscreen--no-margin-left {
+    margin-left: 0px;
+  }
 }
 
 .MainContent:not([noshowmenu='true']) {
   transition: margin-left 0.28s var(--transition-default);
   margin-top: 56px;
+
+  &.fullscreen--no-margin-top {
+    margin-top: 0;
+  }
 }
 
 .MainContent-Breadcrumb {

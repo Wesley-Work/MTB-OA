@@ -8,6 +8,10 @@
   opacity: 0;
 }
 
+* .fullscreen--hidden{
+  display: none;
+}
+
 /* Make clicks pass-through */
 #nprogress {
   pointer-events: none;

@@ -145,11 +145,20 @@ export function Wesley() {
 }
 
 export const taskType = [
-  { label: '常规任务', value: 0, theme: 'primary' },
-  { label: '优先', value: 1, theme: null, color: 'rgb(177, 31, 38)' },
-  { label: '加急', value: 2, theme: 'warning' },
-  { label: '暂缓（保留任务）', value: 3, theme: 'default' },
+  { label: 'P0', value: 0, theme: null, color: 'rgb(177, 31, 38)' },
+  { label: 'P1', value: 1, theme: null, color: 'rgb(225, 165, 0)' },
+  { label: 'P2', value: 2, theme: 'warning' },
+  { label: 'P3', value: 3, theme: 'primary' },
+  { label: 'P4', value: 4, theme: 'default' },
 ];
+
+export const taskTypeDesc = {
+  P0: '重要紧急',
+  P1: '重要不紧急',
+  P2: '不重要紧急',
+  P3: '不重要不紧急',
+  P4: '暂缓',
+};
 
 export const taskStatus = [
   { label: '待办', value: 0, theme: null, color: 'rgb(177, 31, 38)' },

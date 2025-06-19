@@ -1,7 +1,7 @@
 import { defineComponent, ref, toRefs, watch, h } from 'vue';
-import { taskStatus, taskTimeConvert, taskType, getTagPriority } from '../../hooks/common';
-import { Table } from 'tdesign-vue-next';
-import { isEmpty } from 'lodash-es';
+import { taskStatus, taskTimeConvert, taskType, taskTypeDesc, getTagPriority } from '../../hooks/common';
+import { Loading, Table } from 'tdesign-vue-next';
+import { isArray, isEmpty } from 'lodash-es';
 
 export default defineComponent({
   name: 'TaskListRender',
@@ -150,7 +150,84 @@ export default defineComponent({
             const tag = findVal(row.type, 'type');
             return (
               <t-tag theme={tag?.theme} color={tag?.color} variant="light-outline">
-                {tag?.label ?? row.type}
+                {tag?.label}
+              </t-tag>
+            );
+          },
+        },
+        {
+          colKey: 'user',
+          title: '分配人员',
+          width: 210,
+          cell: (h, { row }) => {
+            return stringToTagList(row.user);
+          },
+        },
+        {
+          colKey: 'equipment',
+          title: '所需设备',
+          minWidth: 80,
+          cell: (h, { row }) => {
+            return stringToTagList(row.equipment);
+          },
+        },
+        {
+          colKey: 'weight',
+          title: '权重',
+          width: 100,
+          align: 'center',
+          cell: (h, { row }) => {
+            return <div>Level {row.weight}</div>;
+          },
+        },
+        { colKey: 'create_user', title: '发布人', width: 75 },
+        { colKey: 'remark', title: '备注', width: 100 },
+      ],
+      all: [
+        { colKey: 'id', title: 'Tid', width: 55 },
+        { colKey: 'name', title: '任务名称', minWidth: 80 },
+        {
+          colKey: 'work_time',
+          title: '工作时间',
+          width: 200,
+          cell: (h, { row }) => {
+            return taskTimeConvert((row.work_time as string).split(','))?.join(' 至 ');
+          },
+        },
+        {
+          colKey: 'finally_time',
+          title: '预期完成时间',
+          width: 200,
+          cell: (h, { row }) => {
+            return taskTimeConvert(row.finally_time);
+          },
+        },
+        { colKey: 'place', title: '工作地点', minWidth: 80 },
+        { colKey: 'content', title: '工作内容', minWidth: 80 },
+        {
+          colKey: 'type',
+          title: '任务类型',
+          width: 92,
+          align: 'center',
+          cell: (h, { row }) => {
+            const tag = findVal(row.type, 'type');
+            return (
+              <t-tag theme={tag?.theme} color={tag?.color} variant="light-outline">
+                {tag?.label}
+              </t-tag>
+            );
+          },
+        },
+        {
+          colKey: 'status',
+          title: '任务状态',
+          width: 92,
+          align: 'center',
+          cell: (h, { row }) => {
+            const tag = findVal(row.status, 'status');
+            return (
+              <t-tag theme={tag?.theme} color={tag?.color} variant="light-outline">
+                {tag?.label ?? row.status}
               </t-tag>
             );
           },
@@ -207,33 +284,53 @@ export default defineComponent({
     };
 
     const renderTagAndTable = (item) => {
-      const keys = Object.keys(renderData.value);
-      return keys
-        .map((key) => {
-          const tag = findVal(key, item);
-          const tableData = renderData.value[key].filter((row) => {
-            if (!showCompleted.value && row.status === 6) {
-              return false;
-            }
-            return true;
-          });
-
-          if (tableData.length === 0) {
-            return null;
+      if (isArray(renderData.value)) {
+        const tableData = renderData.value.filter((row) => {
+          if (!showCompleted.value && row.status === 6) {
+            return false;
           }
+          return true;
+        });
 
-          return (
-            <div class="tag_items" style={`order: ${getTagPriority(key)}`}>
-              <div class="title_tag">
-                <t-tag theme={tag?.theme} color={tag?.color} variant="light-outline">
-                  {tag.label}
-                </t-tag>
+        if (tableData.length === 0) {
+          return null;
+        }
+
+        return <t-table class="hidden--head" columns={TableColumns[item]} data={tableData} bordered></t-table>;
+      } else {
+        const keys = Object.keys(renderData.value);
+        return keys
+          .map((key) => {
+            const tag = findVal(key, item);
+            const tableData = renderData.value[key].filter((row) => {
+              if (!showCompleted.value && row.status === 6) {
+                return false;
+              }
+              return true;
+            });
+
+            if (tableData.length === 0) {
+              return null;
+            }
+
+            return (
+              <div class="tag_items" style={`order: ${tag.value}`}>
+                <div class="title_tag">
+                  <t-tag theme={tag?.theme} color={tag?.color} variant="light-outline">
+                    {item === 'type' && (
+                      <span>
+                        {tag.label}（{taskTypeDesc[tag.label]}）
+                      </span>
+                    )}
+                    {item === 'status' && <span>{tag.label}</span>}
+                  </t-tag>
+                </div>
+                <t-table class="hidden--head" columns={TableColumns[item]} data={tableData} bordered></t-table>
               </div>
-              <t-table class="hidden--head" columns={TableColumns[item]} data={tableData} bordered></t-table>
-            </div>
-          );
-        })
-        .filter(Boolean);
+            );
+          })
+          .filter(Boolean);
+      }
     };
 
     const renderInner = (item) => {
@@ -247,7 +344,6 @@ export default defineComponent({
               class: renderTable.length !== 0 ? 'hidden--body' : null,
               columns: TableColumns[item],
               bordered: true,
-              loading: loading.value,
             },
             {
               empty: () =>
@@ -263,7 +359,9 @@ export default defineComponent({
       updateRenderData();
       return (
         <div>
-          {tabs.value.map((item) => (currentTab.value === item ? <div id={item}>{renderInner(item)}</div> : null))}
+          <Loading loading={loading.value} text="加载中...">
+            {tabs.value.map((item) => (currentTab.value === item ? <div id={item}>{renderInner(item)}</div> : null))}
+          </Loading>
         </div>
       );
     };

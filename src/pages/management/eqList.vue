@@ -186,7 +186,7 @@ const tableColumns = [
     width: '80',
   },
   {
-    colKey: 'eq_code',
+    colKey: 'code',
     title: '设备Code',
     sortType: 'all',
     sorter: true,
@@ -202,7 +202,7 @@ const tableColumns = [
     },
   },
   {
-    colKey: 'eq_name',
+    colKey: 'name',
     title: '设备名',
     sortType: 'all',
     sorter: true,
@@ -219,7 +219,19 @@ const tableColumns = [
     },
   },
   { colKey: 'model', title: '型号', sortType: 'all', sorter: true },
-  { colKey: 'sn', title: '设备sn' },
+  {
+    colKey: 'sn',
+    title: '设备sn',
+    filter: {
+      type: 'input',
+      resetValue: '',
+      confirmEvents: ['onEnter'],
+      props: {
+        placeholder: '输入进行过滤',
+      },
+      showConfirmAndReset: true,
+    },
+  },
   { colKey: 'ascription', title: '归属', sortType: 'all', sorter: true },
   {
     colKey: 'type',
@@ -390,10 +402,13 @@ const filterTableData = (filters: FilterValue) => {
         let result = true;
         if (result && filters.eq_name) {
           // 忽略大小写且模糊匹配
-          result = item.eq_name.toLowerCase().includes(filters.eq_name.toLowerCase());
+          result = item.eq_name?.toLowerCase().includes(filters.eq_name?.toLowerCase());
         } else if (result && filters.eq_code) {
           // 忽略大小写且模糊匹配
-          result = item.eq_code.toLowerCase().includes(filters.eq_code.toLowerCase());
+          result = item.eq_code?.toLowerCase().includes(filters.eq_code?.toLowerCase());
+        } else if (result && filters.sn) {
+          // 忽略大小写且模糊匹配
+          result = item.sn?.toLowerCase().includes(filters.sn?.toLowerCase());
         }
         return result;
       }),
