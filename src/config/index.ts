@@ -100,6 +100,7 @@ const routerMap: RouteMaps = [
         icon: 'internet',
         permissions: ['network.manage'],
         component: () => import('@pages/management/network/network-portal.vue'),
+        hidden: true,
       },
       {
         key: 'NetworkCode',
@@ -107,6 +108,7 @@ const routerMap: RouteMaps = [
         icon: 'key',
         permissions: ['network.manage'],
         component: () => import('@pages/management/network/network-code.vue'),
+        hidden: true,
       },
     ],
   },

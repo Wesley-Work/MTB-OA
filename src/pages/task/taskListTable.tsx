@@ -1,7 +1,7 @@
 import { defineComponent, ref, toRefs, watch, h } from 'vue';
-import { taskStatus, taskTimeConvert, taskType, taskTypeDesc, getTagPriority } from '../../hooks/common';
-import { Loading, Table } from 'tdesign-vue-next';
-import { isArray, isEmpty } from 'lodash-es';
+import { taskStatus, taskTimeConvert, taskType, taskTypeDesc } from '../../hooks/common';
+import { Loading, Table, Tag } from 'tdesign-vue-next';
+import { isArray } from 'lodash-es';
 
 export default defineComponent({
   name: 'TaskListRender',
@@ -268,7 +268,7 @@ export default defineComponent({
       }
       const list = str?.split(',') ?? [];
       const div = list.map((item) => {
-        return <t-tag>{item}</t-tag>;
+        return <Tag>{item}</Tag>;
       });
       return <div style="display: flex; flex-wrap: wrap; gap: 4px;">{div}</div>;
     };
@@ -296,7 +296,7 @@ export default defineComponent({
           return null;
         }
 
-        return <t-table class="hidden--head" columns={TableColumns[item]} data={tableData} bordered></t-table>;
+        return <Table class="hidden--head" columns={TableColumns[item]} data={tableData} bordered></Table>;
       } else {
         const keys = Object.keys(renderData.value);
         return keys
@@ -316,16 +316,16 @@ export default defineComponent({
             return (
               <div class="tag_items" style={`order: ${tag.value}`}>
                 <div class="title_tag">
-                  <t-tag theme={tag?.theme} color={tag?.color} variant="light-outline">
+                  <Tag theme={tag?.theme} color={tag?.color} variant="light-outline">
                     {item === 'type' && (
                       <span>
                         {tag.label}（{taskTypeDesc[tag.label]}）
                       </span>
                     )}
                     {item === 'status' && <span>{tag.label}</span>}
-                  </t-tag>
+                  </Tag>
                 </div>
-                <t-table class="hidden--head" columns={TableColumns[item]} data={tableData} bordered></t-table>
+                <Table class="hidden--head" columns={TableColumns[item]} data={tableData} bordered></Table>
               </div>
             );
           })
@@ -338,18 +338,11 @@ export default defineComponent({
 
       return (
         <div class="Table--view">
-          {h(
-            Table,
-            {
-              class: renderTable.length !== 0 ? 'hidden--body' : null,
-              columns: TableColumns[item],
-              bordered: true,
-            },
-            {
-              empty: () =>
-                !isEmpty(renderData) && renderTable.length === 0 ? '所有任务已全部完成' : '暂时没有任务哦！',
-            },
-          )}
+          <Table
+            class={[{ 'hidden--body': renderTable.length !== 0 }]}
+            columns={TableColumns[item]}
+            bordered={true}
+          ></Table>
           <div class="tag--body">{renderTable}</div>
         </div>
       );

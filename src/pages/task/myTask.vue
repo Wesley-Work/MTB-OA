@@ -20,8 +20,12 @@
               variant="light-outline"
               :theme="getTypeOrStatus(taskType, item.type)?.theme"
               :color="getTypeOrStatus(taskType, item.type)?.color"
-              >{{ getTypeOrStatus(taskType, item.type)?.label }}</t-tag
             >
+              {{ getTypeOrStatus(taskType, item.type)?.label }}
+              (
+              {{ taskTypeDesc[getTypeOrStatus(taskType, item.type)?.label] }}
+              )
+            </t-tag>
             <t-tag
               variant="light-outline"
               :theme="getTypeOrStatus(taskStatus, item.status)?.theme"
@@ -54,7 +58,7 @@
 import { NotifyPlugin } from 'tdesign-vue-next';
 import useRequest from '../../hooks/useRequest';
 import { computed, onMounted, ref } from 'vue';
-import { taskStatus, taskTimeConvert, taskType, getTagPriority } from '../../hooks/common';
+import { taskStatus, taskTimeConvert, taskType, taskTypeDesc, getTagPriority } from '../../hooks/common';
 
 const getTypeOrStatus = computed(() => (Obj: any, val: number | string) => {
   for (const key in Obj) {

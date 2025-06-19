@@ -36,8 +36,8 @@
       <!---->
       <div>
         <t-tabs v-model="tab_active">
-          <t-tab-panel value="type" label="按任务类型排序" :destroy-on-hide="false" />
-          <t-tab-panel value="status" label="按任务状态排序" :destroy-on-hide="false" />
+          <t-tab-panel value="type" label="按类型排序" :destroy-on-hide="false" />
+          <t-tab-panel value="status" label="按状态排序" :destroy-on-hide="false" />
           <t-tab-panel value="all" label="全部任务" :destroy-on-hide="false" />
         </t-tabs>
         <taskList
