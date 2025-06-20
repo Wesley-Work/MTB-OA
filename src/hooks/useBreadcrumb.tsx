@@ -1,5 +1,5 @@
 import { defineComponent, ref, toRefs, Transition, watch } from 'vue';
-import { routerMap } from '../config';
+import { breadcrumbIndex, routerMap } from '../config';
 import { Breadcrumb, BreadcrumbItem } from 'tdesign-vue-next';
 import type { RouteMaps } from '@type/type';
 
@@ -54,7 +54,7 @@ export default defineComponent({
       if (level === 0) {
         return (
           <>
-            <BreadcrumbItem>媒体部信息化协作与管理系统</BreadcrumbItem>
+            <BreadcrumbItem>{breadcrumbIndex}</BreadcrumbItem>
             {renderCrumbItem(componentValue.value, level + 1)}
           </>
         );
@@ -80,8 +80,3 @@ export default defineComponent({
     );
   },
 });
-
-// <t-breadcrumbItem v-if="MainContent.breadcrumb.parent != ''" class="MainContent-Breadcrumb" :class="{ changing: MainContent.breadcrumb.changing1 }"
-// @click="breadClick">{{ MainContent.breadcrumb.parent }}</t-breadcrumbItem>
-// <t-breadcrumbItem class="MainContent-Breadcrumb" :class="{ changing: MainContent.breadcrumb.changing2 }">{{
-// MainContent.breadcrumb.current }}</t-breadcrumbItem>

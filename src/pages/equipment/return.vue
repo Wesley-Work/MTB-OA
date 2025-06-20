@@ -73,7 +73,7 @@
                 <span>本次归还设备列表（共<scrollNumber :val="TableData.length"></scrollNumber>个设备）</span>
               </template>
               <div style="display: flex; flex-direction: row; align-items: center">
-                <t-table :data="TableData" :columns="TableColumns"></t-table>
+                <t-table :data="TableData" :columns="TableColumns" row-key="eqcode"></t-table>
               </div>
             </t-card>
           </div>
@@ -91,6 +91,7 @@ import { onMounted, reactive, ref } from 'vue';
 import { ReturnTableDataItem } from '@type/type';
 import useRequest from '@hooks/useRequest';
 import { getToken } from '@hooks/common';
+import { debounce } from 'lodash-es';
 
 const formData = reactive({
   usercode: '',
@@ -144,46 +145,37 @@ const initStyle = () => {
  * @RequestEqInfo
  * @获取设备信息
  */
-const RequestEqInfo = (eq_code) => {
+const RequestEqInfo = debounce((eq_code) => {
   if (eq_code == '') return;
-  var TOKEN = getToken();
-  try {
-    useRequest({
-      url: '/equipment/info',
-      methods: 'POST',
-      header: {
-        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        token: TOKEN,
-      },
-      data: {
-        code: eq_code,
-      },
-      success: function (res) {
-        var RES = JSON.parse(res);
-        if (RES.errcode == 0) {
-          var data = RES.data;
-          EquipmentInfo.value = `id：${data.id}，设备名称：${data.name}，设备code：${data.code}，设备归属：${
-            data.ascription ? data.ascription : '-'
-          }，设备型号：${data.model ? data.model : '-'}，设备sn：${data.sn ? data.sn : '-'}，设备状态：${
-            data.status ? data.status : '-'
-          }`;
-        } else {
-          EquipmentInfo.value = '暂无数据';
-        }
-      },
-      error: function (err) {
-        console.error(err);
-        NotifyPlugin('error', {
-          title: '获取设备信息失败',
-          content: err,
-          duration: 5000,
-        });
-      },
-    });
-  } catch (e) {
-    console.error(e);
-  }
-};
+  useRequest({
+    url: '/equipment/info',
+    methods: 'POST',
+    data: {
+      code: eq_code,
+    },
+    success: function (res) {
+      var RES = JSON.parse(res);
+      if (RES.errcode == 0) {
+        var data = RES.data;
+        EquipmentInfo.value = `id：${data.id}，设备名称：${data.name}，设备code：${data.code}，设备归属：${
+          data.ascription ? data.ascription : '-'
+        }，设备型号：${data.model ? data.model : '-'}，设备sn：${data.sn ? data.sn : '-'}，设备状态：${
+          data.status ? data.status : '-'
+        }`;
+      } else {
+        EquipmentInfo.value = '暂无数据';
+      }
+    },
+    error: function (err) {
+      console.error(err);
+      NotifyPlugin('error', {
+        title: '获取设备信息失败',
+        content: err,
+        duration: 5000,
+      });
+    },
+  });
+}, 300);
 
 /**
  * @Return

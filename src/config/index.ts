@@ -172,9 +172,8 @@ const routerMap: RouteMaps = [
           },
           {
             key: 'EqCheck',
-            label: '设备清点',
+            label: '设备盘点',
             permissions: ['equipment.check'],
-            hidden: true,
             component: () => import('@pages/management/eqCheck.vue'),
           },
         ],
@@ -321,8 +320,9 @@ const config = {
   version: '3.3.3',
   versionMode: 'Stable',
   packageVersion: packageVersion,
-  systemName: '顺德中专团委媒体部 信息化协作与管理系统',
+  systemName: '顺德中专团委媒体部 信息化管理平台',
   systemNameEn: 'MTB OA',
+  breadcrumbIndex: '媒体部信息化管理平台',
   developMode: false, //开发模式
   loginVerify: true, //登陆验证
   logoutTime: 120000, //无操作退登时间,ms
@@ -355,3 +355,4 @@ export const useViewTransition = config.useViewTransition;
 export const allowHotUpdate = config.allowHotUpdate;
 export const loginVerify = config.loginVerify;
 export const menuUseCollapsed = config.menuUseCollapsed;
+export const breadcrumbIndex = config.breadcrumbIndex;
