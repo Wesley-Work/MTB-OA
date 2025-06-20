@@ -1,4 +1,4 @@
-import { defineComponent, ref, toRefs, watch, h } from 'vue';
+import { defineComponent, ref, toRefs, watch } from 'vue';
 import { taskStatus, taskTimeConvert, taskType, taskTypeDesc } from '../../hooks/common';
 import { Loading, Table, Tag } from 'tdesign-vue-next';
 import { isArray } from 'lodash-es';
@@ -296,7 +296,7 @@ export default defineComponent({
           return null;
         }
 
-        return <Table class="hidden--head" columns={TableColumns[item]} data={tableData} bordered></Table>;
+        return <Table class="hidden--head" columns={TableColumns[item]} data={tableData} bordered />;
       } else {
         const keys = Object.keys(renderData.value);
         return keys
@@ -338,11 +338,7 @@ export default defineComponent({
 
       return (
         <div class="Table--view">
-          <Table
-            class={[{ 'hidden--body': renderTable.length !== 0 }]}
-            columns={TableColumns[item]}
-            bordered={true}
-          ></Table>
+          <Table class={[{ 'hidden--body': renderTable.length !== 0 }]} columns={TableColumns[item]} bordered={true} />
           <div class="tag--body">{renderTable}</div>
         </div>
       );
