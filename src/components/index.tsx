@@ -2,7 +2,6 @@ import { defineComponent, PropType } from 'vue';
 import { VerifyPermissions } from '../hooks/usePermission';
 import Error from './pages/Error.vue';
 import NoPermissions from './pages/NoPermissions.vue';
-import { pagePermissionVerify } from '../config';
 import { useRoute } from 'vue-router';
 import { isInternet as isSdzzInternet, isMTBInternet } from '@/utils';
 import OnlyInternet from './pages/onlyInternet.vue';
@@ -44,17 +43,7 @@ export default defineComponent({
     }
     try {
       const RouterView = <router-view handleChangeComponent={props?.handleChangeComponent}></router-view>;
-      return needInternet ? (
-        isInternet ? (
-          RouterView
-        ) : (
-          <OnlyInternet />
-        )
-      ) : vPermission && pagePermissionVerify ? (
-        RouterView
-      ) : (
-        <NoPermissions />
-      );
+      return needInternet ? isInternet ? RouterView : <OnlyInternet /> : vPermission ? RouterView : <NoPermissions />;
     } catch (err) {
       console.error(err);
       return <Error msg={err}></Error>;

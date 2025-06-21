@@ -17,14 +17,14 @@ const routerMap: RouteMaps = [
         key: 'Lend',
         label: '设备借出',
         icon: 'logout',
-        permissions: ['equipment.lend'],
+        permissions: ['equipment.operate.lend'],
         component: () => import('@pages/equipment/lend.vue'),
       },
       {
         key: 'Return',
         label: '设备归还',
         icon: 'login',
-        permissions: ['equipment.return'],
+        permissions: ['equipment.operate.return'],
         component: () => import('@pages/equipment/return.vue'),
       },
     ],
@@ -34,13 +34,13 @@ const routerMap: RouteMaps = [
     children: [
       {
         key: 'TaskList',
-        label: '任务列表',
+        label: '任务看板',
         icon: 'task',
         component: () => import('@pages/task/taskList.vue'),
       },
       {
         key: 'TaskManage',
-        label: '添加任务',
+        label: '任务管理',
         icon: 'task-setting',
         permissions: [],
         component: () => import('@pages/task/taskManage.vue'),
@@ -70,10 +70,10 @@ const routerMap: RouteMaps = [
     label: '官网管理',
     children: [
       {
-        key: 'WebsideManage',
+        key: 'WebsiteManage',
         label: '网站管理',
         icon: 'system-code',
-        permissions: ['webside.manage'],
+        permissions: ['website.manage'],
         component: () => import('@pages/management/website/officialWeb.vue'),
         meta: {
           needInternet: true,
@@ -83,7 +83,7 @@ const routerMap: RouteMaps = [
         key: 'ShareNetdiskManage',
         label: '共享网盘管理',
         icon: 'cloud',
-        permissions: ['webside.manage'],
+        permissions: ['website.manage'],
         component: () => import('@pages/management/website/shareNetdisk.vue'),
         meta: {
           needInternet: true,
@@ -100,6 +100,7 @@ const routerMap: RouteMaps = [
         icon: 'internet',
         permissions: ['network.manage'],
         component: () => import('@pages/management/network/network-portal.vue'),
+        hidden: true,
       },
       {
         key: 'NetworkCode',
@@ -107,6 +108,7 @@ const routerMap: RouteMaps = [
         icon: 'key',
         permissions: ['network.manage'],
         component: () => import('@pages/management/network/network-code.vue'),
+        hidden: true,
       },
     ],
   },
@@ -117,14 +119,14 @@ const routerMap: RouteMaps = [
         key: 'AuditManage',
         label: '审批管理',
         icon: 'seal',
-        permissions: ['audit.manage'],
+        permissions: ['audit.manage.manage'],
         component: () => import('@pages/audit/auditManage.vue'),
       },
       {
         key: 'AuditPost',
         label: '发起审批',
         icon: 'send',
-        permissions: [],
+        permissions: ['audit.manage.post'],
         component: () => import('@pages/audit/auditPost.vue'),
       },
       {
@@ -146,13 +148,13 @@ const routerMap: RouteMaps = [
           {
             key: 'LendList',
             label: '借出列表',
-            permissions: ['equipment.manage.getlist'],
+            permissions: ['equipment.record.list'],
             component: () => import('@pages/equipment/list.vue'),
           },
           {
             key: 'LendCheck',
             label: '借出查询',
-            permissions: ['equipment.record.get'],
+            permissions: ['equipment.record.item'],
             component: () => import('@pages/equipment/check.vue'),
           },
         ],
@@ -165,14 +167,13 @@ const routerMap: RouteMaps = [
           {
             key: 'EqList',
             label: '设备列表',
-            permissions: ['equipment.manage.getlist'],
+            permissions: ['equipment.manage.manage'],
             component: () => import('@pages/management/eqList.vue'),
           },
           {
             key: 'EqCheck',
-            label: '设备清点',
-            permissions: ['equipment.check'],
-            hidden: true,
+            label: '设备盘点',
+            permissions: ['equipment.manage.check'],
             component: () => import('@pages/management/eqCheck.vue'),
           },
         ],
@@ -185,19 +186,19 @@ const routerMap: RouteMaps = [
           {
             key: 'AccountManage',
             label: '账号管理',
-            permissions: ['account.manage.getlist'],
+            permissions: ['account.manage.manage'],
             component: () => import('@pages/management/account/UserManage.vue'),
           },
           {
             key: 'PositionManage',
             label: '职位管理',
-            permissions: ['account.manage.getlist'],
+            permissions: ['account.position.manage'],
             component: () => import('@pages/management/account/PositionManage.vue'),
           },
           {
             key: 'GroupManage',
             label: '组管理',
-            permissions: ['account.manage.getlist'],
+            permissions: ['account.group.manage'],
             component: () => import('@pages/management/account/GroupManage.vue'),
           },
         ],
@@ -206,7 +207,7 @@ const routerMap: RouteMaps = [
         key: 'PermissionsManage',
         label: '权限管理',
         icon: 'verify',
-        permissions: ['permission.list'],
+        permissions: ['permission.manage'],
         component: () => import('@pages/permissions/manage.vue'),
       },
       {
@@ -244,7 +245,7 @@ const routerMap: RouteMaps = [
         key: 'MessageList',
         label: '消息列表',
         icon: 'mail',
-        permissions: ['message.list'],
+        permissions: ['message.get'],
         component: () => import('@pages/account/MessageList.vue'),
       },
     ],
@@ -319,8 +320,9 @@ const config = {
   version: '3.3.3',
   versionMode: 'Stable',
   packageVersion: packageVersion,
-  systemName: '顺德中专团委媒体部 信息化协作与管理系统',
+  systemName: '顺德中专团委媒体部 信息化管理平台',
   systemNameEn: 'MTB OA',
+  breadcrumbIndex: '媒体部信息化管理平台',
   developMode: false, //开发模式
   loginVerify: true, //登陆验证
   logoutTime: 120000, //无操作退登时间,ms
@@ -331,7 +333,8 @@ const config = {
   menuUseCollapsed: true, //菜单是否使用折叠模式
   routerPrefix: '/system', //路由前缀
   routerMap,
-  pagePermissionVerify: true, //是否开启页面权限验证
+  // TODO：v3.4.1暂时关闭下面的配置！！！
+  pagePermissionVerify: false, //是否开启页面权限验证
   menuPermissionVerify: false, //是否开启菜单权限验证
   useViewTransition: true, // 是否使用ViewTransition API 进行切换样式
   allowHotUpdate: true, // 是否允许热更新
@@ -353,3 +356,4 @@ export const useViewTransition = config.useViewTransition;
 export const allowHotUpdate = config.allowHotUpdate;
 export const loginVerify = config.loginVerify;
 export const menuUseCollapsed = config.menuUseCollapsed;
+export const breadcrumbIndex = config.breadcrumbIndex;

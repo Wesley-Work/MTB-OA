@@ -69,7 +69,9 @@
                   :value-display="(_h, { value }) => selectValueDisplay(taskType, value)"
                 >
                   <t-option v-for="item in taskType" :key="item.value" :value="item.value">
-                    <t-tag variant="light-outline" :theme="item?.theme" :color="item.color">{{ item.label }}</t-tag>
+                    <t-tag variant="light-outline" :theme="item?.theme" :color="item.color">
+                      {{ item.label }} - {{ taskTypeDesc[item.label] }}
+                    </t-tag>
                   </t-option>
                 </t-select>
               </t-form-item>
@@ -93,7 +95,7 @@
             <!---->
             <div>
               <t-form-item label="分配人员" name="user">
-                <t-transfer v-model="taskActiveItem.user" :data="transferSource"></t-transfer>
+                <t-transfer v-model="taskActiveItem.user" :data="transferSource" :search="true"></t-transfer>
               </t-form-item>
               <t-form-item label="使用设备" name="equipment">
                 <t-tagInput
@@ -125,7 +127,7 @@ import { onMounted, ref, PropType } from 'vue';
 import { isArray } from 'lodash-es';
 import { DialogPlugin, NotifyPlugin } from 'tdesign-vue-next';
 // import { TaskAddIcon } from 'tdesign-icons-vue-next';
-import { taskType, taskStatus } from '@hooks/common';
+import { taskType, taskTypeDesc, taskStatus } from '@hooks/common';
 import useRequest from '@hooks/useRequest';
 import { selectValueDisplay } from './utils';
 import { HandleChangeComponentFunctionType } from '@type/type';

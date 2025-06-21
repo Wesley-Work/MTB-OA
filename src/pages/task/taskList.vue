@@ -10,14 +10,22 @@
         </t-button>
       </div>
       <!---->
-      <div class="fullscreen"></div>
-      <!---->
       <div class="showDone">
         <t-button theme="default" variant="outline" size="large" @click="showCompleted = !showCompleted">
           <template #icon>
             <t-icon name="rainbow" />
           </template>
           {{ showCompleted ? '隐藏' : '显示' }}已完成的任务
+        </t-button>
+      </div>
+      <!---->
+      <div class="fullscreen">
+        <t-button theme="primary" variant="outline" size="large" @click="fullscreen">
+          <template #icon>
+            <Fullscreen2Icon v-if="!props.fullscreen" />
+            <FullscreenExit1Icon v-else />
+          </template>
+          {{ !props.fullscreen ? '全屏' : '退出全屏' }}
         </t-button>
       </div>
     </div>
@@ -28,8 +36,9 @@
       <!---->
       <div>
         <t-tabs v-model="tab_active">
-          <t-tab-panel value="type" label="按任务类型排序" :destroy-on-hide="false" />
-          <t-tab-panel value="status" label="按任务状态排序" :destroy-on-hide="false" />
+          <t-tab-panel value="type" label="按类型排序" :destroy-on-hide="false" />
+          <t-tab-panel value="status" label="按状态排序" :destroy-on-hide="false" />
+          <t-tab-panel value="all" label="全部任务" :destroy-on-hide="false" />
         </t-tabs>
         <taskList
           :data="tableData"
@@ -50,36 +59,46 @@ import { onBeforeMount, onBeforeUnmount, reactive, ref } from 'vue';
 import useRequest from '../../hooks/useRequest.ts';
 import { getToken } from '../../hooks/common.ts';
 import { NotifyPlugin } from 'tdesign-vue-next';
+import { Fullscreen2Icon, FullscreenExit1Icon } from 'tdesign-icons-vue-next';
 import taskList from './taskListTable';
 import { isArray } from 'lodash-es';
 
-defineProps({
+const props = defineProps({
   handleChangeComponent: Function,
+  fullscreenToggle: Function,
+  fullscreen: Boolean,
 });
 const showCompleted = ref(false);
 const tab_active = ref('type');
-const tabs_classification = ['type', 'status'];
+const tabs_classification = ['type', 'status', 'all'];
 const tableLoading = ref(false);
 // const tabs = [...tabs_classification, 'weight'];
 var timer = null;
 const tableData = reactive({
   all: [],
+  source: [],
   type: {},
   status: {},
   weight: {},
 });
 
+const fullscreen = () => {
+  props?.fullscreenToggle?.();
+};
+
 // 转换数据
 const convertData = () => {
-  const source = tableData.all;
+  const source = tableData.source;
   tableData.type = {};
   tableData.status = {};
   tableData.weight = {};
+  tableData.all = [];
   source.forEach((item) => {
     const { type, status, weight } = item;
     isArray(tableData.type[type]) ? tableData.type[type].push(item) : (tableData.type[type] = [item]);
     isArray(tableData.status[status]) ? tableData.status[status].push(item) : (tableData.status[status] = [item]);
     isArray(tableData.weight[weight]) ? tableData.weight[weight].push(item) : (tableData.weight[weight] = [item]);
+    tableData.all.push(item);
   });
 };
 
@@ -102,7 +121,7 @@ const loadTaskList = (loading = true) => {
         });
         return;
       }
-      tableData.all = json.data;
+      tableData.source = json.data;
       convertData();
     },
     error: function (err) {

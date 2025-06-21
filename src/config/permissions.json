@@ -1,0 +1,62 @@
+{
+  "equipment": {
+    "operate": {
+      "lend": "借出设备",
+      "return": "归还设备"
+    },
+    "manage": {
+      "manage": "设备管理",
+      "check": "盘点设备"
+    },
+    "record": {
+      "list": "查看设备借出记录",
+      "item": "查看设备借出记录详情"
+    },
+    "list": "查看设备列表",
+    "item": "查看设备详情"
+  },
+  "account": {
+    "list": "查看用户列表",
+    "item": "查看用户详情",
+    "position": {
+      "manage": "职位管理"
+    },
+    "group": {
+      "manage": "用户组管理"
+    },
+    "manage": {
+      "manage": "新增用户"
+    }
+  },
+  "task": {
+    "manage": {
+      "create": "新增任务",
+      "edit": "编辑任务",
+      "delete": "删除任务"
+    }
+  },
+  "website": {
+    "manage": "网站管理"
+  },
+  "network": {
+    "manage": "网络管理"
+  },
+  "audit": {
+    "manage": {
+      "create": "发起审批",
+      "manage": "管理审批"
+    }
+  },
+  "message":{
+    "get": "获取消息",
+    "send": "发送消息"
+  },
+  "log":{
+    "system": "系统日志",
+    "behavior": "行为日志",
+    "request": "请求日志"
+  },
+  "permission":{
+    "manage": "权限管理"
+  }
+}

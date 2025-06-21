@@ -1,3 +1,4 @@
+import { pagePermissionVerify } from '../config';
 import useRequest from './useRequest';
 import { isString, isArray } from 'lodash-es';
 
@@ -90,7 +91,8 @@ export function VerifyPermissions(hasPermission: string[], needPermission: strin
   const needs = Array.isArray(needPermission) ? needPermission : [needPermission];
 
   // 空数组或空，直接返回true
-  if (needs.length === 0 || !needPermission) {
+  // 配置不需要校验，直接返回true
+  if (needs.length === 0 || !needPermission || !pagePermissionVerify) {
     return true;
   }
 
