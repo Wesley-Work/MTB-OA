@@ -1,8 +1,9 @@
 
 ## 🌈 3.4.1 `2025-06-21` 
 ### 🚀 Features
-- `TaskList`: 新增展示全部任务列表 @Wesley-0808 ([#67](https://github.com/Wesley-Work/MTB-OA/pull/67))
-- `TaskList`: 新增全屏功能。全屏将隐藏顶部导航栏、侧边菜单栏、面包屑组件 @Wesley-0808 ([#67](https://github.com/Wesley-Work/MTB-OA/pull/67))
+- `TaskList`:
+  - 新增展示全部任务列表 @Wesley-0808 ([#67](https://github.com/Wesley-Work/MTB-OA/pull/67))
+  - 新增全屏功能。全屏将隐藏顶部导航栏、侧边菜单栏、面包屑组件 @Wesley-0808 ([#67](https://github.com/Wesley-Work/MTB-OA/pull/67))
 - `EqCheck`: 新增`设备盘点`部分功能。剩余功能请等待系统迭代 @Wesley-0808 ([#67](https://github.com/Wesley-Work/MTB-OA/pull/67))
 - `Task`: 更新任务的类型，提供从`重要紧急`到`不紧急不重要`和`待定`（`P0-P5`）共五个选项 @Wesley-0808 ([#67](https://github.com/Wesley-Work/MTB-OA/pull/67))
 ### 🐞 Bug Fixes
