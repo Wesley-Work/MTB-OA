@@ -1,4 +1,17 @@
 
+## 🌈 3.4.1 `2025-06-21` 
+### 🚀 Features
+- `TaskList`: 新增展示全部任务列表 @Wesley-0808 ([#67](https://github.com/Wesley-Work/MTB-OA/pull/67))
+- `TaskList`: 新增全屏功能。全屏将隐藏顶部导航栏、侧边菜单栏、面包屑组件 @Wesley-0808 ([#67](https://github.com/Wesley-Work/MTB-OA/pull/67))
+- `EqCheck`: 新增`设备盘点`部分功能。剩余功能请等待系统迭代 @Wesley-0808 ([#67](https://github.com/Wesley-Work/MTB-OA/pull/67))
+- `Task`: 更新任务的类型，提供从`重要紧急`到`紧急不重要`和`待定`（`P0-P5`）共五个选项 @Wesley-0808 ([#67](https://github.com/Wesley-Work/MTB-OA/pull/67))
+### 🐞 Bug Fixes
+- `TaskList`: 修复表格加载状态异常的问题 @Wesley-0808 ([#67](https://github.com/Wesley-Work/MTB-OA/pull/67))
+### 🚧 Others
+- 暂时移除`网络管理`等功能 @Wesley-0808 ([#67](https://github.com/Wesley-Work/MTB-OA/pull/67))
+- 系统名称更改为`信息化管理平台` @Wesley-0808 ([#67](https://github.com/Wesley-Work/MTB-OA/pull/67))
+- 菜单名称优化 @Wesley-0808 ([#67](https://github.com/Wesley-Work/MTB-OA/pull/67))
+- 优化菜单权限结构，近期版本将优化系统权限结构。⚠️ 该版本将不校验用户是否有该页面权限 @Wesley-0808 ([#67](https://github.com/Wesley-Work/MTB-OA/pull/67))
 ## 🌈 3.4.0 `2025-05-27` 
 ### 🚀 Features
 - `Audit`:
