@@ -44,17 +44,7 @@ export default defineComponent({
     }
     try {
       const RouterView = <router-view handleChangeComponent={props?.handleChangeComponent}></router-view>;
-      return needInternet ? (
-        isInternet ? (
-          RouterView
-        ) : (
-          <OnlyInternet />
-        )
-      ) : vPermission && pagePermissionVerify ? (
-        RouterView
-      ) : (
-        <NoPermissions />
-      );
+      return needInternet ? isInternet ? RouterView : <OnlyInternet /> : vPermission ? RouterView : <NoPermissions />;
     } catch (err) {
       console.error(err);
       return <Error msg={err}></Error>;
