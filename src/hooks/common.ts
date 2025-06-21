@@ -155,8 +155,8 @@ export const taskType = [
 export const taskTypeDesc = {
   P0: '重要紧急',
   P1: '重要不紧急',
-  P2: '不重要紧急',
-  P3: '不重要不紧急',
+  P2: '紧急不重要',
+  P3: '不紧急不重要',
   P4: '暂缓',
 };
 
