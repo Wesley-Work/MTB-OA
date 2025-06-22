@@ -156,7 +156,6 @@ const start = () => {
       formData.iid = result.data.iid;
       TableData.value = result.data.equipmentList;
       total.value = result.data.total;
-      cleanInput();
 
       clearInterval(timeInterval.value);
       timeInterval.value = setInterval(() => {
@@ -165,6 +164,7 @@ const start = () => {
     },
     error: (err) => NotifyPlugin.error({ title: '开始盘点失败！', content: err, duration: 5000 }),
     complete: () => {
+      cleanInput();
       loading.value = false;
     },
   });
@@ -194,9 +194,11 @@ const checkStatus = () => {
       }
       formData.started = result.data.start;
       formData.iid = result.data.iid;
-      cleanInput();
     },
     error: (err) => NotifyPlugin.error({ title: '获取盘点状态失败！', content: err, duration: 5000 }),
+    complete: () => {
+      cleanInput();
+    },
   });
 };
 
@@ -218,9 +220,11 @@ const checkEq = () => {
       }
       TableData.value = result.data.equipmentList;
       total.value = result.data.total;
-      cleanInput();
     },
     error: (err) => NotifyPlugin.error({ title: '盘点失败！', content: err, duration: 5000 }),
+    complete: () => {
+      cleanInput();
+    },
   });
 };
 
