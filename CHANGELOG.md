@@ -1,4 +1,9 @@
 
+## 🌈 3.4.2-alpha.1 `2025-06-22` 
+### 🐞 Bug Fixes
+- `EqCheck`: 
+  - 修复缺少流程阻断的问题 @Wesley-0808 ([#69](https://github.com/Wesley-Work/MTB-OA/pull/69))
+  - 修复输入框不会自动清空的问题 @Wesley-0808 ([#69](https://github.com/Wesley-Work/MTB-OA/pull/69))
 ## 🌈 3.4.1 `2025-06-21` 
 ### 🚀 Features
 - `TaskList`:
