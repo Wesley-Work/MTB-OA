@@ -94,6 +94,10 @@ const toggle = () => {
   }
 };
 
+const cleanInput = () => {
+  formData.eqcode = '';
+};
+
 const stop = () => {
   const confirm = () => {
     useRequest({
@@ -160,6 +164,7 @@ const start = () => {
     },
     error: (err) => NotifyPlugin.error({ title: '开始盘点失败！', content: err, duration: 5000 }),
     complete: () => {
+      cleanInput();
       loading.value = false;
     },
   });
@@ -191,6 +196,9 @@ const checkStatus = () => {
       formData.iid = result.data.iid;
     },
     error: (err) => NotifyPlugin.error({ title: '获取盘点状态失败！', content: err, duration: 5000 }),
+    complete: () => {
+      cleanInput();
+    },
   });
 };
 
@@ -208,11 +216,15 @@ const checkEq = () => {
           title: '盘点失败！',
           content: '错误：' + result.errmsg,
         });
+        return;
       }
       TableData.value = result.data.equipmentList;
       total.value = result.data.total;
     },
     error: (err) => NotifyPlugin.error({ title: '盘点失败！', content: err, duration: 5000 }),
+    complete: () => {
+      cleanInput();
+    },
   });
 };
 
