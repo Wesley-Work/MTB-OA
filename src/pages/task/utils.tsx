@@ -1,4 +1,4 @@
-import { findObjectByValueAndKeyInArray } from '../../hooks/common';
+import { findObjectByValueAndKeyInArray, taskTypeDesc } from '../../hooks/common';
 import { Tag } from 'tdesign-vue-next';
 
 export const selectValueDisplay = (arr: Array<any>, value: string | number) => {
@@ -10,7 +10,7 @@ export const selectValueDisplay = (arr: Array<any>, value: string | number) => {
   if (!objectItem) return null;
   return (
     <Tag variant="light-outline" theme={objectItem?.theme} color={objectItem.color}>
-      {objectItem?.label}
+      {objectItem?.label} ({taskTypeDesc[objectItem?.label]})
     </Tag>
   );
 };
