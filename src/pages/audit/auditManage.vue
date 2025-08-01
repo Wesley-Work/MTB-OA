@@ -1,108 +1,107 @@
 <template>
-  <t-loading
-    size="small"
-    :loading="loading"
-    show-overlay
-    style="min-height: 480px; display: flex; flex-direction: row; box-shadow: var(--td-shadow-2)"
-  >
-    <!---->
-    <div v-if="initDone && approvalList.length === 0" class="empty">
-      <div>审计列表为空</div>
-    </div>
-    <!---->
-    <div class="approval-list">
+  <t-loading size="small" :loading="loading" show-overlay>
+    <div class="audit-container">
       <!---->
-      <div class="approval-list-header"></div>
+      <div v-if="initDone && approvalList.length === 0" class="empty">
+        <div>审计列表为空</div>
+      </div>
       <!---->
-      <div class="approval-list-body">
-        <div class="approval-list-body-content narrow-scrollbar">
-          <div
-            v-for="(item, index) in approvalList"
-            :key="item.id"
-            class="approval-list-body-content__item"
-            :class="{ active: currentActive === index }"
-            @click="() => handleCardActive(index)"
-          >
-            <div class="approval-list-body-content__item--header">
-              <div class="approval-list-body-content__item--header-title">
-                {{ item.details.content }}
-                <typeTag :type="item.type" />
+      <div class="approval-list">
+        <!---->
+        <div class="approval-list-header"></div>
+        <!---->
+        <div class="approval-list-body">
+          <div class="approval-list-body-content narrow-scrollbar">
+            <div
+              v-for="(item, index) in approvalList"
+              :key="item.id"
+              class="approval-list-body-content__item"
+              :class="{ active: currentActive === index }"
+              @click="() => handleCardActive(index)"
+            >
+              <div class="approval-list-body-content__item--header">
+                <div class="approval-list-body-content__item--header-title">
+                  {{ item.details.content }}
+                  <typeTag :type="item.type" />
+                </div>
+                <!---->
+                <div class="approval-list-body-content__item--header-tag">
+                  <statusTag :data="item" :status="item.status" />
+                </div>
               </div>
               <!---->
-              <div class="approval-list-body-content__item--header-tag">
-                <statusTag :data="item" :status="item.status" />
-              </div>
-            </div>
-            <!---->
-            <div class="approval-list-body-content__item--body">
-              <div>
-                <span>补充描述:</span>
-                {{ item.details.other_info }}
-              </div>
-              <div>
-                <span>创建时间:</span>
-                {{ dayjs(item.created_at).format('YYYY-MM-DD HH:mm:ss') }}
-              </div>
-            </div>
-            <!---->
-            <div class="approval-list-body-content__item--footer">
-              <div class="applicant">
-                <div class="avatar">
-                  <User1Icon />
+              <div class="approval-list-body-content__item--body">
+                <div>
+                  <span>补充描述:</span>
+                  {{ item.details.other_info }}
                 </div>
-                <div>{{ item.user_code }}</div>
+                <div>
+                  <span>创建时间:</span>
+                  {{ dayjs(item.created_at).format('YYYY-MM-DD HH:mm:ss') }}
+                </div>
               </div>
-              <div>
-                {{ dayjs(item.updated_at).format('YYYY-MM-DD HH:mm:ss') }}
+              <!---->
+              <div class="approval-list-body-content__item--footer">
+                <div class="applicant">
+                  <div class="avatar">
+                    <User1Icon />
+                  </div>
+                  <div>{{ item.user_code }}</div>
+                </div>
+                <div>
+                  {{ dayjs(item.updated_at).format('YYYY-MM-DD HH:mm:ss') }}
+                </div>
               </div>
             </div>
           </div>
         </div>
+        <!---->
       </div>
       <!---->
-    </div>
-    <div class="audit-manage narrow-scrollbar">
-      <!---->
-      <div class="approval-manage">
-        <div class="info">
-          <div class="info-header">
-            <div class="title">
-              <span
-                >[审计MTB-{{ approvalList[currentActive]?.id }}#]
-                {{ approvalList[currentActive]?.details?.content }}</span
-              >
-              <typeTag :type="approvalList[currentActive]?.type" />
-            </div>
-            <div>
-              <div class="applicant">
-                <div class="avatar">
-                  <User1Icon />
+      <div style="width: calc(100% - 328px); position: relative">
+        <!---->
+        <div class="audit-manage narrow-scrollbar">
+          <!---->
+          <div class="approval-manage">
+            <div class="info">
+              <div class="info-header">
+                <div class="title">
+                  <span
+                    >[审计MTB-{{ approvalList[currentActive]?.id }}#]
+                    {{ approvalList[currentActive]?.details?.content }}</span
+                  >
+                  <typeTag :type="approvalList[currentActive]?.type" />
                 </div>
-                <div>{{ approvalList[currentActive]?.user_code }}</div>
+                <div>
+                  <div class="applicant">
+                    <div class="avatar">
+                      <User1Icon />
+                    </div>
+                    <div>{{ approvalList[currentActive]?.user_code }}</div>
+                  </div>
+                </div>
+              </div>
+              <!---->
+              <div class="info-body">
+                <div class="info-body-content">
+                  <approvalDetailInfo :data="approvalList[currentActive]" />
+                </div>
+                <!---->
+                <div class="timeline" style="margin-bottom: 80px">
+                  <div class="timeline-title">审批进程</div>
+                  <t-timeline mode="same" style="padding: 10px 0px 0px 12px">
+                    <t-timeline-item v-for="(item, index) in stepInfo?.options" :key="index" v-bind="item">
+                      {{ item.content }}
+                    </t-timeline-item>
+                  </t-timeline>
+                </div>
               </div>
             </div>
           </div>
           <!---->
-          <div class="info-body">
-            <div class="info-body-content">
-              <approvalDetailInfo :data="approvalList[currentActive]" />
-            </div>
-            <!---->
-            <div class="timeline">
-              <div class="timeline-title">审批进程</div>
-              <t-timeline mode="same" style="padding: 10px 0px 0px 12px">
-                <t-timeline-item v-for="(item, index) in stepInfo?.options" :key="index" v-bind="item">
-                  {{ item.content }}
-                </t-timeline-item>
-              </t-timeline>
-            </div>
-          </div>
         </div>
+        <!---->
         <div class="action">
-          <div>
-            <div style="font: var(--td-font-title-medium); margin-bottom: 8px">审批意见</div>
-            <t-textarea v-model="formData.comment" :autosize="{ minRows: 5, maxRows: 15 }" placeholder="请输入内容" />
-          </div>
           <div class="btn-group">
             <t-button
               variant="outline"
@@ -138,9 +137,13 @@
               Revert · 撤销审批
             </t-button>
           </div>
+          <!---->
+          <div class="input">
+            <div style="font: var(--td-font-title-medium); white-space: nowrap">审批意见：</div>
+            <t-input v-model="formData.comment" placeholder="-" />
+          </div>
         </div>
       </div>
-      <!---->
     </div>
   </t-loading>
 </template>
@@ -347,9 +350,60 @@ export default {
   border-radius: 10px;
 }
 
+.audit-container {
+  min-height: 480px;
+  display: flex;
+  flex-direction: row;
+  box-shadow: var(--td-shadow-2);
+  border-radius: 4px;
+  overflow: hidden;
+
+  .action {
+    display: flex;
+    flex-direction: row;
+    gap: 24px;
+    padding: 12px;
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    height: 40px;
+    background-color: var(--td-bg-color-container);
+    border-top: 1px solid var(--td-border-level-2-color);
+
+    .btn-group {
+      display: flex;
+      flex-direction: row;
+      gap: 12px;
+      width: 50%;
+    }
+
+    .input {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      width: 100%;
+    }
+
+    .t-button--variant-outline {
+      &.t-button--theme-success {
+        background-color: var(--td-success-color-light);
+        --ripple-color: var(--td-success-color-light-hover);
+      }
+      &.t-button--theme-warning {
+        background-color: var(--td-warning-color-light);
+        --ripple-color: var(--td-warning-color-light-hover);
+      }
+      &.t-button--theme-danger {
+        background-color: var(--td-error-color-light);
+        --ripple-color: var(--td-error-color-light-hover);
+      }
+    }
+  }
+}
+
 .audit-manage {
   min-height: 484px;
-  max-height: calc(100vh - 262px);
+  max-height: calc(100vh - 286px);
   overflow-y: scroll;
 }
 
@@ -467,41 +521,13 @@ export default {
         }
       }
     }
-
-    .action {
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-      padding-bottom: 24px;
-      .btn-group {
-        display: flex;
-        flex-direction: row;
-        gap: 12px;
-        width: 50%;
-        margin: 0 auto;
-      }
-      .t-button--variant-outline {
-        &.t-button--theme-success {
-          background-color: var(--td-success-color-light);
-          --ripple-color: var(--td-success-color-light-hover);
-        }
-        &.t-button--theme-warning {
-          background-color: var(--td-warning-color-light);
-          --ripple-color: var(--td-warning-color-light-hover);
-        }
-        &.t-button--theme-danger {
-          background-color: var(--td-error-color-light);
-          --ripple-color: var(--td-error-color-light-hover);
-        }
-      }
-    }
   }
 }
 
 .approval-list {
   min-width: 300px;
   min-height: 480px;
-  background: var(--td-bg-color-component);
+  background: var(--td-bg-color-secondarycontainer);
   border-top-left-radius: 10px;
   border-bottom-left-radius: 10px;
 
