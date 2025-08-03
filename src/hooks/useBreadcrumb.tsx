@@ -72,7 +72,7 @@ export default defineComponent({
     };
 
     return () => (
-      <div style={isHidden.value ? 'display: none' : 'padding-bottom: 24px; user-select: none;'}>
+      <div style={isHidden.value ? 'display: none' : 'padding: 24px; user-select: none;'}>
         <Transition name="fade">
           <Breadcrumb max-item-width="240">{renderCrumbItem(componentValue.value)}</Breadcrumb>
         </Transition>

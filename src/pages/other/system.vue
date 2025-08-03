@@ -84,7 +84,7 @@ import cert from '@/assets/cn-software-copyright.pdf';
 defineProps({
   handleChangeComponent: Function,
 });
-const TdesignVueNextVersion = '1.12.0';
+const TdesignVueNextVersion = '1.15.2';
 // 2025-05-26 v2_7_16
 const latestVersion = ref('0.0.0');
 const systemVType = ref('authorize');

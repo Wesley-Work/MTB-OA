@@ -1,7 +1,12 @@
-import { defineComponent, ref, toRefs, watch } from 'vue';
+import { defineComponent, ref, toRefs, watch, onMounted, nextTick, VNode } from 'vue';
+import Sortable from 'sortablejs';
 import { taskStatus, taskTimeConvert, taskType, taskTypeDesc } from '../../hooks/common';
-import { Loading, Table, Tag } from 'tdesign-vue-next';
+import { Empty, Loading, Table, Tag } from 'tdesign-vue-next';
 import { isArray } from 'lodash-es';
+
+import './styles/taskList.less';
+import useVModel from '@hooks/useVModel';
+import { taskEdit, taskGet } from './utils';
 
 export default defineComponent({
   name: 'TaskListRender',
@@ -30,25 +35,55 @@ export default defineComponent({
   setup(props) {
     const { data, tabs, currentTab, showCompleted: showCompletedProp, loading } = toRefs(props);
 
+    const modelValue = ref(false);
+    const [loadingVal, setLoading] = useVModel(loading, modelValue, false, () => {});
+
     const renderData = ref({});
     const showCompleted = ref(showCompletedProp.value);
+    const completeStatusValue = 6;
 
-    watch(currentTab, () => {
+    // 控制是否启用动画
+    const enableAnimation = ref(true);
+
+    // 使用一个唯一标识来触发动画
+    const animationKey = ref(Date.now());
+
+    watch(currentTab, (newVal) => {
       updateRenderData();
+      if (newVal === 'dashboard') {
+        nextTick(() => {
+          initSortable();
+        });
+      }
     });
 
     watch(data, (newVal) => {
       updateRenderData();
       data.value = newVal;
+
+      // 数据更新时，生成新的key来触发动画
+      animationKey.value = Date.now();
+
+      if (currentTab.value === 'dashboard') {
+        nextTick(() => {
+          initSortable();
+        });
+      }
     });
 
     watch(showCompletedProp, (newVal) => {
       showCompleted.value = newVal;
+      updateRenderData();
+      if (newVal && currentTab.value === 'dashboard') {
+        nextTick(() => {
+          initSortable();
+        });
+      }
     });
 
     const updateRenderData = () => {
       renderData.value = {};
-      renderData.value = data.value[currentTab.value] || {};
+      renderData.value = data.value[currentTab.value] || data.value['all'] || {};
     };
 
     const Options = {
@@ -262,13 +297,18 @@ export default defineComponent({
       ],
     };
 
-    const stringToTagList = (str) => {
+    const stringToTagList = (str: string, options: any = {}) => {
       if (str === '') {
         return '';
       }
+      const { variant = 'outline', size = 'medium' } = options;
       const list = str?.split(',') ?? [];
       const div = list.map((item) => {
-        return <Tag>{item}</Tag>;
+        return (
+          <Tag variant={variant} size={size}>
+            {item}
+          </Tag>
+        );
       });
       return <div style="display: flex; flex-wrap: wrap; gap: 4px;">{div}</div>;
     };
@@ -286,7 +326,7 @@ export default defineComponent({
     const renderTagAndTable = (item) => {
       if (isArray(renderData.value)) {
         const tableData = renderData.value.filter((row) => {
-          if (!showCompleted.value && row.status === 6) {
+          if (!showCompleted.value && row.status === completeStatusValue) {
             return false;
           }
           return true;
@@ -296,14 +336,14 @@ export default defineComponent({
           return null;
         }
 
-        return <Table class="hidden--head" columns={TableColumns[item]} data={tableData} bordered />;
+        return <Table class="hidden--head" columns={TableColumns[item]} data={tableData} bordered rowKey="id" />;
       } else {
         const keys = Object.keys(renderData.value);
         return keys
           .map((key) => {
             const tag = findVal(key, item);
             const tableData = renderData.value[key].filter((row) => {
-              if (!showCompleted.value && row.status === 6) {
+              if (!showCompleted.value && row.status === completeStatusValue) {
                 return false;
               }
               return true;
@@ -325,7 +365,7 @@ export default defineComponent({
                     {item === 'status' && <span>{tag.label}</span>}
                   </Tag>
                 </div>
-                <Table class="hidden--head" columns={TableColumns[item]} data={tableData} bordered></Table>
+                <Table class="hidden--head" columns={TableColumns[item]} data={tableData} bordered rowKey="id"></Table>
               </div>
             );
           })
@@ -333,12 +373,196 @@ export default defineComponent({
       }
     };
 
+    // 存储所有任务列表的引用
+    const taskListRefs = ref<Record<number, HTMLElement>>({});
+
+    // 初始化拖拽功能
+    const initSortable = () => {
+      // 获取所有任务列表容器
+      const taskLists = document.querySelectorAll('.task-dashboard_item__list');
+
+      // 为每个列表初始化Sortable
+      taskLists.forEach((el) => {
+        new Sortable(el as HTMLElement, {
+          group: 'taskCards', // 设置相同的组名，使卡片可以在不同列表间拖动
+          animation: 150, // 拖动时的动画效果
+          ghostClass: 'task-card-ghost', // 拖动时的占位符类名
+          chosenClass: 'task-card-chosen', // 被选中时的类名
+          dragClass: 'task-card-drag', // 拖动时的类名
+          sort: false, // 禁止在同一列表内排序，因为这里不分顺序
+          filter: '.t-empty', // 过滤掉Empty组件，使其不能被拖拽
+          onStart: function (evt) {
+            // 拖动开始时移除动画类
+            const { item } = evt;
+            item.classList.remove('card-animation');
+          },
+          onAdd: function (evt) {
+            // 当一个元素从另一个列表添加到当前列表时触发
+            const { to, item } = evt;
+
+            // 将元素追加到列表最底部
+            to.appendChild(item);
+          },
+          onEnd: function (evt) {
+            // 拖动结束后的处理
+            const { from, to, item } = evt;
+
+            // 确保拖动结束后也不会有动画
+            item.classList.remove('card-animation');
+
+            // 获取任务ID
+            const taskId = Number(item.getAttribute('data-task-id'));
+
+            // 获取源状态和目标状态
+            const fromStatus = Number(from.parentElement?.getAttribute('data-status'));
+            const toStatus = Number(to.parentElement?.getAttribute('data-status'));
+
+            // 如果状态发生变化，可以在这里处理状态更新逻辑
+            if (fromStatus !== toStatus && taskId) {
+              const taskItem = data.value?.['all'].find((i) => i.id === taskId);
+              setLoading(true);
+              taskEdit(taskItem, { status: toStatus }).finally(() => {
+                taskGet().finally(() => {
+                  setLoading(false);
+                });
+              });
+            }
+          },
+        });
+      });
+    };
+
+    // 在组件挂载后初始化拖拽功能
+    onMounted(() => {
+      nextTick(() => {
+        if (currentTab.value === 'dashboard') {
+          initSortable();
+        }
+      });
+    });
+
+    // dashboard模式只会根据status tag渲染列
+    const renderDashboard = () => {
+      const emptyNode = <Empty title="该分类当前还没有任务噢～" />;
+      const taskItem = (statusValue: number) => {
+        const tableData = (renderData.value as Array<any>)
+          ?.filter((row) => {
+            if (!showCompleted.value && row.status === completeStatusValue) {
+              return false;
+            }
+
+            if (row.status === statusValue) {
+              return true;
+            }
+
+            return false;
+          })
+          .map((row) => {
+            const tagItem = taskType.find((i) => i.value === row.type);
+            return (
+              <div
+                class={['task-dashboard_item__list_card', enableAnimation.value ? 'card-animation' : '']}
+                data-task-id={row.id}
+                key={`${animationKey.value}-${row.id}`}
+              >
+                <div class="task-dashboard_item__list_card__item" style="padding: 0px 0px 6px; align-items:flex-start;">
+                  <div>
+                    <Tag theme={tagItem?.theme} color={tagItem?.color} variant="light-outline" size="small">
+                      {tagItem?.label} ({taskTypeDesc[tagItem?.label]})
+                    </Tag>
+                  </div>
+                  <div class="title">{row.name}</div>
+                </div>
+                <div>{row.content}</div>
+                <div class="split-line"></div>
+                <div class="task-dashboard_item__list_card__item">
+                  <div class="task-dashboard_item__list_card__item-header">工作时间</div>
+                  <div>{taskTimeConvert((row.work_time as string).split(','))?.join(' 至 ')}</div>
+                </div>
+                <div class="task-dashboard_item__list_card__item">
+                  <div class="task-dashboard_item__list_card__item-header">预计完成时间</div>
+                  <div>{taskTimeConvert(row.finally_time)}</div>
+                </div>
+                <div class="split-line"></div>
+                <div class="task-dashboard_item__list_card__item">
+                  <div class="task-dashboard_item__list_card__item-header">分配人员</div>
+                  <div>{stringToTagList(row.user, { variant: 'outline', size: 'small' })}</div>
+                </div>
+                <div class="task-dashboard_item__list_card__item">
+                  <div class="task-dashboard_item__list_card__item-header">使用设备</div>
+                  <div>{stringToTagList(row.equipment, { variant: 'outline', size: 'small' })}</div>
+                </div>
+                <div class="task-dashboard_item__list_card__item">
+                  <div class="task-dashboard_item__list_card__item-header"></div>
+                  <div></div>
+                </div>
+              </div>
+            );
+          });
+
+        tableData.unshift(emptyNode);
+
+        return tableData;
+      };
+      const node: VNode[] = taskStatus
+        .map((status) => {
+          return (
+            (showCompleted.value || status.value !== completeStatusValue) && (
+              <div
+                class={['task-dashboard_item', `task-dashboard--${status.value}`]}
+                key={status.value}
+                data-status={status.value}
+              >
+                <div class="task-dashboard_item__tag">
+                  <Tag
+                    key={status.value}
+                    size="large"
+                    theme={status.theme}
+                    color={status.color}
+                    variant="light-outline"
+                  >
+                    {status.label}
+                  </Tag>
+                </div>
+                <div
+                  class="task-dashboard_item__list narrow-scrollbar"
+                  ref={(el) => {
+                    if (el) taskListRefs.value[status.value] = el as HTMLElement;
+                  }}
+                >
+                  {taskItem(status.value)}
+                </div>
+              </div>
+            )
+          );
+        })
+        .filter(Boolean)
+        .sort((a, b) => {
+          // 获取每个列表中的任务数量
+          const aTaskCount = a?.children?.[1]?.children?.[0]?.length || 0;
+          const bTaskCount = b?.children?.[1]?.children?.[0]?.length || 0;
+
+          // 按任务数量从多到少排序
+          return bTaskCount - aTaskCount;
+        });
+      return <div class="task-dashboard narrow-scrollbar">{node}</div>;
+    };
+
     const renderInner = (item) => {
+      if (item === 'dashboard') {
+        return renderDashboard();
+      }
+
       const renderTable = renderTagAndTable(item);
 
       return (
         <div class="Table--view">
-          <Table class={[{ 'hidden--body': renderTable.length !== 0 }]} columns={TableColumns[item]} bordered={true} />
+          <Table
+            class={[{ 'hidden--body': renderTable.length !== 0 }]}
+            columns={TableColumns[item]}
+            bordered={true}
+            rowKey="id"
+          />
           <div class="tag--body">{renderTable}</div>
         </div>
       );
@@ -348,7 +572,7 @@ export default defineComponent({
       updateRenderData();
       return (
         <div>
-          <Loading loading={loading.value} text="加载中...">
+          <Loading loading={loadingVal.value} text="加载中...">
             {tabs.value.map((item) => (currentTab.value === item ? <div id={item}>{renderInner(item)}</div> : null))}
           </Loading>
         </div>
