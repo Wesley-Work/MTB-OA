@@ -123,7 +123,6 @@
   </div>
   <!-- if show sidemenu need margin-left: 232px;-->
   <div
-    style="padding: 24px"
     class="MainContent"
     :class="{
       'SideMenuShow-MainContent': SideMenu.show,
@@ -139,7 +138,8 @@
       :class="{ 'fullscreen--hidden': isFullscreen }"
     />
     <section
-      class="loading-change-components-animation"
+      class="loading-change-components-animation narrow-scrollbar"
+      style="margin: 0 24px; height: calc(-238px + 100vh); overflow-y: auto; border-radius: 4px"
       :class="{
         'loading-change-components-in': MainContent.classIn,
         'loading-change-components-out': MainContent.classOut,
@@ -157,28 +157,30 @@
         :fullscreen="isFullscreen"
         :fullscreen-toggle="fullscreenToggle"
       ></router-view>
-      <!---->
-      <div id="copyright">
-        <div>
-          Powered By
-          <a href="https://www.wesley.net.cn/" we-a-tag target="_blank" @click.prevent="NotClick">Wesley</a>
-          | Designed By
-          <a href="https://tdesign.tencent.com/" we-a-tag target="_blank" @click.prevent="NotClick">Tencent</a>
-          |
-          <a href="https://github.com/Wesley-Work/MTB-OA" we-a-tag target="_blank" @click.prevent="NotClick"
-            >Repository·Github</a
-          >
-        </div>
-        <!-- 广告位 -->
-        <!-- <div>由 <a href="javaScript:void(0);" we-a-tag>DEBUG-SDZZ</a> 提供技术支持</div> -->
-        <div></div>
-        <div>
-          Copyright © 2025
-          <a href="https://www.wesley.net.cn/" we-a-tag target="_blank" @click.prevent="NotClick">Wesley.</a>
-          All Right Reserved. | Used by MTB with permission
-        </div>
-      </div>
     </section>
+    <!---->
+    <div id="copyright">
+      <div>
+        Powered By
+        <a href="https://www.wesley.net.cn/" we-a-tag target="_blank" @click.prevent="NotClick">Wesley</a>
+        | Designed By
+        <a href="https://tdesign.tencent.com/" we-a-tag target="_blank" @click.prevent="NotClick"
+          >Tencent (TDesignOTeam)</a
+        >
+        |
+        <a href="https://github.com/Wesley-Work/MTB-OA" we-a-tag target="_blank" @click.prevent="NotClick"
+          >Github·Repository</a
+        >
+      </div>
+      <!-- 广告位 -->
+      <!-- <div>由 <a href="javaScript:void(0);" we-a-tag>DEBUG-SDZZ</a> 提供技术支持</div> -->
+      <div></div>
+      <div>
+        Copyright © 2025
+        <a href="https://www.wesley.net.cn/" we-a-tag target="_blank" @click.prevent="NotClick">Wesley.</a>
+        All Right Reserved. | Used in MTB with permission
+      </div>
+    </div>
   </div>
 </template>
 
@@ -538,7 +540,7 @@ const NotClick = () => {
   if (config.aTagDoNotNav) {
     NotifyPlugin('warning', {
       title: '操作失败',
-      content: '根据相关规则，不允许跳转站外链接',
+      content: '根据系统相关规则，不允许跳转站外链接',
     });
     return false;
   }
@@ -766,6 +768,12 @@ export default {
 .v-enter-from,
 .v-leave-to {
   opacity: 0;
+}
+
+.hide-scrollbar {
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .autoPadding {

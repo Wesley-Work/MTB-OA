@@ -85,11 +85,18 @@
                   </t-option>
                 </t-select>
               </t-form-item>
-              <t-form-item label="权重等级" name="weight">
-                <t-rate v-model="taskActiveItem.weight"></t-rate>
+              <t-form-item label="支持自主认领" name="supportClaim">
+                <t-switch v-model="taskActiveItem.supportClaim" />
               </t-form-item>
-              <t-form-item label="备注" name="remark">
-                <t-input v-model="taskActiveItem.remark" placeholder="请输入内容" />
+              <t-form-item label="最大认领人" name="maxClaimant">
+                <t-input-number v-model="taskActiveItem.maxClaimant" tips="-1 代表不限制人数" />
+              </t-form-item>
+              <t-form-item
+                label="认领是否需要学习"
+                name="needStudy"
+                style="white-space: break-spaces; line-height: var(--td-comp-margin-xl)"
+              >
+                <t-switch v-model="taskActiveItem.needStudy" />
               </t-form-item>
             </div>
             <!---->
@@ -102,6 +109,12 @@
                   v-model="taskActiveItem.equipment"
                   tips="需要用到的设备，可让工作人员更快速地准备，每输入完一个设备请按回车！"
                 />
+              </t-form-item>
+              <t-form-item label="权重等级" name="weight">
+                <t-rate v-model="taskActiveItem.weight"></t-rate>
+              </t-form-item>
+              <t-form-item label="备注" name="remark">
+                <t-input v-model="taskActiveItem.remark" placeholder="请输入内容" />
               </t-form-item>
             </div>
           </t-space>
@@ -150,6 +163,9 @@ const defaultItem = {
   weight: 3,
   finally_time: null,
   remark: null,
+  supportClaim: false,
+  maxClaimant: -1,
+  needStudy: false,
 };
 const taskList = ref([]);
 const taskListActive = ref(null);
@@ -414,6 +430,13 @@ $cardPadding: 24px;
         }
       }
     }
+  }
+}
+
+.t-form-item__needStudy {
+  .t-form__label {
+    white-space: break-spaces;
+    line-height: var(--td-comp-margin-xl);
   }
 }
 </style>

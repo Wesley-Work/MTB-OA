@@ -31,6 +31,7 @@
                 <span class="bitian">*</span>
                 <span style="color: var(--td-text-color-primary); font: var(--td-font-body-medium)">设备Code: </span>
                 <t-input
+                  ref="checkInput"
                   v-model="formData.eqcode"
                   style="width: 181px; margin-left: 10px"
                   placeholder="请扫描或输入"
@@ -70,11 +71,12 @@
   </div>
 </template>
 
-<script setup>
+<script lang="tsx" setup>
 import { ref, reactive, onMounted, onUnmounted } from 'vue';
 import { DialogPlugin, NotifyPlugin } from 'tdesign-vue-next';
 import useRequest from '../../hooks/useRequest';
 
+const checkInput = ref<HTMLInputElement>(null);
 const formData = reactive({ eqcode: '', started: false, iid: null });
 const loading = ref(false);
 const total = ref(0);
@@ -96,6 +98,7 @@ const toggle = () => {
 
 const cleanInput = () => {
   formData.eqcode = '';
+  checkInput.value?.focus();
 };
 
 const stop = () => {
@@ -257,7 +260,7 @@ onUnmounted(() => {
 });
 </script>
 
-<script>
+<script lang="tsx">
 export default {
   name: 'EqCheck',
 };

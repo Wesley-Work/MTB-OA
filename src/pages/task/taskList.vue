@@ -39,6 +39,7 @@
           <t-tab-panel value="type" label="按类型排序" :destroy-on-hide="false" />
           <t-tab-panel value="status" label="按状态排序" :destroy-on-hide="false" />
           <t-tab-panel value="all" label="全部任务" :destroy-on-hide="false" />
+          <t-tab-panel value="dashboard" label="看板" :destroy-on-hide="false" />
         </t-tabs>
         <taskList
           :data="tableData"
@@ -57,7 +58,6 @@
 <script setup lang="tsx">
 import { onBeforeMount, onBeforeUnmount, reactive, ref } from 'vue';
 import useRequest from '../../hooks/useRequest.ts';
-import { getToken } from '../../hooks/common.ts';
 import { NotifyPlugin } from 'tdesign-vue-next';
 import { Fullscreen2Icon, FullscreenExit1Icon } from 'tdesign-icons-vue-next';
 import taskList from './taskListTable';
@@ -70,7 +70,7 @@ const props = defineProps({
 });
 const showCompleted = ref(false);
 const tab_active = ref('type');
-const tabs_classification = ['type', 'status', 'all'];
+const tabs_classification = ['type', 'status', 'all', 'dashboard'];
 const tableLoading = ref(false);
 // const tabs = [...tabs_classification, 'weight'];
 var timer = null;
@@ -103,15 +103,10 @@ const convertData = () => {
 };
 
 const loadTaskList = (loading = true) => {
-  const TOKEN = getToken();
-  tableLoading.value = loading;
+  tableLoading.value = !!loading;
   useRequest({
     url: '/task/list',
     methods: 'POST',
-    header: {
-      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-      token: TOKEN,
-    },
     success: function (res) {
       const json = JSON.parse(res);
       if (json.errcode != 0) {

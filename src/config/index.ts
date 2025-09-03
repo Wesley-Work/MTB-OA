@@ -141,6 +141,24 @@ const routerMap: RouteMaps = [
     label: 'Management',
     children: [
       {
+        key: 'course-exam',
+        label: '课程与考试',
+        icon: 'address-book',
+        hidden: true,
+        children: [
+          {
+            key: 'CourseManage',
+            label: '课程管理',
+            component: () => import('@pages/course/courseManage.vue'),
+          },
+          {
+            key: 'ExamManage',
+            label: '考试管理',
+            component: () => import('@pages/exam/examManage.vue'),
+          },
+        ],
+      },
+      {
         key: 'lend-manage',
         label: '借出管理',
         icon: 'file-paste',
