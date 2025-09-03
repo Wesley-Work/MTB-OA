@@ -30,7 +30,7 @@ import { File1Icon, BookOpenIcon } from 'tdesign-icons-vue-next';
 import useRequest from '@hooks/useRequest';
 import dayjs from 'dayjs';
 
-const props = defineProps({
+defineProps({
   handleChangeComponent: {
     type: Function,
     default: null,

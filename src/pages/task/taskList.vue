@@ -58,7 +58,6 @@
 <script setup lang="tsx">
 import { onBeforeMount, onBeforeUnmount, reactive, ref } from 'vue';
 import useRequest from '../../hooks/useRequest.ts';
-import { getToken } from '../../hooks/common.ts';
 import { NotifyPlugin } from 'tdesign-vue-next';
 import { Fullscreen2Icon, FullscreenExit1Icon } from 'tdesign-icons-vue-next';
 import taskList from './taskListTable';
