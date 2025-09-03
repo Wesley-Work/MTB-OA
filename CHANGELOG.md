@@ -1,4 +1,9 @@
 
+## 🌈 3.4.3 `2025-09-03` 
+### 🚀 Features
+- `taskDashboard`: 新增 `任务看板` 功能，任务将按照任务状态进行分类。支持拖动修改状态 @Wesley-0808 ([#71](https://github.com/Wesley-Work/MTB-OA/pull/71))
+### 🐞 Bug Fixes
+- `Any`: 修复部分问题 @Wesley-0808 ([#71](https://github.com/Wesley-Work/MTB-OA/pull/71))
 ## 🌈 3.4.2-alpha.1 `2025-06-22` 
 ### 🐞 Bug Fixes
 - `EqCheck`: 
