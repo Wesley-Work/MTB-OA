@@ -1,8 +1,9 @@
 <template>
   <!---->
-  <div style="margin-top: 16px">
+  <div>
     <t-table
       row-key="id"
+      height="100%"
       :columns="tableColumns"
       :data="tableData"
       select-on-row-click
@@ -12,6 +13,7 @@
       :loading="TableLoading"
       :pagination="tablePagination"
       :filter-value="tableFilterValue"
+      class="need-full-section table-has-pagination"
       @select-change="handleTableSelectChange"
       @page-change="onPageChange"
       @filter-change="onFilterChange"
