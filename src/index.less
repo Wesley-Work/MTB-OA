@@ -4,15 +4,29 @@
   }
 
   .need-full-section {
+    height: 100%;
+
+    &.t-table {
+      background-color: var(--td-bg-color-page);
+
+      table {
+        height: 100%;
+      }
+
+      .t-table__empty {
+        height: 100%;
+      }
+    }
+
     &.table-has-pagination {
-      height: calc(100% - 64px);
+      max-height: calc(100% - 64px);
     }
     &.t-table--header-fixed {
-      height: calc(100% - 47px);
+      max-height: calc(100% - 47px);
     }
 
     &.table-has-pagination.t-table--header-fixed {
-      height: calc(100% - 66px);
+      max-height: calc(100% - 66px);
     }
   }
 }

@@ -3,7 +3,7 @@
   <div>
     <t-table
       row-key="id"
-      height="100%"
+      max-height="100%"
       :columns="tableColumns"
       :data="tableData"
       select-on-row-click
