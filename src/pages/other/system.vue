@@ -336,7 +336,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="less">
 .info-container {
   display: flex;
   flex-direction: column;

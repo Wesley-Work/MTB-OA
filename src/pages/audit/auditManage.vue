@@ -327,7 +327,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="less">
 :root {
   --audit-card-text-color: rgba(0, 0, 0, 0.5);
 }
@@ -336,7 +336,7 @@ export default {
 }
 </style>
 
-<style lang="scss" scoped>
+<style lang="less" scoped>
 .empty {
   position: absolute;
   width: 100%;

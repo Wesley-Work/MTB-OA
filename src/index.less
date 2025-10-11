@@ -1,0 +1,18 @@
+.main-section {
+  > div {
+    height: 100%;
+  }
+
+  .need-full-section {
+    &.table-has-pagination {
+      height: calc(100% - 64px);
+    }
+    &.t-table--header-fixed {
+      height: calc(100% - 47px);
+    }
+
+    &.table-has-pagination.t-table--header-fixed {
+      height: calc(100% - 66px);
+    }
+  }
+}

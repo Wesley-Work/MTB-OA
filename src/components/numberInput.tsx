@@ -1,5 +1,5 @@
 import { defineComponent, ref, toRefs } from 'vue';
-import './style/numberInput.scss';
+import './style/numberInput.less';
 
 export default defineComponent({
   name: 'NumberInput',

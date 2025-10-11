@@ -368,7 +368,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="less">
 $cardPadding: 24px;
 .mainView {
   display: flex;

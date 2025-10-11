@@ -1081,7 +1081,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="less">
 .t-dialog__body:has(mtb-tag[TAG]) {
   padding-bottom: 0px !important;
 }

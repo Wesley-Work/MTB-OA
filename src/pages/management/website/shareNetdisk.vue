@@ -300,7 +300,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="less">
 .pickUpCode-Title {
   font: var(--td-font-title-medium);
   padding: 8px;

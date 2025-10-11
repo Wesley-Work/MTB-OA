@@ -200,7 +200,7 @@ const handleApplyRecord = () => {
 
 <script lang="tsx"></script>
 
-<style scoped lang="scss">
+<style scoped lang="less">
 .SuppleRecord--Container {
   display: flex;
   flex-direction: column;

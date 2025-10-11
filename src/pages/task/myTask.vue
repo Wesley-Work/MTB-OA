@@ -110,7 +110,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="less">
 .view {
   display: flex;
   flex-direction: row;

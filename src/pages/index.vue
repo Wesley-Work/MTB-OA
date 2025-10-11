@@ -138,7 +138,7 @@
       :class="{ 'fullscreen--hidden': isFullscreen }"
     />
     <section
-      class="loading-change-components-animation narrow-scrollbar"
+      class="loading-change-components-animation narrow-scrollbar main-section"
       style="margin: 0 24px; height: calc(-238px + 100vh); overflow-y: auto; border-radius: 4px"
       :class="{
         'loading-change-components-in': MainContent.classIn,
@@ -759,7 +759,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="less">
 .v-enter-active,
 .v-leave-active {
   transition: opacity 0.5s ease;

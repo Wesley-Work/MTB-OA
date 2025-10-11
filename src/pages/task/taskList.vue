@@ -150,7 +150,7 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="less" scoped>
 .TaskList {
   position: relative;
   display: flex;
