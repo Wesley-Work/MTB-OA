@@ -159,6 +159,12 @@ const routerMap: RouteMaps = [
         ],
       },
       {
+        key: 'online-user',
+        label: '在线用户',
+        icon: 'user-visible',
+        component: () => import('@pages/management/account/OnlineUser.vue'),
+      },
+      {
         key: 'lend-manage',
         label: '借出管理',
         icon: 'file-paste',
