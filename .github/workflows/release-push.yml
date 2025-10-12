@@ -112,7 +112,7 @@ jobs:
             
             try {
               const changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
-              const versionHeader = `## ${version}`;
+              const versionHeader = `## 🌈 ${version}`;
               const startIndex = changelog.indexOf(versionHeader);
               
               if (startIndex === -1) {
@@ -126,6 +126,9 @@ jobs:
               const releaseNotes = nextVersionIndex === -1
                 ? changelog.slice(startIndex)
                 : changelog.slice(startIndex, nextVersionIndex);
+              
+              core.info(`Release Notes for ${version}:`);
+              core.info(releaseNotes);
               
               core.setOutput('content', releaseNotes.trim());
               return;
@@ -172,15 +175,18 @@ jobs:
             let releaseBody = "${{ steps.get-pr.outputs.changelog }}";
             if (!releaseBody) {
               releaseBody = "${{ steps.read-changelog.outputs.content }}";
+              console.warn('use changelog from CHANGELOG.md')
             }
             
             // 如果仍然没有changelog，使用默认消息
             if (!releaseBody) {
               releaseBody = `Release ${version}`;
+              console.warn('use default release body')
             }
             
             // 判断是否为预发布版本（alpha或beta）
             const isPrerelease = version.includes('-alpha.') || version.includes('-beta.');
+            core.info(`Is pre-release: ${isPrerelease}`);
             
             // 创建release
             const release = await github.rest.repos.createRelease({
@@ -195,7 +201,6 @@ jobs:
 
             // 上传构建包
             const fs = require('fs');
-            const globby = require('globby');
             
             const assets = [
               `MTB-OA-WESLEY-BuildPackage-${version}.zip`,

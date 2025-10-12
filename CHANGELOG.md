@@ -1,13 +1,5 @@
 
 
-## 🌈 3.5.4 `2025-10-12` 
-### 🚧 Others
-- Chore/ci @Wesley-0808 ([#81](https://github.com/Wesley-Work/MTB-OA/pull/81))
-
-## 🌈 3.5.3 `2025-10-12` 
-### 🚧 Others
-- fix: ci @Wesley-0808 ([#79](https://github.com/Wesley-Work/MTB-OA/pull/79))
-
 ## 🌈 3.5.2 `2025-10-12` 
 ### 🐞 Bug Fixes
 - 修复自动化工作流异常问题 @Wesley-0808 ([#75](https://github.com/Wesley-Work/MTB-OA/pull/75))
