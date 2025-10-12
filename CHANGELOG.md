@@ -1,4 +1,15 @@
 
+## 🌈 3.5.10 `2025-10-12` 
+### 🚀 Features
+- `OnlineUser`: 支持查看在线用户，支持踢出用户 @Wesley-0808 ([#73](https://github.com/Wesley-Work/MTB-OA/pull/73))
+- `WebsiteManage`: 支持设置官网公告内容 @Wesley-0808 ([#73](https://github.com/Wesley-Work/MTB-OA/pull/73))
+### 🐞 Bug Fixes
+- `LendRecord`: 表格滚动区域限定 @Wesley-0808 ([#73](https://github.com/Wesley-Work/MTB-OA/pull/73))
+- `WebsiteManage`: 修复设置官网Banner区域内容，上传的文件无法正常打开的问题 @Wesley-0808 ([#73](https://github.com/Wesley-Work/MTB-OA/pull/73))
+- `Permissions`: 修复页面权限校验配置问题 @Wesley-0808 ([#75](https://github.com/Wesley-Work/MTB-OA/pull/94))
+- 修复自动化工作流异常问题 @Wesley-0808 ([#75](https://github.com/Wesley-Work/MTB-OA/pull/75))
+### 🚧 Others
+- `System`: 适配系统 @Wesley-0808 ([#73](https://github.com/Wesley-Work/MTB-OA/pull/73))
 ## 🌈 3.4.3 `2025-09-03` 
 ### 🚀 Features
 - `taskDashboard`: 新增 `任务看板` 功能，任务将按照任务状态进行分类。支持拖动修改状态 @Wesley-0808 ([#71](https://github.com/Wesley-Work/MTB-OA/pull/71))
