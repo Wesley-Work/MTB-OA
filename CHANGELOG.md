@@ -1,5 +1,6 @@
 
-## 🌈 3.5.1 `2025-10-12` 
+
+## 🌈 3.5.2 `2025-10-12` 
 ### 🐞 Bug Fixes
 - 修复自动化工作流异常问题 @Wesley-0808 ([#75](https://github.com/Wesley-Work/MTB-OA/pull/75))
 ## 🌈 3.5.0 `2025-10-12` 
@@ -16,6 +17,7 @@
 ### 🚀 Features
 - `taskDashboard`: 新增 `任务看板` 功能，任务将按照任务状态进行分类。支持拖动修改状态 @Wesley-0808 ([#71](https://github.com/Wesley-Work/MTB-OA/pull/71))
 ### 🐞 Bug Fixes
+
 - `Any`: 修复部分问题 @Wesley-0808 ([#71](https://github.com/Wesley-Work/MTB-OA/pull/71))
 ## 🌈 3.4.2-alpha.1 `2025-06-22` 
 ### 🐞 Bug Fixes
@@ -149,3 +151,4 @@
 - `Return`: 使用`组合式API`重构 @Wesley-0808 ([#7](https://github.com/Wesley-Work/MTB-OA/pull/7))
 - `Component`: 部分组件已对齐`v3.3.0`在线版。 @Wesley-0808 ([#8](https://github.com/Wesley-Work/MTB-OA/pull/8))
 - 初始化标准 @Wesley-0808 ([#1](https://github.com/Wesley-Work/MTB-OA/pull/1))
+
