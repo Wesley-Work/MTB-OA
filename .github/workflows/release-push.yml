@@ -60,7 +60,7 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const version = ${{ steps.get-current-version.outputs.version }}
+            const version = "${{ steps.get-current-version.outputs.version }}"
             
             try {
               const changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
@@ -114,7 +114,7 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const version = ${{ steps.get-current-version.outputs.version }}
+            const version = "${{ steps.get-current-version.outputs.version }}"
             
             let releaseBody = steps.read-changelog.outputs.content;
             
