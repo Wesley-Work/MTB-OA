@@ -47,7 +47,7 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       # 安装依赖
-      - run: pnpm i
+      - run: pnpm install --no-frozen-lockfile
 
       - name: Get latest release PR
         id: get-pr
