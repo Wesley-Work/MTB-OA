@@ -1,5 +1,9 @@
 
 
+## 🌈 3.5.7 `2025-10-12` 
+### 🚧 Others
+- Update release-push.yml @Wesley-0808 ([#87](https://github.com/Wesley-Work/MTB-OA/pull/87))
+
 ## 🌈 3.5.6 `2025-10-12` 
 ### 🚧 Others
 - fix: ci @Wesley-0808 ([#85](https://github.com/Wesley-Work/MTB-OA/pull/85))
