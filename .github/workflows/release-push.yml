@@ -122,7 +122,7 @@ jobs:
                 return;
               }
               
-              const nextVersionIndex = changelog.indexOf('## ', startIndex + 2);
+              const nextVersionIndex = changelog.indexOf('## 🌈', startIndex + 2);
               const releaseNotes = nextVersionIndex === -1
                 ? changelog.slice(startIndex)
                 : changelog.slice(startIndex, nextVersionIndex);
@@ -172,9 +172,9 @@ jobs:
             const version = "${{ steps.get-current-version.outputs.version }}"
             
             // 优先使用PR评论中的changelog，如果没有则使用CHANGELOG.md中的内容
-            let releaseBody = "${{ steps.get-pr.outputs.changelog }}";
+            let releaseBody = "${{ toJSON(steps.get-pr.outputs.changelog) }}";
             if (!releaseBody) {
-              releaseBody = "${{ steps.read-changelog.outputs.content }}";
+              releaseBody = "${{ toJSON(steps.read-changelog.outputs.content) }}";
               console.warn('use changelog from CHANGELOG.md')
             }
             
