@@ -1,5 +1,9 @@
 
 
+## 🌈 3.5.4 `2025-10-12` 
+### 🚧 Others
+- Chore/ci @Wesley-0808 ([#81](https://github.com/Wesley-Work/MTB-OA/pull/81))
+
 ## 🌈 3.5.3 `2025-10-12` 
 ### 🚧 Others
 - fix: ci @Wesley-0808 ([#79](https://github.com/Wesley-Work/MTB-OA/pull/79))
