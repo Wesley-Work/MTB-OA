@@ -146,7 +146,7 @@ jobs:
 
       - name: Create WESLEY zip
         run: |
-          VERSION=$(echo ${{ github.ref_name }} | sed 's/\./_/g' | sed 's/-/_/g')
+          VERSION=$(echo "${{ steps.get-current-version.outputs.version }}" | sed 's/\./_/g' | sed 's/-/_/g')
           zip -r MTB-OA-WESLEY-BuildPackage-$VERSION.zip dist/*
 
       - name: Build HMH version
@@ -154,7 +154,7 @@ jobs:
 
       - name: Create HMH zip
         run: |
-          VERSION=$(echo ${{ github.ref_name }} | sed 's/\./_/g' | sed 's/-/_/g')
+          VERSION=$(echo "${{ steps.get-current-version.outputs.version }}" | sed 's/\./_/g' | sed 's/-/_/g')
           zip -r MTB-OA-HMH-BuildPackage-$VERSION.zip dist/*
 
       - name: Build default version
@@ -162,8 +162,8 @@ jobs:
 
       - name: Create default zip
         run: |
-          VERSION=$(echo ${{ github.ref_name }} | sed 's/\./_/g' | sed 's/-/_/g')
-          zip -r MTB-OA-BuildPackage-$VERSION.zip dist/*
+          VERSION=$(echo "${{ steps.get-current-version.outputs.version }}" | sed 's/\./_/g' | sed 's/-/_/g')
+          zip -r MTB-OA-BuildPackage-${VERSION}.zip dist/*
 
       - name: Create Release
         uses: actions/github-script@v6
