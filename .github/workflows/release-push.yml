@@ -202,10 +202,11 @@ jobs:
             // 上传构建包
             const fs = require('fs');
             
+            const finalVersion = version.replace(/[.\-]/g, '_');
             const assets = [
-              `MTB-OA-WESLEY-BuildPackage-${version}.zip`,
-              `MTB-OA-HMH-BuildPackage-${version}.zip`,
-              `MTB-OA-BuildPackage-${version}.zip`
+              `MTB-OA-WESLEY-BuildPackage-${finalVersion}.zip`,
+              `MTB-OA-HMH-BuildPackage-${finalVersion}.zip`,
+              `MTB-OA-BuildPackage-${finalVersion}.zip`
             ];
             
             for (const asset of assets) {
@@ -217,6 +218,8 @@ jobs:
                   name: asset,
                   data: fs.readFileSync(asset)
                 });
+              } else {
+                core.warning(`📎 Asset not found: ${asset}`);
               }
             }
             
