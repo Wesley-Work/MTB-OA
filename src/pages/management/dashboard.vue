@@ -745,7 +745,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="less">
 /**顶部5位的样式 */
 /**蓝色的 */
 [we-bg-color-blue] {

@@ -478,7 +478,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="less">
 .grouplist {
   display: flex;
   flex-direction: row;

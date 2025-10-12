@@ -1,6 +1,6 @@
 import { defineComponent } from 'vue';
 import { routerMap } from '../config';
-import '../assets/Content.scss';
+import '../assets/Content.less';
 import { RouteMaps } from '../types/type';
 
 export default defineComponent({

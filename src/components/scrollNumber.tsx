@@ -1,5 +1,5 @@
 import { defineComponent, ref, watch } from 'vue';
-import '@styles/scrollNumber.scss';
+import '@styles/scrollNumber.less';
 
 export default defineComponent({
   name: 'ScrollNumber',

@@ -27,12 +27,12 @@
           </template>
           导出账号列表
         </t-button>
-        <!-- <t-upload theme="file" accept=".xls,.xlsx" :requestMethod="uploadFile" /> -->
       </t-space>
     </div>
-    <div>
+    <div style="height: calc(100% - 56px)">
       <t-table
         row-key="id"
+        max-height="100%"
         :columns="table_Columns"
         :data="tableData"
         select-on-row-click
@@ -43,6 +43,7 @@
         cell-empty-content="-"
         stripe
         bordered
+        class="need-full-section table-has-pagination"
         @sort-change="sortChange"
         @select-change="handleTableSelectChange"
         @page-change="onPageChange"
@@ -1081,7 +1082,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="less">
 .t-dialog__body:has(mtb-tag[TAG]) {
   padding-bottom: 0px !important;
 }

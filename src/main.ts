@@ -4,7 +4,8 @@ import App from './pages/index.vue';
 import route from './routes';
 
 import TDesign from 'tdesign-vue-next';
-import './global.scss';
+import './global.less';
+import './index.less';
 // import 'nprogress/nprogress.css'
 
 // 引入组件库全局样式资源

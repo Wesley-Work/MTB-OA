@@ -22,6 +22,9 @@ export default defineConfig({
       '@styles': path.resolve(srcRootPath, 'styles'),
     },
   },
+  server: {
+    host: '0.0.0.0',
+  },
   plugins: [
     vue(),
     vueJsx(),

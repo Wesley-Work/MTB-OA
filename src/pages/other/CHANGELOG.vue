@@ -22,7 +22,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="less">
 .CHANGELOG--VIEW {
   // div>span{
   //     font-size: 35px;

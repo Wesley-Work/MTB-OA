@@ -63,7 +63,7 @@ export default {
 </script>
 
 <style scoped src="../../assets/errpage.css"></style>
-<style lang="scss">
+<style lang="less">
 .sign-icon {
   display: inline-block;
   width: 20px;

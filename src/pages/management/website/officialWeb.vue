@@ -10,12 +10,19 @@
       </t-tab-panel>
       <t-tab-panel :value="2">
         <template #label>
+          <MenuIcon style="margin-right: 4px" />
+          <span>Topic 顶部通知管理</span>
+        </template>
+        <TopicManage />
+      </t-tab-panel>
+      <t-tab-panel :value="3">
+        <template #label>
           <FormIcon style="margin-right: 4px" />
           <span>Banner 中部内容管理</span>
         </template>
         <BannerManage />
       </t-tab-panel>
-      <!-- <t-tab-panel :value="3">
+      <!-- <t-tab-panel :value="4">
         <template #label>
           <PageHeadIcon style="margin-right: 4px" />
           <span>Footer 底部内容管理</span>
@@ -29,6 +36,7 @@
 <script setup lang="tsx">
 import { MenuIcon, FormIcon } from 'tdesign-icons-vue-next';
 import HeaderManage from './components/headerManage.vue';
+import TopicManage from './components/topicManage.vue';
 import BannerManage from './components/bannerManage.vue';
 
 defineProps({
@@ -42,4 +50,4 @@ export default {
 };
 </script>
 
-<style lang="scss"></style>
+<style lang="less"></style>

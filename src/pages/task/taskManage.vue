@@ -368,8 +368,9 @@ export default {
 };
 </script>
 
-<style lang="scss">
-$cardPadding: 24px;
+<style lang="less">
+@cardPadding: 24px;
+
 .mainView {
   display: flex;
   flex-direction: column;
@@ -383,7 +384,7 @@ $cardPadding: 24px;
     width: 100%;
     border-radius: 5px;
     > .cardHeader {
-      padding: $cardPadding $cardPadding 8px;
+      padding: @cardPadding @cardPadding 8px;
       font: var(--td-font-mark-medium);
       font-size: 18px;
       .desc {
@@ -394,7 +395,7 @@ $cardPadding: 24px;
       }
     }
     > .cardBody {
-      padding: 4px $cardPadding $cardPadding;
+      padding: 4px @cardPadding @cardPadding;
     }
   }
   > .TaskListCard {
