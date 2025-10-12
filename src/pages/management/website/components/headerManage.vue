@@ -735,7 +735,7 @@ export default {
 };
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 .headerManage {
   margin: 24px;
   display: flex;
