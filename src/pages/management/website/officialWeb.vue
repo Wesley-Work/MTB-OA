@@ -22,13 +22,13 @@
         </template>
         <BannerManage />
       </t-tab-panel>
-      <t-tab-panel :value="4">
+      <!-- <t-tab-panel :value="4">
         <template #label>
           <PageHeadIcon style="margin-right: 4px" />
           <span>Footer 底部内容管理</span>
         </template>
         <p style="margin: 20px">选项卡3内容区</p>
-      </t-tab-panel>
+      </t-tab-panel> -->
     </t-tabs>
   </div>
 </template>
