@@ -341,7 +341,7 @@ const routerMap: RouteMaps = [
 ];
 
 const config = {
-  version: '3.4.1',
+  version: '3.5.10',
   versionMode: 'Stable',
   packageVersion: packageVersion,
   systemName: '顺德中专团委媒体部 信息化管理平台',
@@ -358,7 +358,7 @@ const config = {
   routerPrefix: '/system', //路由前缀
   routerMap,
   // TODO：v3.4.1暂时关闭下面的配置！！！
-  pagePermissionVerify: false, //是否开启页面权限验证
+  pagePermissionVerify: true, //是否开启页面权限验证
   menuPermissionVerify: false, //是否开启菜单权限验证
   useViewTransition: true, // 是否使用ViewTransition API 进行切换样式
   allowHotUpdate: true, // 是否允许热更新
