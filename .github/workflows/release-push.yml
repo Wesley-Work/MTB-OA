@@ -54,6 +54,54 @@ jobs:
           [[ $data =~ $re ]]
           echo "version=${BASH_REMATCH[1]}" >> $GITHUB_OUTPUT
 
+      - name: Get latest release PR
+        id: get-pr
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const version = "${{ steps.get-current-version.outputs.version }}";
+            console.log(`Looking for release PR for version: ${version}`);
+            
+            // 查找以 'release/' 开头的分支的最近合并的PR
+            const query = `is:pr is:merged head:release/${version} base:develop`;
+            const searchResult = await github.rest.search.issuesAndPullRequests({
+              q: query,
+              sort: 'updated',
+              order: 'desc',
+              per_page: 1
+            });
+            
+            if (searchResult.data.items.length === 0) {
+              console.log('No matching PR found');
+              return {
+                pr_number: null,
+                changelog: null
+              };
+            }
+            
+            const pr = searchResult.data.items[0];
+            console.log(`Found PR #${pr.number}: ${pr.title}`);
+            
+            // 获取PR评论，查找changelog
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number
+            });
+            
+            let changelog = null;
+            for (const comment of comments.data) {
+              if (comment.body.startsWith('## 🌈 ')) {
+                changelog = comment.body;
+                break;
+              }
+            }
+            
+            return {
+              pr_number: pr.number,
+              changelog: changelog
+            };
+
       - name: Read CHANGELOG.md
         id: read-changelog
         uses: actions/github-script@v6
@@ -69,7 +117,9 @@ jobs:
               
               if (startIndex === -1) {
                 console.log(`Version ${version} not found in CHANGELOG.md`);
-                return { content: null };
+                console.log(changelog)
+                core.setOutput('content', null);
+                return;
               }
               
               const nextVersionIndex = changelog.indexOf('## ', startIndex + 2);
@@ -77,10 +127,12 @@ jobs:
                 ? changelog.slice(startIndex)
                 : changelog.slice(startIndex, nextVersionIndex);
               
-              return { content: releaseNotes.trim() };
+              core.setOutput('content', releaseNotes.trim());
+              return;
             } catch (error) {
               console.error(`Error reading CHANGELOG.md: ${error}`);
-              return { content: null };
+              core.setOutput('content', null);
+              return;
             }
 
       # 安装依赖
@@ -116,7 +168,11 @@ jobs:
           script: |
             const version = "${{ steps.get-current-version.outputs.version }}"
             
-            let releaseBody = steps.read-changelog.outputs.content;
+            // 优先使用PR评论中的changelog，如果没有则使用CHANGELOG.md中的内容
+            let releaseBody = "${{ steps.get-pr.outputs.changelog }}";
+            if (!releaseBody) {
+              releaseBody = "${{ steps.read-changelog.outputs.content }}";
+            }
             
             // 如果仍然没有changelog，使用默认消息
             if (!releaseBody) {
