@@ -46,56 +46,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
-      # 安装依赖
-      - run: pnpm install --no-frozen-lockfile
-
-      - name: Get latest release PR
-        id: get-pr
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const tag = context.ref.replace('refs/tags/', '');
-            console.log(`Looking for release PR for tag: ${tag}`);
-            
-            // 查找以 'release/' 开头的分支的最近合并的PR
-            const query = `is:pr is:merged head:release/${tag} base:develop`;
-            const searchResult = await github.rest.search.issuesAndPullRequests({
-              q: query,
-              sort: 'updated',
-              order: 'desc',
-              per_page: 1
-            });
-            
-            if (searchResult.data.items.length === 0) {
-              console.log('No matching PR found');
-              return {
-                pr_number: null,
-                changelog: null
-              };
-            }
-            
-            const pr = searchResult.data.items[0];
-            console.log(`Found PR #${pr.number}: ${pr.title}`);
-            
-            // 获取PR评论，查找changelog
-            const comments = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: pr.number
-            });
-            
-            let changelog = null;
-            for (const comment of comments.data) {
-              if (comment.body.startsWith('## 🌈 ')) {
-                changelog = comment.body;
-                break;
-              }
-            }
-            
-            return {
-              pr_number: pr.number,
-              changelog: changelog
-            };
+      - name: get version
+        id: get-current-version
+        run: |
+          data=$(cat package.json)
+          re="\"version\": \"([^\"]*)\""
+          [[ $data =~ $re ]]
+          echo "version=${BASH_REMATCH[1]}" >> $GITHUB_OUTPUT
 
       - name: Read CHANGELOG.md
         id: read-changelog
@@ -103,15 +60,15 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const tag = context.ref.replace('refs/tags/', '');
+            const version = ${{ steps.get-current-version.outputs.version }}
             
             try {
               const changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
-              const versionHeader = `## ${tag}`;
+              const versionHeader = `## ${version}`;
               const startIndex = changelog.indexOf(versionHeader);
               
               if (startIndex === -1) {
-                console.log(`Version ${tag} not found in CHANGELOG.md`);
+                console.log(`Version ${version} not found in CHANGELOG.md`);
                 return { content: null };
               }
               
@@ -125,6 +82,9 @@ jobs:
               console.error(`Error reading CHANGELOG.md: ${error}`);
               return { content: null };
             }
+
+      # 安装依赖
+      - run: pnpm install --no-frozen-lockfile
 
       - name: Build WESLEY version
         run: pnpm run open:build
@@ -154,29 +114,24 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const tag = context.ref.replace('refs/tags/', '');
-            const version = tag.replace(/\./g, '_').replace(/-/g, '_');
+            const version = ${{ steps.get-current-version.outputs.version }}
             
-            // 优先使用PR评论中的changelog，如果没有则使用CHANGELOG.md中的内容
-            let releaseBody = steps.get-pr.outputs.changelog;
-            if (!releaseBody) {
-              releaseBody = steps.read-changelog.outputs.content;
-            }
+            let releaseBody = steps.read-changelog.outputs.content;
             
             // 如果仍然没有changelog，使用默认消息
             if (!releaseBody) {
-              releaseBody = `Release ${tag}`;
+              releaseBody = `Release ${version}`;
             }
             
             // 判断是否为预发布版本（alpha或beta）
-            const isPrerelease = tag.includes('-alpha.') || tag.includes('-beta.');
+            const isPrerelease = version.includes('-alpha.') || version.includes('-beta.');
             
             // 创建release
             const release = await github.rest.repos.createRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              tag_name: tag,
-              name: `Release ${tag}`,
+              tag_name: version,
+              name: `Release ${version}`,
               body: releaseBody,
               draft: false,
               prerelease: isPrerelease
@@ -204,7 +159,7 @@ jobs:
               }
             }
             
-            console.log(`Created release for tag ${tag} with assets`);
+            console.log(`Created release for ${version} with assets`);
 
       - name: Clean up
         if: always()
