@@ -1,4 +1,7 @@
 
+## 🌈 3.5.1 `2025-10-12` 
+### 🐞 Bug Fixes
+- 修复自动化工作流异常问题 @Wesley-0808 ([#75](https://github.com/Wesley-Work/MTB-OA/pull/75))
 ## 🌈 3.5.0 `2025-10-12` 
 ### 🚀 Features
 - `OnlineUser`: 支持查看在线用户，支持踢出用户 @Wesley-0808 ([#73](https://github.com/Wesley-Work/MTB-OA/pull/73))
