@@ -155,6 +155,7 @@ export default defineComponent({
         value={value.value}
         height="550px"
         collapsed={!visiable.value && config.menuUseCollapsed}
+        expandMutex={true}
         class={
           !config.menuUseCollapsed
             ? visiable.value
