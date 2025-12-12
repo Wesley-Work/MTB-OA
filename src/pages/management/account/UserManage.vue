@@ -129,6 +129,43 @@
               style="width: 100%"
             ></t-input-number>
           </div>
+          <div>
+            <t-input v-model="EditUserDialogForm.phone" label="手机号码：" type="tel" unrequired />
+          </div>
+          <div>
+            <t-select
+              :value="EditUserDialogForm.gender"
+              :options="[
+                { label: '男', value: 0 },
+                { label: '女', value: 1 },
+              ]"
+              label="性别："
+              placeholder="请选择"
+              :on-change="
+                (e) => {
+                  EditUserDialogForm.gender = e;
+                }
+              "
+              clearable
+            />
+          </div>
+          <div>
+            <t-select
+              :value="EditUserDialogForm.syncWecom"
+              :options="[
+                { label: '是', value: 0 },
+                { label: '否', value: 1 },
+              ]"
+              label="同步企业微信："
+              placeholder="请选择"
+              :on-change="
+                (e) => {
+                  EditUserDialogForm.syncWecom = e;
+                }
+              "
+              clearable
+            />
+          </div>
           <div style="display: flex; align-items: center">
             <span
               style="
@@ -172,6 +209,16 @@
               :enable-time-picker="true"
               :value="EditUserDialogForm.reg_time"
             ></t-date-picker>
+          </div>
+          <div>
+            <t-select
+              v-model="positionData.selectedPositionIds"
+              :options="positionData.allPositions"
+              multiple
+              placeholder="请选择要绑定的职位"
+              clearable
+              @change="handlePositionChange"
+            />
           </div>
         </t-space>
       </t-space>
@@ -371,6 +418,32 @@ const table_Columns: TableProps['columns'] = [
     },
   },
   {
+    colKey: 'phone',
+    title: '手机号码',
+    ellipsis: true,
+    cell: (_h, { row }) => {
+      return row.phone ?? '-';
+    },
+  },
+  {
+    colKey: 'gender',
+    title: '性别',
+    width: 100,
+    cell: (_h, { row }) => {
+      const genderMap = { 0: '男', 1: '女' };
+      return genderMap[row.gender] ?? '-';
+    },
+  },
+  {
+    colKey: 'syncWecom',
+    title: '同步企业微信',
+    width: 120,
+    cell: (_h, { row }) => {
+      const syncMap = { 0: '是', 1: '否' };
+      return syncMap[row.syncWecom] ?? '-';
+    },
+  },
+  {
     colKey: 'operation',
     title: '操作',
     cell: (h, { row }) => {
@@ -413,6 +486,9 @@ const defaultDialogData = {
   share_device: 2,
   group: null,
   grade: dayjs().year(),
+  phone: null,
+  gender: null,
+  syncWecom: null,
   reg_time: new Date(),
   join_time: new Date(),
 };
@@ -442,6 +518,11 @@ const permissionsTransfer = reactive({
 const userPermissionsList = ref<{ users?: object; group?: object }>({});
 const activeUserPermissions = ref([]);
 const activeGroupPermissions = ref([]);
+// 职位绑定数据
+const positionData = reactive({
+  selectedPositionIds: [], // 已选中的职位 ID 列表
+  allPositions: [], // 所有可用职位列表
+});
 const tablePagination = computed(() => {
   return {
     current: 1,
@@ -487,6 +568,8 @@ const handleAdd = () => {
   actionMode.value = 'add';
   initPermissionsTransfer();
   ResetDialogForm();
+  positionData.selectedPositionIds = [];
+  positionData.allPositions = [];
   setEditDialogVisible(true);
 };
 
@@ -498,6 +581,7 @@ const handleEdit = (e: Event, row) => {
   activeGroupPermissions.value = userPermissionsList.value?.group[group] ?? [];
   ResetDialogForm(row);
   initPermissionsTransfer();
+  loadUserPositions(id); // 加载用户的职位信息
   setEditDialogVisible(true);
 };
 
@@ -592,6 +676,96 @@ const togglePermissionStatus = (val) => {
   permissionsTransfer.statusList[val] = {
     open: !isOpen,
   };
+};
+
+/**
+ * @loadUserPositions
+ * @加载用户的职位信息
+ */
+const loadUserPositions = (userId: number) => {
+  // 加载所有可用职位
+  useRequest({
+    url: '/position/availableList',
+    methods: 'POST',
+    data: { user_id: userId },
+    success: function (res) {
+      var RES = JSON.parse(res);
+      if (RES.errcode === 0 && RES.data) {
+        positionData.allPositions = RES.data.map((item) => ({
+          label: item.name,
+          value: item.id,
+        }));
+      }
+    },
+    error: function (err) {
+      console.error('获取可用职位列表失败:', err);
+    },
+  });
+
+  // 加载已绑定的职位
+  useRequest({
+    url: '/position/listByUser',
+    methods: 'POST',
+    data: { user_id: userId },
+    success: function (res) {
+      var RES = JSON.parse(res);
+      if (RES.errcode === 0 && RES.data) {
+        positionData.selectedPositionIds = RES.data.map((item) => item.position_id);
+      }
+    },
+    error: function (err) {
+      console.error('获取用户职位列表失败:', err);
+    },
+  });
+};
+
+/**
+ * @handlePositionChange
+ * @处理职位多选变化
+ */
+const handlePositionChange = () => {
+  if (!EditUserDialogForm.value.id) return;
+
+  const userId = EditUserDialogForm.value.id;
+  const selectedIds = positionData.selectedPositionIds;
+
+  // 调用后端更新职位
+  useRequest({
+    url: '/position/updateUserPositions',
+    methods: 'POST',
+    data: {
+      uid: userId,
+      ids: selectedIds,
+    },
+    success: function (res) {
+      var RES = JSON.parse(res);
+      if (RES.errcode === 0) {
+        NotifyPlugin('success', {
+          title: '职位更新成功',
+          content: '成功更新用户职位绑定',
+          duration: 3000,
+        });
+      } else {
+        NotifyPlugin('error', {
+          title: '职位更新失败',
+          content: RES?.errmsg || '职位更新失败',
+          duration: 3000,
+        });
+        // 失败时重新加载
+        loadUserPositions(userId);
+      }
+    },
+    error: function (err) {
+      NotifyPlugin('error', {
+        title: '职位更新失败',
+        content: err,
+        duration: 3000,
+      });
+      console.error('职位更新失败:', err);
+      // 失败时重新加载
+      loadUserPositions(userId);
+    },
+  });
 };
 
 /**
@@ -792,6 +966,21 @@ const exportToXlsx = () => {
         width: 14,
       },
       {
+        key: 'phone',
+        label: '手机号码',
+        width: 18,
+      },
+      {
+        key: 'gender',
+        label: '性别',
+        width: 10,
+      },
+      {
+        key: 'syncWecom',
+        label: '同步企业微信',
+        width: 16,
+      },
+      {
         key: 'reg_time',
         label: '注册时间',
         width: 27,
@@ -842,6 +1031,9 @@ const exportToXlsx = () => {
           class: it.class,
           grade: it.grade,
           group: groupOptions.value.find((item) => item.value === it.group)?.label ?? '',
+          phone: it.phone ?? '',
+          gender: { 0: '男', 1: '女' }[it.gender] ?? '',
+          syncWecom: { 0: '是', 1: '否' }[it.syncWecom] ?? '',
           reg_time: dayjs(it.reg_time).format('YYYY-MM-DD HH:mm:ss'),
           join_time: dayjs(it.join_time).format('YYYY-MM-DD'),
           password: it.password,
@@ -938,6 +1130,9 @@ const submitForm = () => {
     share_device: EditUserDialogForm.value.share_device,
     group: EditUserDialogForm.value.group,
     grade: EditUserDialogForm.value.grade,
+    phone: EditUserDialogForm.value.phone,
+    gender: EditUserDialogForm.value.gender,
+    syncWecom: EditUserDialogForm.value.syncWecom,
     reg_time: dayjs(EditUserDialogForm.value.reg_time).format('YYYY-MM-DD HH:mm:ss'),
     join_time: dayjs(EditUserDialogForm.value.join_time).format('YYYY-MM-DD HH:mm:ss'),
     permissions_open: Object.keys(permissionsTransfer.proxyStatus).filter(
