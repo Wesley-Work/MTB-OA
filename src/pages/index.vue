@@ -178,7 +178,7 @@
       <div>
         Copyright © 2025
         <a href="https://www.wesley.net.cn/" we-a-tag target="_blank" @click.prevent="NotClick">Wesley.</a>
-        All Right Reserved. | Used in MTB with permission
+        All Right Reserved. | with permission
       </div>
     </div>
   </div>
