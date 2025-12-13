@@ -137,6 +137,7 @@ export interface GroupItem {
   name: string;
   desc: string;
   type: 'normal' | 'display' | 'close';
+  syncWecom?: number;
 }
 
 export type GroupList = GroupItem[];

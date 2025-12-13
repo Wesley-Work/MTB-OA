@@ -100,6 +100,45 @@
               <t-button variant="dashed" @click="EditUserDialogForm.password = '123456'">默认密码</t-button>
             </div>
           </div>
+          <div>
+            <t-input v-model="EditUserDialogForm.phone" label="手机号码：" type="tel" unrequired />
+          </div>
+          <div>
+            <t-select
+              :value="EditUserDialogForm.gender"
+              :options="[
+                { label: '男', value: 0 },
+                { label: '女', value: 1 },
+              ]"
+              label="性别："
+              placeholder="请选择"
+              :on-change="
+                (e) => {
+                  EditUserDialogForm.gender = e;
+                }
+              "
+              clearable
+              unrequired
+            />
+          </div>
+          <div>
+            <t-select
+              :value="EditUserDialogForm.syncWecom"
+              :options="[
+                { label: '是', value: 0 },
+                { label: '否', value: 1 },
+              ]"
+              label="同步企业微信："
+              placeholder="请选择"
+              :on-change="
+                (e) => {
+                  EditUserDialogForm.syncWecom = e;
+                }
+              "
+              clearable
+              unrequired
+            />
+          </div>
         </t-space>
         <t-space direction="vertical" size="12px" style="width: 100%">
           <div style="font-size: 20px; font-weight: 700; color: var(--td-text-color-primary)">其他信息</div>
@@ -120,6 +159,17 @@
             />
           </div>
           <div>
+            <t-select
+              v-model="positionData.selectedPositionIds"
+              :options="positionData.allPositions"
+              multiple
+              label="绑定职位："
+              placeholder="请选择"
+              clearable
+              @change="handlePositionChange"
+            />
+          </div>
+          <div>
             <t-input-number
               v-model="EditUserDialogForm.share_device"
               theme="column"
@@ -128,43 +178,6 @@
               label="共享设备数："
               style="width: 100%"
             ></t-input-number>
-          </div>
-          <div>
-            <t-input v-model="EditUserDialogForm.phone" label="手机号码：" type="tel" unrequired />
-          </div>
-          <div>
-            <t-select
-              :value="EditUserDialogForm.gender"
-              :options="[
-                { label: '男', value: 0 },
-                { label: '女', value: 1 },
-              ]"
-              label="性别："
-              placeholder="请选择"
-              :on-change="
-                (e) => {
-                  EditUserDialogForm.gender = e;
-                }
-              "
-              clearable
-            />
-          </div>
-          <div>
-            <t-select
-              :value="EditUserDialogForm.syncWecom"
-              :options="[
-                { label: '是', value: 0 },
-                { label: '否', value: 1 },
-              ]"
-              label="同步企业微信："
-              placeholder="请选择"
-              :on-change="
-                (e) => {
-                  EditUserDialogForm.syncWecom = e;
-                }
-              "
-              clearable
-            />
           </div>
           <div style="display: flex; align-items: center">
             <span
@@ -209,16 +222,6 @@
               :enable-time-picker="true"
               :value="EditUserDialogForm.reg_time"
             ></t-date-picker>
-          </div>
-          <div>
-            <t-select
-              v-model="positionData.selectedPositionIds"
-              :options="positionData.allPositions"
-              multiple
-              placeholder="请选择要绑定的职位"
-              clearable
-              @change="handlePositionChange"
-            />
           </div>
         </t-space>
       </t-space>
@@ -305,7 +308,7 @@
 <script setup lang="tsx">
 import { computed, onMounted, reactive, ref } from 'vue';
 import dayjs from 'dayjs';
-import { NotifyPlugin, TableProps } from 'tdesign-vue-next';
+import { NotifyPlugin, TableProps, Tag } from 'tdesign-vue-next';
 import sha256 from 'crypto-js/sha256';
 import useRequest from '@hooks/useRequest';
 import { loadSystemPermissions, loadUserPermissionsList } from '@hooks/usePermission.ts';
@@ -368,6 +371,27 @@ const table_Columns: TableProps['columns'] = [
   },
   { colKey: 'class', title: '班级', sortType: 'all', sorter: true },
   {
+    colKey: 'gender',
+    title: '性别',
+    width: 100,
+    cell: (_h, { row }) => {
+      const genderMap = { 0: { label: '男', color: '' }, 1: { label: '女', color: 'rgb(243, 109, 120)' } };
+      return (
+        <Tag theme="primary" color={genderMap[row.gender]?.color} variant="light-outline">
+          {genderMap[row.gender]?.label ?? '-'}
+        </Tag>
+      );
+    },
+  },
+  {
+    colKey: 'phone',
+    title: '手机号码',
+    ellipsis: true,
+    cell: (_h, { row }) => {
+      return row.phone ?? '-';
+    },
+  },
+  {
     colKey: 'grade',
     title: '年级',
     sortType: 'all',
@@ -418,29 +442,16 @@ const table_Columns: TableProps['columns'] = [
     },
   },
   {
-    colKey: 'phone',
-    title: '手机号码',
-    ellipsis: true,
-    cell: (_h, { row }) => {
-      return row.phone ?? '-';
-    },
-  },
-  {
-    colKey: 'gender',
-    title: '性别',
-    width: 100,
-    cell: (_h, { row }) => {
-      const genderMap = { 0: '男', 1: '女' };
-      return genderMap[row.gender] ?? '-';
-    },
-  },
-  {
     colKey: 'syncWecom',
     title: '同步企业微信',
     width: 120,
     cell: (_h, { row }) => {
-      const syncMap = { 0: '是', 1: '否' };
-      return syncMap[row.syncWecom] ?? '-';
+      const syncMap = { 0: { label: '是', theme: 'success' }, 1: { label: '否', theme: 'warning' } };
+      return (
+        <Tag theme={syncMap[row.syncWecom]?.theme} variant="light-outline">
+          {syncMap[row.syncWecom]?.label ?? '-'}
+        </Tag>
+      );
     },
   },
   {
