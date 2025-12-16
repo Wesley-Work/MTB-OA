@@ -96,8 +96,12 @@ export function getToken() {
 }
 
 const getAPIURL = () => {
-  // return 'http://localhost:51001/v2';
-  return 'https://oa-api.mtb.wesley.net.cn/v2';
+  return 'http://localhost:51001/v2';
+  // return 'https://oa-api.mtb.wesley.net.cn/v2';
+};
+
+const getWeComAPI = () => {
+  return 'https://api.wecom.wesley.net.cn';
 };
 
 const getSSOURL = () => {
@@ -237,4 +241,4 @@ export function taskTimeConvert(time: string | string[]): string | [string, stri
   }
 }
 
-export { getAPIURL, getSSOURL, getOAURL, getLoginURL };
+export { getAPIURL, getSSOURL, getOAURL, getLoginURL, getWeComAPI };

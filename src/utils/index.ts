@@ -1,3 +1,6 @@
+import useRequest from '@hooks/useRequest';
+import { verifySignature } from '@wesley-0808/rsa-verify';
+
 export * from './fetch';
 export * from './theme';
 
@@ -26,6 +29,27 @@ export const isMTBInternet = () => {
     url.includes('internet-mtb.wesley.net.cn') ||
     url.includes('localhost')
   );
+};
+
+export const isInternal = async () => {
+  return new Promise<boolean>((resolve) => {
+    const timestamp = new Date().getTime();
+    const fixed = `SDZZ-MtB-POWER-BY-WESLEY${timestamp}`;
+    const publicKey = `-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvpVwZjHFkNbMN6fCiLoerBRySetkXVHRSO3dvWnNF8Va3ZBqCpVzoJP12NLNGcXB769p/BHeL+0Yzkc6ZipJCCrENOPGFtgK4QpGyig/WhBuksZ0vCCIWWE/SlIC1Y2S8AF0Wx3o8YOZ3hiWfvS4jreMC/7dwV+3klio1sIVGGGzz+UPZh70QR6l9Gtv+bebVeYrddvNUUlB+TPJdrwyDi1aotHg9IA4/DUMTlQDqsrN0TdCSlK3oby+jjpAAPZzAXifZM5GOQ6ydnMH5KjcmsUsBjZ4D7l1WlIWsReMeQPO/d8WXDerrzkmQj49TlDq2kA4WZ9VO++pCAzehPUi0wIDAQAB-----END PUBLIC KEY-----`;
+    useRequest({
+      url: 'https://local.sdzzmtb.cn/?timestamp=' + timestamp,
+      methods: 'GET',
+      useCustomURL: true,
+    }).then(async (res) => {
+      if (res instanceof Boolean) {
+        resolve(false);
+        return;
+      }
+      const result = JSON.parse(res);
+      const pass = await verifySignature(fixed, result.signature, publicKey, { hashAlgorithm: 'SHA-256' });
+      resolve(pass);
+    });
+  });
 };
 
 export const getInternetAPI = () => {

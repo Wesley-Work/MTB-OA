@@ -1,9 +1,9 @@
-import { defineComponent, PropType } from 'vue';
+import { defineComponent, PropType, ref } from 'vue';
 import { VerifyPermissions } from '../hooks/usePermission';
 import Error from './pages/Error.vue';
 import NoPermissions from './pages/NoPermissions.vue';
 import { useRoute } from 'vue-router';
-import { isInternet as isSdzzInternet, isMTBInternet } from '@/utils';
+import { isInternet as isSdzzInternet, isMTBInternet, isInternal as checkInternal } from '@/utils';
 import OnlyInternet from './pages/onlyInternet.vue';
 import { throttle } from 'lodash-es';
 
@@ -24,10 +24,10 @@ export default defineComponent({
       type: String,
     },
   },
-  render: function (props) {
+  setup(props) {
     const vPermission = VerifyPermissions(props.userPermissions, props.componentPermissions);
     const route = useRoute();
-    let isInternet = false;
+    const isInternal = ref(false);
     const cons = () => {
       console.info(
         `页面: ${props.component} 校验权限：`,
@@ -39,14 +39,29 @@ export default defineComponent({
     throttle(cons, 500)?.();
     const needInternet = !!route.meta?.needInternet;
     if (needInternet) {
-      isInternet = isSdzzInternet() || isMTBInternet();
+      // 更细化地判断是否为内网
+      setTimeout(async () => {
+        isInternal.value = isSdzzInternet() || isMTBInternet() || (await checkInternal());
+      });
     }
-    try {
-      const RouterView = <router-view handleChangeComponent={props?.handleChangeComponent}></router-view>;
-      return needInternet ? isInternet ? RouterView : <OnlyInternet /> : vPermission ? RouterView : <NoPermissions />;
-    } catch (err) {
-      console.error(err);
-      return <Error msg={err}></Error>;
-    }
+    return () => {
+      try {
+        const RouterView = <router-view handleChangeComponent={props?.handleChangeComponent}></router-view>;
+        return needInternet ? (
+          isInternal.value ? (
+            RouterView
+          ) : (
+            <OnlyInternet />
+          )
+        ) : vPermission ? (
+          RouterView
+        ) : (
+          <NoPermissions />
+        );
+      } catch (err) {
+        console.error(err);
+        return <Error msg={err}></Error>;
+      }
+    };
   },
 });

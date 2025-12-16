@@ -228,6 +228,22 @@ const routerMap: RouteMaps = [
         ],
       },
       {
+        key: 'WeWork',
+        label: '企业微信',
+        icon: 'logo-wecom',
+        children: [
+          {
+            key: 'DepartmentManage',
+            label: '组织架构',
+            component: () => import('@pages/management/wecom/orgStructure'),
+          },
+          {
+            key: 'UserWeWorkManage',
+            label: '职位管理',
+          },
+        ],
+      },
+      {
         key: 'PermissionsManage',
         label: '权限管理',
         icon: 'verify',
@@ -330,7 +346,7 @@ const routerMap: RouteMaps = [
         component: () => import('@pages/equipment/SuppleRecord.vue'),
       },
       {
-        key: 'Admini',
+        key: 'Admin',
         label: '管理页',
         fatherCrumb: '',
         icon: 'user-checked',
