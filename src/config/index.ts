@@ -244,6 +244,21 @@ const routerMap: RouteMaps = [
         ],
       },
       {
+        key: 'FaceAccessControl',
+        label: '人脸门禁',
+        icon: 'wink',
+        children: [
+          {
+            key: 'user-list',
+            label: '人员列表',
+            component: () => import('@pages/management/faceAccess/list'),
+            meta: {
+              needInternet: true,
+            },
+          },
+        ],
+      },
+      {
         key: 'PermissionsManage',
         label: '权限管理',
         icon: 'verify',

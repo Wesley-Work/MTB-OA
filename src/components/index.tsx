@@ -37,14 +37,14 @@ export default defineComponent({
       );
     };
     throttle(cons, 500)?.();
-    const needInternet = !!route.meta?.needInternet;
-    if (needInternet) {
-      // 更细化地判断是否为内网
-      setTimeout(async () => {
-        isInternal.value = isSdzzInternet() || isMTBInternet() || (await checkInternal());
-      });
-    }
     return () => {
+      const needInternet = !!route.meta?.needInternet;
+      if (needInternet) {
+        // 更细化地判断是否为内网
+        setTimeout(async () => {
+          isInternal.value = (await checkInternal()) || isSdzzInternet() || isMTBInternet();
+        });
+      }
       try {
         const RouterView = <router-view handleChangeComponent={props?.handleChangeComponent}></router-view>;
         return needInternet ? (
