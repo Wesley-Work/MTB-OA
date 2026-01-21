@@ -40,14 +40,14 @@ export const getLogin_URL = () => {
 
 export const isDevMode = () => {
   const route = useRoute();
-  // if (route.query?.dev === 'true') {
-  //   return true;
-  // }
-  // if (import.meta.env.DEV) {
-  //   return true;
-  // }
-  // if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-  //   return true;
-  // }
+  if (route.query?.dev === 'true') {
+    return true;
+  }
+  if (import.meta.env.DEV) {
+    return true;
+  }
+  if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+    return true;
+  }
   return false;
 };

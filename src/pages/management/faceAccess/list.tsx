@@ -56,6 +56,7 @@ export default defineComponent({
       useRequest({
         url: api.value,
         methods: 'GET',
+        useCustomURL: isInternal.value,
         success: function (res) {
           const RES = typeof res === 'string' ? JSON.parse(res) : res;
           if (RES.errcode === 0) {
@@ -113,14 +114,14 @@ export default defineComponent({
     onMounted(() => {
       MessagePlugin.loading('正在加载，请稍后...');
       loading.value = true;
-      checkInternal()
-        .then((internal) => {
-          isInternal.value = internal;
-          getData();
-        })
-        .finally(() => {
-          checkingInternal.value = false;
-        });
+      // checkInternal()
+      //   .then((internal) => {
+      //     isInternal.value = internal;
+      getData();
+      //   })
+      //   .finally(() => {
+      //     checkingInternal.value = false;
+      //   });
       getUserData();
     });
 
