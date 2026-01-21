@@ -38,10 +38,13 @@
               <path stroke="#000" d="M157 89V71"></path>
             </svg>
           </div>
-          <div class="result-title">出错啦！</div>
-          <div class="result-tip">加载页面失败：无查看权限</div>
+          <div class="result-title">不允许的操作</div>
+          <div class="result-tip">
+            当前页面禁止使用开发者工具，请关闭开发者工具！
+            <br />
+            若误报请联系开发者。
+          </div>
         </div>
-        <div><!--v-if--><!--v-if--></div>
       </main>
       <footer class="t-layout__footer tdesign-starter-footer-layout" style="display: none">
         <div class="tdesign-starter-footer">Copyright © 2021-2026 SDZZ-MTB. All Rights Reserved.</div>

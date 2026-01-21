@@ -40,15 +40,20 @@ export const isInternal = async () => {
       url: 'https://local.sdzzmtb.cn/?timestamp=' + timestamp,
       methods: 'GET',
       useCustomURL: true,
-    }).then(async (res) => {
-      if (res instanceof Boolean) {
+      timeout: 5000,
+    })
+      .then(async (res) => {
+        if (res instanceof Boolean) {
+          resolve(false);
+          return;
+        }
+        const result = JSON.parse(res);
+        const pass = await verifySignature(fixed, result.signature, publicKey, { hashAlgorithm: 'SHA-256' });
+        resolve(pass);
+      })
+      .catch(() => {
         resolve(false);
-        return;
-      }
-      const result = JSON.parse(res);
-      const pass = await verifySignature(fixed, result.signature, publicKey, { hashAlgorithm: 'SHA-256' });
-      resolve(pass);
-    });
+      });
   });
 };
 

@@ -14,7 +14,7 @@
       <div>系统版本 [System Version]: {{ VERSION }}</div>
       <div>包版本 [Package Version]: {{ packageVersion ?? '无法获取' }}</div>
       <div>API版本 [WESLEY SDK Version]: {{ latestVersion }}</div>
-      <div>TDesign版本: {{ TdesignVueNextVersion }}</div>
+      <div>TDesign样式库版本: {{ TdesignVueNextVersion }}</div>
     </div>
   </div>
   <div class="info-container copyright">
@@ -30,7 +30,7 @@
         </div>
         <p>系统名称：顺德中专团委媒体部 信息化协作与管理系统</p>
         <p>开发团队：媒体部·技术组</p>
-        <p>开发时间：2023年2月 – 2025年6月</p>
+        <p>开发时间：2023年2月 – 至今仍在维护</p>
         <p>代码状态：托管于 GitHub 仓库</p>
         <span>如遇任何事宜，请联系邮箱：<t-link theme="primary">985189328@qq.com</t-link></span>
       </div>

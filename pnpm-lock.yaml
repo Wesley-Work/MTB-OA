@@ -14,6 +14,9 @@ importers:
       '@vueuse/core':
         specifier: ^10.11.1
         version: 10.11.1(vue@3.5.25(typescript@5.8.3))
+      '@wesley-0808/disable-devtool':
+        specifier: ^0.5.0
+        version: 0.5.0
       '@wesley-0808/rsa-verify':
         specifier: ^1.1.1
         version: 1.1.1
@@ -26,6 +29,9 @@ importers:
       dayjs:
         specifier: ^1.11.19
         version: 1.11.19
+      disable-devtool:
+        specifier: ^0.3.9
+        version: 0.3.9
       echarts:
         specifier: ^5.6.0
         version: 5.6.0
@@ -47,15 +53,30 @@ importers:
       nprogress:
         specifier: ^0.2.0
         version: 0.2.0
+      rete:
+        specifier: ^2.0.6
+        version: 2.0.6
+      rete-area-plugin:
+        specifier: ^2.1.5
+        version: 2.1.5(rete@2.0.6)
+      rete-connection-plugin:
+        specifier: ^2.0.5
+        version: 2.0.5(rete-area-plugin@2.1.5(rete@2.0.6))(rete@2.0.6)
+      rete-render-utils:
+        specifier: ^2.0.3
+        version: 2.0.3(rete-area-plugin@2.1.5(rete@2.0.6))(rete@2.0.6)
+      rete-vue-plugin:
+        specifier: ^2.1.2
+        version: 2.1.2(rete-area-plugin@2.1.5(rete@2.0.6))(rete-render-utils@2.0.3(rete-area-plugin@2.1.5(rete@2.0.6))(rete@2.0.6))(rete@2.0.6)(vue@3.5.25(typescript@5.8.3))
       sortablejs:
         specifier: ^1.15.6
         version: 1.15.6
       tdesign-icons-vue-next:
-        specifier: ^0.3.7
-        version: 0.3.7(vue@3.5.25(typescript@5.8.3))
+        specifier: ^0.4.1
+        version: 0.4.1(vue@3.5.25(typescript@5.8.3))
       tdesign-vue-next:
-        specifier: ^1.17.6
-        version: 1.17.6(vue@3.5.25(typescript@5.8.3))
+        specifier: ^1.18.0
+        version: 1.18.0(vue@3.5.25(typescript@5.8.3))
       vue:
         specifier: ^3.5.25
         version: 3.5.25(typescript@5.8.3)
@@ -80,10 +101,10 @@ importers:
         version: 4.33.0(eslint@7.32.0)(typescript@5.8.3)
       '@vitejs/plugin-vue':
         specifier: ^5.2.4
-        version: 5.2.4(vite@5.4.21(@types/node@25.0.2)(less@4.2.2)(sass@1.93.2)(terser@5.44.1))(vue@3.5.25(typescript@5.8.3))
+        version: 5.2.4(vite@5.4.21(@types/node@25.0.3)(less@4.2.2)(sass@1.93.2)(terser@5.44.1))(vue@3.5.25(typescript@5.8.3))
       '@vitejs/plugin-vue-jsx':
         specifier: ^4.2.0
-        version: 4.2.0(vite@5.4.21(@types/node@25.0.2)(less@4.2.2)(sass@1.93.2)(terser@5.44.1))(vue@3.5.25(typescript@5.8.3))
+        version: 4.2.0(vite@5.4.21(@types/node@25.0.3)(less@4.2.2)(sass@1.93.2)(terser@5.44.1))(vue@3.5.25(typescript@5.8.3))
       '@vue/compiler-sfc':
         specifier: ^3.5.25
         version: 3.5.25
@@ -122,10 +143,10 @@ importers:
         version: 5.8.3
       vite:
         specifier: ^5.4.21
-        version: 5.4.21(@types/node@25.0.2)(less@4.2.2)(sass@1.93.2)(terser@5.44.1)
+        version: 5.4.21(@types/node@25.0.3)(less@4.2.2)(sass@1.93.2)(terser@5.44.1)
       vite-plugin-markdown:
         specifier: ^2.2.0
-        version: 2.2.0(vite@5.4.21(@types/node@25.0.2)(less@4.2.2)(sass@1.93.2)(terser@5.44.1))
+        version: 2.2.0(vite@5.4.21(@types/node@25.0.3)(less@4.2.2)(sass@1.93.2)(terser@5.44.1))
       vue-tsc:
         specifier: ^2.2.12
         version: 2.2.12(typescript@5.8.3)
@@ -676,6 +697,9 @@ packages:
   '@types/node@25.0.2':
     resolution: {integrity: sha512-gWEkeiyYE4vqjON/+Obqcoeffmk0NF15WSBwSs7zwVA2bAbTaE0SJ7P0WNGoJn8uE7fiaV5a7dKYIJriEqOrmA==}
 
+  '@types/node@25.0.3':
+    resolution: {integrity: sha512-W609buLVRVmeW693xKfzHeIV6nJGGz98uCPfeXI1ELMLXVeKYZ9m15fAMSaUPBHYLGFsVRcMmSCksQOrZV9BYA==}
+
   '@types/sortablejs@1.15.9':
     resolution: {integrity: sha512-7HP+rZGE2p886PKV9c9OJzLBI6BBJu1O7lJGYnPyG3fS4/duUCcngkNCjsLwIMV+WMqANe3tt4irrXHSIe68OQ==}
 
@@ -871,6 +895,9 @@ packages:
 
   '@webassemblyjs/wast-printer@1.14.1':
     resolution: {integrity: sha512-kPSSXE6De1XOR820C90RIo2ogvZG+c3KiHzqUoO/F34Y2shGzesfqv7o57xrxovZJH/MetF5UjroJ/R/3isoiw==}
+
+  '@wesley-0808/disable-devtool@0.5.0':
+    resolution: {integrity: sha512-yBFjVR1VCwbgVIMmWnJRA1Rp58ms4KJ1F+8h09LVosbRFGy3acj4wpO+O85oOL7LJYOxtOaFNpiw6UZ5UBiJlw==}
 
   '@wesley-0808/rsa-verify@1.1.1':
     resolution: {integrity: sha512-VhV07f4dkQUhWQSEN/FWC6dIgFhx8T+IXPuyoef6vCBzwtqrj4dS79dxXtH5PdFM0ND8zXA9T13SxcNxoyEu4g==}
@@ -1211,6 +1238,9 @@ packages:
   dir-glob@3.0.1:
     resolution: {integrity: sha512-WkrWp9GR4KXfKGYzOLmTuGVi1UWFfws377n9cc55/tb6DuqyF6pcQ5AbiHEshaDpY9v6oaSr2XCDidGmMwdzIA==}
     engines: {node: '>=8'}
+
+  disable-devtool@0.3.9:
+    resolution: {integrity: sha512-WHCpC8f93Cn2DnTeaq57NFLcdw4921sovh1ammnp/2o8Snb704HK/Vw1/D2D1Pihc0zc8/mVKb5nchHtoadObQ==}
 
   doctrine@2.1.0:
     resolution: {integrity: sha512-35mSku4ZXK0vfCuHEDAwt55dg2jNajHZ1odvF+8SSr82EsZY4QmXfuWso8oEd8zRhVObSN18aM0CjSdoBX7zIw==}
@@ -2196,6 +2226,34 @@ packages:
     engines: {node: '>= 0.4'}
     hasBin: true
 
+  rete-area-plugin@2.1.5:
+    resolution: {integrity: sha512-iquEvwkQlcsO4cmgM3Z37TG0AWaE536dfA+lCJAze5YJzVx4RBaViUCqdB4dUA/utSytpBCkiDC4D3ztM9akGQ==}
+    peerDependencies:
+      rete: ^2.0.0
+
+  rete-connection-plugin@2.0.5:
+    resolution: {integrity: sha512-KFtlOyEJRc0y9STVgo2T+t+j9u5fxiTxbyzPbMCm0uqncb3b8d2ABDIzvWoNo5zQAh2Oz/OvlUovupbzrGzpSg==}
+    peerDependencies:
+      rete: ^2.0.1
+      rete-area-plugin: ^2.0.0
+
+  rete-render-utils@2.0.3:
+    resolution: {integrity: sha512-Oz4W2PNayHocRvlzadb5BCNf+tDzJ8RhTwB3ucBPCdCLKZ974wWDiTSCRfA287L2hmHVzRfBdyAwC03K9eP+4g==}
+    peerDependencies:
+      rete: ^2.0.0
+      rete-area-plugin: ^2.0.0
+
+  rete-vue-plugin@2.1.2:
+    resolution: {integrity: sha512-vMHCaAoJE9C9axEEIxg2nbrSYC6bFp5rWoAzAKGaLaEMT8y6m9mFb1o45dW8SF2v3DrbwXVjuEHRZxmg8CCOfg==}
+    peerDependencies:
+      rete: ^2.0.1
+      rete-area-plugin: ^2.0.0
+      rete-render-utils: ^2.0.0
+      vue: ^2.6 || ^3.2
+
+  rete@2.0.6:
+    resolution: {integrity: sha512-kPmlKCGFES2VWtY7Y7SCB8ZeXRMsgX5deza9cu4OwmfM/ZUimd461kC3hRyccoyVxE4POlHUx0gg2jcGfusHFg==}
+
   reusify@1.1.0:
     resolution: {integrity: sha512-g6QUff04oZpHs0eG5p83rFLhHeV00ug/Yf9nZM6fLeUrPguBTkTQOdpAWWspMh55TZfVQDPaN3NQJfbVRAxdIw==}
     engines: {iojs: '>=1.0.0', node: '>=0.10.0'}
@@ -2244,8 +2302,9 @@ packages:
     engines: {node: '>=14.0.0'}
     hasBin: true
 
-  sax@1.4.3:
-    resolution: {integrity: sha512-yqYn1JhPczigF94DMS+shiDMjDowYO6y9+wB/4WgO0Y19jWYk0lQ4tuG5KI7kj4FTp1wxPj5IFfcrz/s1c3jjQ==}
+  sax@1.4.4:
+    resolution: {integrity: sha512-1n3r/tGXO6b6VXMdFT54SHzT9ytu9yr7TaELowdYpMqY/Ao7EnlQGmAQ1+RatX7Tkkdm6hONI2owqNx2aZj5Sw==}
+    engines: {node: '>=11.0.0'}
 
   saxes@5.0.1:
     resolution: {integrity: sha512-5LBh1Tls8c9xgGjw3QrMwETmTMVk0oFgvrFSvWx62llR2hcEInrKNZ2GZCCuuy2lvWrdl5jhbpeqc5hRYKFOcw==}
@@ -2401,18 +2460,13 @@ packages:
     resolution: {integrity: sha512-ujeqbceABgwMZxEJnk2HDY2DlnUZ+9oEcb1KzTVfYHio0UE6dG71n60d8D2I4qNvleWrrXpmjpt7vZeF1LnMZQ==}
     engines: {node: '>=6'}
 
-  tdesign-icons-vue-next@0.3.7:
-    resolution: {integrity: sha512-Q5ebVty/TCqhBa0l/17kkhjC0pBAOGvn7C35MAt1xS+johKVM9QEDOy9R6XEl332AiwQ37MwqioczqjYC30ckw==}
-    peerDependencies:
-      vue: ^3.0.0
-
   tdesign-icons-vue-next@0.4.1:
     resolution: {integrity: sha512-uDPuTLRORnGcTyVGNoentNaK4V+ZcBmhYwcY3KqDaQQ5rrPeLMxu0ZVmgOEf0JtF2QZiqAxY7vodNEiLUdoRKA==}
     peerDependencies:
       vue: ^3.0.0
 
-  tdesign-vue-next@1.17.6:
-    resolution: {integrity: sha512-Eulv4+gk4sM262jSsWPC0hm/IsVqSiwtq3vsEFzSjS50dhwAuHON8RzS3eCzGHCoqSlgE7bQoGXN3ZjF3d5z0g==}
+  tdesign-vue-next@1.18.0:
+    resolution: {integrity: sha512-JSLb82fXAsO0FXFuMBCiLDSIvUlqG2bZ1CkWOLYfE4IFyPQ2hwjTxTsJRugVoLRYBuhiIKprhmoucZ4tlgWrGg==}
     engines: {node: '>= 18'}
     peerDependencies:
       vue: '>=3.1.0'
@@ -2617,8 +2671,8 @@ packages:
       typescript:
         optional: true
 
-  watchpack@2.4.4:
-    resolution: {integrity: sha512-c5EGNOiyxxV5qmTtAB7rbiXxi1ooX1pQKMLX/MIabJjRA0SJBQOjKF+KSVfHkr9U1cADPon0mRiVe/riyaiDUA==}
+  watchpack@2.5.0:
+    resolution: {integrity: sha512-e6vZvY6xboSwLz2GD36c16+O/2Z6fKvIf4pOXptw2rY9MVwE/TXc6RGqxD3I3x0a28lwBY7DE+76uTPSsBrrCA==}
     engines: {node: '>=10.13.0'}
 
   webpack-sources@3.3.3:
@@ -3167,6 +3221,10 @@ snapshots:
     dependencies:
       undici-types: 7.16.0
 
+  '@types/node@25.0.3':
+    dependencies:
+      undici-types: 7.16.0
+
   '@types/sortablejs@1.15.9': {}
 
   '@types/tinycolor2@1.4.6': {}
@@ -3243,20 +3301,20 @@ snapshots:
       '@typescript-eslint/types': 4.33.0
       eslint-visitor-keys: 2.1.0
 
-  '@vitejs/plugin-vue-jsx@4.2.0(vite@5.4.21(@types/node@25.0.2)(less@4.2.2)(sass@1.93.2)(terser@5.44.1))(vue@3.5.25(typescript@5.8.3))':
+  '@vitejs/plugin-vue-jsx@4.2.0(vite@5.4.21(@types/node@25.0.3)(less@4.2.2)(sass@1.93.2)(terser@5.44.1))(vue@3.5.25(typescript@5.8.3))':
     dependencies:
       '@babel/core': 7.28.5
       '@babel/plugin-transform-typescript': 7.28.5(@babel/core@7.28.5)
       '@rolldown/pluginutils': 1.0.0-beta.54
       '@vue/babel-plugin-jsx': 1.5.0(@babel/core@7.28.5)
-      vite: 5.4.21(@types/node@25.0.2)(less@4.2.2)(sass@1.93.2)(terser@5.44.1)
+      vite: 5.4.21(@types/node@25.0.3)(less@4.2.2)(sass@1.93.2)(terser@5.44.1)
       vue: 3.5.25(typescript@5.8.3)
     transitivePeerDependencies:
       - supports-color
 
-  '@vitejs/plugin-vue@5.2.4(vite@5.4.21(@types/node@25.0.2)(less@4.2.2)(sass@1.93.2)(terser@5.44.1))(vue@3.5.25(typescript@5.8.3))':
+  '@vitejs/plugin-vue@5.2.4(vite@5.4.21(@types/node@25.0.3)(less@4.2.2)(sass@1.93.2)(terser@5.44.1))(vue@3.5.25(typescript@5.8.3))':
     dependencies:
-      vite: 5.4.21(@types/node@25.0.2)(less@4.2.2)(sass@1.93.2)(terser@5.44.1)
+      vite: 5.4.21(@types/node@25.0.3)(less@4.2.2)(sass@1.93.2)(terser@5.44.1)
       vue: 3.5.25(typescript@5.8.3)
 
   '@volar/language-core@2.4.15':
@@ -3468,6 +3526,8 @@ snapshots:
     dependencies:
       '@webassemblyjs/ast': 1.14.1
       '@xtuc/long': 4.2.2
+
+  '@wesley-0808/disable-devtool@0.5.0': {}
 
   '@wesley-0808/rsa-verify@1.1.1':
     dependencies:
@@ -3844,6 +3904,8 @@ snapshots:
   dir-glob@3.0.1:
     dependencies:
       path-type: 4.0.0
+
+  disable-devtool@0.3.9: {}
 
   doctrine@2.1.0:
     dependencies:
@@ -4562,7 +4624,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 25.0.2
+      '@types/node': 25.0.3
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
@@ -4761,7 +4823,7 @@ snapshots:
   needle@3.3.1:
     dependencies:
       iconv-lite: 0.6.3
-      sax: 1.4.3
+      sax: 1.4.4
     optional: true
 
   neo-async@2.6.2: {}
@@ -4947,6 +5009,35 @@ snapshots:
       path-parse: 1.0.7
       supports-preserve-symlinks-flag: 1.0.0
 
+  rete-area-plugin@2.1.5(rete@2.0.6):
+    dependencies:
+      '@babel/runtime': 7.28.4
+      rete: 2.0.6
+
+  rete-connection-plugin@2.0.5(rete-area-plugin@2.1.5(rete@2.0.6))(rete@2.0.6):
+    dependencies:
+      '@babel/runtime': 7.28.4
+      rete: 2.0.6
+      rete-area-plugin: 2.1.5(rete@2.0.6)
+
+  rete-render-utils@2.0.3(rete-area-plugin@2.1.5(rete@2.0.6))(rete@2.0.6):
+    dependencies:
+      '@babel/runtime': 7.28.4
+      rete: 2.0.6
+      rete-area-plugin: 2.1.5(rete@2.0.6)
+
+  rete-vue-plugin@2.1.2(rete-area-plugin@2.1.5(rete@2.0.6))(rete-render-utils@2.0.3(rete-area-plugin@2.1.5(rete@2.0.6))(rete@2.0.6))(rete@2.0.6)(vue@3.5.25(typescript@5.8.3)):
+    dependencies:
+      '@babel/runtime': 7.28.4
+      rete: 2.0.6
+      rete-area-plugin: 2.1.5(rete@2.0.6)
+      rete-render-utils: 2.0.3(rete-area-plugin@2.1.5(rete@2.0.6))(rete@2.0.6)
+      vue: 3.5.25(typescript@5.8.3)
+
+  rete@2.0.6:
+    dependencies:
+      '@babel/runtime': 7.28.4
+
   reusify@1.1.0: {}
 
   rimraf@2.7.1:
@@ -5024,7 +5115,7 @@ snapshots:
       '@parcel/watcher': 2.5.1
     optional: true
 
-  sax@1.4.3:
+  sax@1.4.4:
     optional: true
 
   saxes@5.0.1:
@@ -5210,17 +5301,12 @@ snapshots:
       inherits: 2.0.4
       readable-stream: 3.6.2
 
-  tdesign-icons-vue-next@0.3.7(vue@3.5.25(typescript@5.8.3)):
-    dependencies:
-      '@babel/runtime': 7.28.4
-      vue: 3.5.25(typescript@5.8.3)
-
   tdesign-icons-vue-next@0.4.1(vue@3.5.25(typescript@5.8.3)):
     dependencies:
       '@babel/runtime': 7.28.4
       vue: 3.5.25(typescript@5.8.3)
 
-  tdesign-vue-next@1.17.6(vue@3.5.25(typescript@5.8.3)):
+  tdesign-vue-next@1.18.0(vue@3.5.25(typescript@5.8.3)):
     dependencies:
       '@babel/runtime': 7.28.4
       '@popperjs/core': 2.11.8
@@ -5372,21 +5458,21 @@ snapshots:
 
   validator@13.15.23: {}
 
-  vite-plugin-markdown@2.2.0(vite@5.4.21(@types/node@25.0.2)(less@4.2.2)(sass@1.93.2)(terser@5.44.1)):
+  vite-plugin-markdown@2.2.0(vite@5.4.21(@types/node@25.0.3)(less@4.2.2)(sass@1.93.2)(terser@5.44.1)):
     dependencies:
       domhandler: 4.3.1
       front-matter: 4.0.2
       htmlparser2: 6.1.0
       markdown-it: 12.3.2
-      vite: 5.4.21(@types/node@25.0.2)(less@4.2.2)(sass@1.93.2)(terser@5.44.1)
+      vite: 5.4.21(@types/node@25.0.3)(less@4.2.2)(sass@1.93.2)(terser@5.44.1)
 
-  vite@5.4.21(@types/node@25.0.2)(less@4.2.2)(sass@1.93.2)(terser@5.44.1):
+  vite@5.4.21(@types/node@25.0.3)(less@4.2.2)(sass@1.93.2)(terser@5.44.1):
     dependencies:
       esbuild: 0.21.5
       postcss: 8.5.6
       rollup: 4.53.5
     optionalDependencies:
-      '@types/node': 25.0.2
+      '@types/node': 25.0.3
       fsevents: 2.3.3
       less: 4.2.2
       sass: 1.93.2
@@ -5432,7 +5518,7 @@ snapshots:
     optionalDependencies:
       typescript: 5.8.3
 
-  watchpack@2.4.4:
+  watchpack@2.5.0:
     dependencies:
       glob-to-regexp: 0.4.1
       graceful-fs: 4.2.11
@@ -5462,7 +5548,7 @@ snapshots:
       schema-utils: 4.3.3
       tapable: 2.3.0
       terser-webpack-plugin: 5.3.16(webpack@5.98.0)
-      watchpack: 2.4.4
+      watchpack: 2.5.0
       webpack-sources: 3.3.3
     transitivePeerDependencies:
       - '@swc/core'

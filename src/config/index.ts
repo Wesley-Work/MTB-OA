@@ -249,12 +249,30 @@ const routerMap: RouteMaps = [
         icon: 'wink',
         children: [
           {
-            key: 'user-list',
+            key: 'FaceAccessUserList',
             label: '人员列表',
             component: () => import('@pages/management/faceAccess/list'),
             meta: {
-              needInternet: true,
+              disableDevtool: true,
             },
+          },
+          {
+            key: 'FaceAccessPlan',
+            label: '门禁方案/策略',
+            component: () => import('@pages/management/faceAccess/plan'),
+          },
+          {
+            key: 'FaceAccessEvent',
+            label: '通行记录',
+            component: () => import('@pages/management/faceAccess/event'),
+            meta: {
+              disableDevtool: true,
+            },
+          },
+          {
+            key: 'FaceAccessDoorRemote',
+            label: '远程控制',
+            component: () => import('@pages/management/faceAccess/remote'),
           },
         ],
       },
@@ -378,6 +396,7 @@ const config = {
   systemName: '顺德中专团委媒体部 信息化管理平台',
   systemNameEn: 'MTB OA',
   breadcrumbIndex: '媒体部信息化管理平台',
+  watermarkText: '中专媒体部信息化管理平台',
   developMode: false, //开发模式
   loginVerify: true, //登陆验证
   logoutTime: 120000, //无操作退登时间,ms
@@ -412,3 +431,4 @@ export const allowHotUpdate = config.allowHotUpdate;
 export const loginVerify = config.loginVerify;
 export const menuUseCollapsed = config.menuUseCollapsed;
 export const breadcrumbIndex = config.breadcrumbIndex;
+export const watermarkText = config.watermarkText;
