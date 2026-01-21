@@ -1,0 +1,59 @@
+@import './common.less';
+
+.headerManage {
+  margin: 24px 24px 0px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background-color: var(--td-bg-color-component);
+  .headerPreview {
+    width: 100%;
+    height: 305px;
+    iframe {
+      width: 100%;
+      height: 305px;
+      border: none;
+    }
+  }
+  .htm {
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+    .headerTree,
+    .headerTree-Manage {
+      background-color: var(--td-bg-color-container);
+    }
+    .headerTree {
+      width: 18%;
+      min-width: 15%;
+      padding: 12px 12px 12px 0;
+    }
+    .headerTree-Manage {
+      width: 100%;
+      padding: 12px;
+      .rootNode-ManageButtonGroup {
+        display: flex;
+        flex-direction: row;
+        gap: 12px;
+      }
+      .NodeManage {
+        .headerTree-unChoose {
+          font: var(--td-font-title-medium);
+          color: var(--td-text-color-secondary);
+          text-align: center;
+          line-height: 180px;
+          letter-spacing: 0.5px;
+          background-color: var(--td-bg-color-container-hover);
+        }
+        .NodeManage-view {
+          display: flex;
+          flex-direction: row;
+          gap: 12px;
+          > div {
+            width: 50%;
+          }
+        }
+      }
+    }
+  }
+}

@@ -35,7 +35,7 @@
 
 <script setup lang="tsx">
 import { MenuIcon, FormIcon } from 'tdesign-icons-vue-next';
-import HeaderManage from './components/headerManage.vue';
+import HeaderManage from './components/headerManage';
 import TopicManage from './components/topicManage.vue';
 import BannerManage from './components/bannerManage.vue';
 
