@@ -29,10 +29,9 @@
         </t-button>
       </t-space>
     </div>
-    <div style="height: calc(100% - 56px)">
+    <div style="padding: 0px 16px">
       <t-table
         row-key="id"
-        max-height="100%"
         :columns="table_Columns"
         :data="tableData"
         select-on-row-click
@@ -43,7 +42,7 @@
         cell-empty-content="-"
         stripe
         bordered
-        class="need-full-section table-has-pagination"
+        max-height="calc( 100vh - 350px )"
         @sort-change="sortChange"
         @select-change="handleTableSelectChange"
         @page-change="onPageChange"

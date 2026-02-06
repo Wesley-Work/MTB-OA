@@ -274,6 +274,11 @@ const routerMap: RouteMaps = [
             label: '远程控制',
             component: () => import('@pages/management/faceAccess/remote'),
           },
+          {
+            key: 'FaceAccessAsync',
+            label: '异步任务',
+            component: () => import('@pages/management/faceAccess/async'),
+          },
         ],
       },
       {

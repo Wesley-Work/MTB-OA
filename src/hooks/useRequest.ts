@@ -75,12 +75,21 @@ export function useRequest(option: RequestHooksOptions) {
         }, option.timeout);
       }
 
-      await fetch(option?.useCustomURL ? option?.url : getAPI_URL() + option?.url, {
-        method: option?.methods ? option?.methods.toUpperCase() : 'GET',
+      const method = option?.methods ? option?.methods.toUpperCase() : 'GET';
+      const isGet = method === 'GET';
+      let url = option?.useCustomURL ? option?.url : getAPI_URL() + option?.url;
+      const params = SpliceParameter(option?.data);
+
+      if (isGet && params) {
+        url += (url.includes('?') ? '&' : '?') + params;
+      }
+
+      await fetch(url, {
+        method,
         headers: {
           ...headersMerge,
         },
-        body: SpliceParameter(option?.data) || null,
+        body: isGet ? null : params || null,
         signal,
       })
         .then((response) => {

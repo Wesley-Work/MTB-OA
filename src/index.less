@@ -30,3 +30,19 @@
     }
   }
 }
+
+.card-title-tag {
+  display: flex;
+  align-items: center;
+
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 16px;
+    background-color: var(--td-brand-color);
+    margin-right: 6px;
+    border-top-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+  }
+}

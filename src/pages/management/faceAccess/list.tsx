@@ -111,9 +111,47 @@ export default defineComponent({
       });
     };
 
+    const toSyncUser = () => {
+      const dialog = DialogPlugin({
+        header: '同步确认',
+        body: '操作将从门禁设备拉取最新的人员数据，可能需要较长时间，同步进度请在「异步任务」中查看，请确认是否继续？',
+        confirmBtn: '确认同步',
+        cancelBtn: '取消',
+        closeBtn: false,
+        onConfirm: () => {
+          dialog.destroy();
+          MessagePlugin.loading({
+            content: '正在发起同步请求，请稍后...',
+            duration: 0,
+          });
+          useRequest({
+            url: `/hikvision/operation/sync-user`,
+            methods: 'POST',
+            success: function (res) {
+              MessagePlugin.closeAll();
+              const RES = typeof res === 'string' ? JSON.parse(res) : res;
+              if (RES.errcode === 0) {
+                MessagePlugin.success('同步任务已提交，请在「异步任务」中查看进度');
+              } else {
+                MessagePlugin.error(`同步失败: ${RES.errmsg}`);
+              }
+            },
+            error: function (err) {
+              MessagePlugin.closeAll();
+              MessagePlugin.error(`同步请求错误: ${err}`);
+            },
+          });
+        },
+        onClose: () => {
+          dialog.destroy();
+        },
+      });
+    };
+
     onMounted(() => {
       MessagePlugin.loading('正在加载，请稍后...');
       loading.value = true;
+      // 使用云端数据，不拉内网服务
       // checkInternal()
       //   .then((internal) => {
       //     isInternal.value = internal;
@@ -326,7 +364,7 @@ export default defineComponent({
       },
       {
         colKey: 'localUIRight',
-        title: '本地设备权限',
+        title: '门禁设备权限',
         width: 140,
         cell: (_h, { row }) => {
           return (
@@ -378,13 +416,23 @@ export default defineComponent({
     return () => (
       <div class="face-access-list">
         <div style="margin-bottom: 12px;">
-          <Button>新增用户</Button>
+          <Space size="small">
+            <Button>新增用户</Button>
+            <Button theme="primary" variant="outline" onClick={toSyncUser}>
+              发起人员同步
+            </Button>
+          </Space>
           <Alert style="margin-top: 8px;">
             1. 本地设备权限请在门禁设备后台或海康互联APP设置
             <br />
             2. 门禁方案配置请前往“门禁方案/策略”页面进行配置，本页面只可以设置用户与方案的绑定关系
             <br />
-            3. 当前模式：{checkingInternal.value ? '检测中...' : isInternal.value ? '内网模式' : '外网模式'}
+            {/* 3. 当前模式：{checkingInternal.value ? '检测中...' : isInternal.value ? '内网模式' : '外网模式'} */}
+            3.
+            由于门禁系统与管理平台是单独的两套系统，所以信息同步与操作将发起异步请求。发起请求后请在「异步任务」中查看进度。
+            <br />
+            4.
+            由于系统间差异，新增、编辑人员后「海康互联」APP显示的数据会不正确，这是正常情况。如需正确的数据，需要在APP中操作「设备同步人员」
           </Alert>
         </div>
         <Table
@@ -392,7 +440,7 @@ export default defineComponent({
           data={data.value}
           rowKey="employeeNo"
           loading={loading.value}
-          maxHeight="calc( 100vh - 390px )"
+          maxHeight="calc( 100vh - 386px )"
         />
       </div>
     );

@@ -13,6 +13,7 @@ import NotDevtool from './pages/NotDevtool.vue';
 import { isDevMode } from '@/utils/common';
 
 export default defineComponent({
+  inheritAttrs: false,
   props: {
     userName: {
       type: String,
@@ -37,6 +38,13 @@ export default defineComponent({
     showWatermark: {
       type: Boolean,
       default: true,
+    },
+    fullscreen: {
+      type: Boolean,
+      default: false,
+    },
+    fullscreenToggle: {
+      type: Function as PropType<(...args: any[]) => any>,
     },
   },
   setup(props) {
@@ -100,13 +108,29 @@ export default defineComponent({
           >
             <router-view
               class="narrow-scrollbar"
-              style="height: 100%;overflow: auto;"
               handleChangeComponent={props?.handleChangeComponent}
-              {...props}
+              userName={props.userName}
+              userCode={props.userCode}
+              userPermissions={props.userPermissions}
+              componentPermissions={props.componentPermissions}
+              component={props.component}
+              showWatermark={props.showWatermark}
+              fullscreen={props.fullscreen}
+              fullscreenToggle={props.fullscreenToggle}
             ></router-view>
           </Watermark>
         ) : (
-          <router-view handleChangeComponent={props?.handleChangeComponent} {...props}></router-view>
+          <router-view
+            handleChangeComponent={props?.handleChangeComponent}
+            userName={props.userName}
+            userCode={props.userCode}
+            userPermissions={props.userPermissions}
+            componentPermissions={props.componentPermissions}
+            component={props.component}
+            showWatermark={props.showWatermark}
+            fullscreen={props.fullscreen}
+            fullscreenToggle={props.fullscreenToggle}
+          ></router-view>
         );
 
         // Devtool检测-已打开

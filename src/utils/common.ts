@@ -2,9 +2,9 @@ import { useRoute } from 'vue-router';
 
 export const getAPI_URL = () => {
   if (import.meta.env.DEV) {
-    return 'http://localhost:51001/v2';
+    return 'http://localhost:51001/v3';
   }
-  return 'https://oa-api.mtb.wesley.net.cn/v2';
+  return 'https://oa-api.mtb.wesley.net.cn/v3';
 };
 
 export const getWeCom_API = () => {
