@@ -7,9 +7,9 @@ import {
   Input,
   InputNumber,
   Link,
-  MessagePlugin,
   NotifyPlugin,
   Popconfirm,
+  Popup,
   Select,
   Space,
   Table,
@@ -21,7 +21,7 @@ import {
 import { AddIcon, DeleteIcon, FileExportIcon } from 'tdesign-icons-vue-next';
 import sha256 from 'crypto-js/sha256';
 import useRequest from '@/hooks/useRequest';
-import { loadSystemPermissions, loadUserPermissionsList } from '@/hooks/usePermission';
+import { loadSystemPermissions, loadUserPermissions } from '@/hooks/usePermission';
 import { PermissionsArray, userListObject, UserSelectData } from '@/types/type';
 import ExcelJS from 'exceljs';
 import './UserManage.less';
@@ -234,9 +234,7 @@ export default defineComponent({
       proxyStatus: {},
     });
 
-    const userPermissionsList = ref<{ users?: object; group?: object }>({});
-    const activeUserPermissions = ref([]);
-    const activeGroupPermissions = ref([]);
+    const activeUserPerm = ref<{ users?: any[]; group?: any[]; position?: any[] }>({});
 
     const positionData = reactive({
       selectedPositionIds: [], // 已选中的职位 ID 列表
@@ -272,14 +270,50 @@ export default defineComponent({
         });
     };
 
-    const loadUserPermissions = () => {
-      loadUserPermissionsList()
-        .then((res) => {
-          userPermissionsList.value = res;
-        })
-        .catch((err) => {
-          console.error(err);
-        });
+    const getUserPermissionsList = (uid: number) => {
+      useRequest({
+        url: '/permissions/get-user-list',
+        methods: 'GET',
+        data: {
+          id: uid,
+        },
+        success: function (res) {
+          const result = JSON.parse(res);
+          if (result.errcode !== 0) {
+            NotifyPlugin.error({
+              title: '获取用户权限失败',
+              content: result.errmsg,
+            });
+            return;
+          }
+          activeUserPerm.value = result.data;
+          if (actionMode.value === 'edit') {
+            initPermissionsTransfer();
+          }
+        },
+        error: function (err) {
+          NotifyPlugin.error({
+            title: '获取用户权限失败',
+            content: err,
+          });
+        },
+      });
+    };
+
+    const getGroupPermissionsList = (gid: number) => {
+      useRequest({
+        url: '/permissions/get-group-list',
+        methods: 'GET',
+        data: {
+          id: gid,
+        },
+        success: function (res) {
+          const result = typeof res === 'string' ? JSON.parse(res) : res;
+          if (result.errcode === 0) {
+            activeUserPerm.value.group = result.data;
+          }
+        },
+      });
     };
 
     const handleAdd = () => {
@@ -294,11 +328,9 @@ export default defineComponent({
     const handleEdit = (e: Event, row) => {
       e.stopPropagation();
       actionMode.value = 'edit';
-      const { id, group } = row;
-      activeUserPermissions.value = userPermissionsList.value?.users[id] ?? [];
-      activeGroupPermissions.value = userPermissionsList.value?.group[group] ?? [];
+      const { id } = row;
       ResetDialogForm(row);
-      initPermissionsTransfer();
+      getUserPermissionsList(id);
       loadUserPositions(id); // 加载用户的职位信息
       showEditDialog();
     };
@@ -309,25 +341,25 @@ export default defineComponent({
       permissionsTransfer.proxyStatus = {};
       handlePermissionDialogClose();
       if (actionMode.value === 'edit') {
-        permissionsTransfer.value = activeUserPermissions.value.map((item) => {
+        permissionsTransfer.value = (activeUserPerm.value.users ?? []).map((item) => {
           return item.val ?? '未知权限';
         });
       }
     };
 
     const restorePermissionsStatus = () => {
-      activeUserPermissions.value.forEach((item) => {
+      (activeUserPerm.value.users ?? []).forEach((item) => {
         permissionsTransfer.statusList[item.val] = {
-          open: item?.open === 1,
+          open: !!item?.open,
         };
       });
       permissionsTransfer.proxyStatus = JSON.parse(JSON.stringify(permissionsTransfer.statusList));
     };
 
     const setPermissionsStatus = (val: string, open: boolean) => {
-      activeUserPermissions.value.forEach((item) => {
+      (activeUserPerm.value.users ?? []).forEach((item) => {
         if (item.val === val) {
-          item.open = open ? 1 : 0;
+          item.open = open;
         }
       });
     };
@@ -371,7 +403,7 @@ export default defineComponent({
         methods: 'POST',
         data: { user_id: userId },
         success: function (res) {
-          var RES = typeof res === 'string' ? JSON.parse(res) : res;
+          const RES = typeof res === 'string' ? JSON.parse(res) : res;
           if (RES.errcode === 0 && RES.data) {
             positionData.allPositions = RES.data.map((item) => ({
               label: item.name,
@@ -389,7 +421,7 @@ export default defineComponent({
         methods: 'POST',
         data: { user_id: userId },
         success: function (res) {
-          var RES = typeof res === 'string' ? JSON.parse(res) : res;
+          const RES = typeof res === 'string' ? JSON.parse(res) : res;
           if (RES.errcode === 0 && RES.data) {
             positionData.selectedPositionIds = RES.data.map((item) => item.position_id);
           }
@@ -414,7 +446,7 @@ export default defineComponent({
           ids: selectedIds,
         },
         success: function (res) {
-          var RES = typeof res === 'string' ? JSON.parse(res) : res;
+          const RES = typeof res === 'string' ? JSON.parse(res) : res;
           if (RES.errcode === 0) {
             NotifyPlugin('success', {
               title: '职位更新成功',
@@ -448,7 +480,7 @@ export default defineComponent({
           url: '/group/list',
           methods: 'POST',
           success: function (res) {
-            var RES = typeof res === 'string' ? JSON.parse(res) : res;
+            const RES = typeof res === 'string' ? JSON.parse(res) : res;
             if (RES.errcode == 0) {
               groupOptions.value = [];
               for (const key in RES.data) {
@@ -478,7 +510,7 @@ export default defineComponent({
           url: '/user/list',
           methods: 'POST',
           success: function (res) {
-            var RES = typeof res === 'string' ? JSON.parse(res) : res;
+            const RES = typeof res === 'string' ? JSON.parse(res) : res;
             tableData.value = RES.data;
             tableBackData.value = RES.data;
             tablePagination.total = tableData.value.length;
@@ -501,7 +533,7 @@ export default defineComponent({
     };
 
     const DeleteAccount = () => {
-      var list = SelectData.value;
+      const list = SelectData.value;
       list.forEach((element, index) => {
         useRequest({
           url: '/user/del',
@@ -510,19 +542,18 @@ export default defineComponent({
             id: element.id,
           },
           success: function (res) {
-            var RES = typeof res === 'string' ? JSON.parse(res) : res;
+            const RES = typeof res === 'string' ? JSON.parse(res) : res;
             if (RES.errcode === 0) {
-              var U_id = RES.data.id;
-              console.info(`删除了id为${U_id}的用户`);
-            }
-            NotifyPlugin('success', {
-              title: '删除账号成功',
-              content: `成功删除了id为${U_id}的用户`,
-              duration: 5000,
-            });
-            if (index === list.length - 1) {
-              SelectData.value = [];
-              loadTableData();
+              const U_id = RES.data.id;
+              NotifyPlugin('success', {
+                title: '删除账号成功',
+                content: `成功删除了id为${U_id}的用户`,
+                duration: 5000,
+              });
+              if (index === list.length - 1) {
+                SelectData.value = [];
+                loadTableData();
+              }
             }
           },
           error: function (err) {
@@ -611,16 +642,19 @@ export default defineComponent({
           w.height = 40;
           w.eachCell({ includeEmpty: true }, (cell, colNumber) => {
             if (colNumber === 1) {
+              // @ts-ignore
               cell.style = {
                 fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'A0C2FA' } },
                 ...bodyStyle,
               };
             } else if (isUnusual) {
+              // @ts-ignore
               cell.style = {
                 fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF5EE' } },
                 ...bodyStyle,
               };
             } else {
+              // @ts-ignore
               cell.style = bodyStyle;
             }
           });
@@ -629,6 +663,7 @@ export default defineComponent({
         const lastRow = ws.addRow([`本数据表由媒体部管理系统导出，导出时间：${dayjs().format('YYYY-MM-DD HH:mm:ss')}`]);
         lastRow.height = 55;
         lastRow.eachCell({ includeEmpty: true }, (cell) => {
+          // @ts-ignore
           cell.style = {
             fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'F5DEB3' } },
             ...bodyStyle,
@@ -646,7 +681,9 @@ export default defineComponent({
         workbook.xlsx
           .writeBuffer()
           .then((buffer) => {
-            const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const blob = new Blob([buffer], {
+              type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -707,9 +744,9 @@ export default defineComponent({
           methods: 'POST',
           data: FORMDATA,
           success: function (res) {
-            var RES = typeof res === 'string' ? JSON.parse(res) : res;
+            const RES = typeof res === 'string' ? JSON.parse(res) : res;
             if (RES.errcode === 0) {
-              var E_id = RES.data.id;
+              const E_id = RES.data.id;
               NotifyPlugin('success', {
                 title: '编辑账号信息成功',
                 content: `成功编辑了id为${E_id}的账号信息`,
@@ -737,9 +774,9 @@ export default defineComponent({
           methods: 'POST',
           data: FORMDATA,
           success: function (res) {
-            var RES = typeof res === 'string' ? JSON.parse(res) : res;
+            const RES = typeof res === 'string' ? JSON.parse(res) : res;
             if (RES.errcode === 0) {
-              var E_id = RES.data.id;
+              const E_id = RES.data.id;
               NotifyPlugin('success', {
                 title: '添加账号成功',
                 content: `成功添加了id为${E_id}的账号`,
@@ -770,8 +807,8 @@ export default defineComponent({
     };
 
     const TableSortData = () => {
-      var data = tableData.value;
-      var sort = tableSort.value;
+      const data = tableData.value;
+      const sort = tableSort.value;
       if (sort && sort.sortBy) {
         tableData.value = data
           .concat()
@@ -796,7 +833,10 @@ export default defineComponent({
 
     const openPermissionsDialog = () => {
       if (actionMode.value === 'add') {
-        activeGroupPermissions.value = userPermissionsList.value?.group[EditUserDialogForm.value['group']] ?? [];
+        const gid = EditUserDialogForm.value['group'];
+        if (gid) {
+          getGroupPermissionsList(gid);
+        }
       }
       initPermissionsTransfer();
 
@@ -825,29 +865,49 @@ export default defineComponent({
             onChange={handlePermissionsTransferChange}
             v-slots={{
               title: (props) => <div>{props.type === 'target' ? '用户现有' : '权限池'}</div>,
-              footer: (props) => (
-                activeGroupPermissions.value.length !== 0 && props.type === 'target' ? (
+              footer: (props) =>
+                (activeUserPerm.value.group?.length || 0) !== 0 &&
+                props.type === 'target' && (
                   <div class="transfer-footer--tagGroup narrow-scrollbar">
-                    {activeGroupPermissions.value.map((item, index) => (
-                      <span key={index}>
-                        <span class="group-permission--item">{permissionsTransfer.nameList[item?.val]}</span>
-                      </span>
+                    {activeUserPerm.value.group?.map((item, index) => (
+                      <div key={index}>
+                        <span class="group-permission--item" style="display: flex; align-items: center;">
+                          <Tag theme="primary" variant="light-outline" size="small" style="margin-right: 4px">
+                            <span>组</span>
+                          </Tag>
+                          {permissionsTransfer.nameList[item?.val]}
+                        </span>
+                      </div>
+                    ))}
+                    {activeUserPerm.value.position?.map((item, index) => (
+                      <div key={index}>
+                        <span class="group-permission--item" style="display: flex; align-items: center;">
+                          <Tag color="rgb(0, 22, 82)" variant="light-outline" size="small" style="margin-right: 4px">
+                            <span>职</span>
+                          </Tag>
+                          {permissionsTransfer.nameList[item?.val]}
+                        </span>
+                      </div>
                     ))}
                   </div>
-                ) : null
-              ),
+                ),
               transferItem: ({ data, index, type }) => (
                 <div data-transfer-checkbox-id={index} style="margin-left: 8px">
-                  {activeGroupPermissions.value.map((item) => item.val).includes(data.value) && type === 'target' && (
-                    <Tag color="rgb(217, 0, 87)" variant="light-outline" size="small" style="margin-right: 4px">
-                      <span>重复</span>
-                    </Tag>
-                  )}
-                  {data.label}
+                  {(activeUserPerm.value.group?.map((item) => item.val).includes(data.value) ||
+                    activeUserPerm.value.position?.map((item) => item.val).includes(data.value)) &&
+                    type === 'target' && (
+                      <Tag color="rgb(217, 0, 87)" variant="light-outline" size="small" style="margin-right: 4px">
+                        <span>重复</span>
+                      </Tag>
+                    )}
+                  <Popup placement="top" content={data.value}>
+                    {data.label}
+                  </Popup>
                   {type === 'target' && (
                     <span
                       class="UserCanTSelect"
                       onClick={(e) => {
+                        // Prevent the Transfer item from being selected when clicking the Tag
                         e.preventDefault();
                         togglePermissionStatus(data.value);
                       }}
@@ -895,8 +955,6 @@ export default defineComponent({
         },
         body: () => (
           <div style="width: 100%; margin-top: 8px">
-            {/* @ts-ignore */}
-            <mtb-tag t-a-g />
             <div style="width: 100%; margin-top: 8px">
               <Space direction="horizontal" size="16px" style="width: 100%">
                 <Space direction="vertical" size="12px" style="width: 100%">
@@ -1068,7 +1126,12 @@ export default defineComponent({
                 default: () => '添加账号',
               }}
             </Button>
-            <Popconfirm theme="danger" content="确认删除？删除后不可恢复！" placement="bottom" onConfirm={DeleteAccount}>
+            <Popconfirm
+              theme="danger"
+              content="确认删除？删除后不可恢复！"
+              placement="bottom"
+              onConfirm={DeleteAccount}
+            >
               <Button disabled={SelectData.value.length === 0} theme="danger">
                 {{
                   icon: () => <DeleteIcon />,

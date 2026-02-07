@@ -1,6 +1,6 @@
-.t-dialog__body:has(mtb-tag[TAG]) {
-  padding-bottom: 0px !important;
-}
+// .t-dialog__body:has(mtb-tag[TAG]) {
+//   padding-bottom: 0px !important;
+// }
 
 div[required]::before {
   content: '*';
@@ -46,7 +46,7 @@ div[unrequired] {
     }
     &.t-transfer__footer .t-transfer__list {
       &:has(.transfer-footer--tagGroup) {
-        padding-bottom: 54.67px !important;
+        padding-bottom: 56px !important;
       }
       padding-bottom: 0px;
     }
@@ -60,10 +60,11 @@ div[unrequired] {
       .transfer-footer--tagGroup {
         padding: 12px;
         border-top: 1px solid #e7e7e7;
-        height: 30.67px;
+        height: 56px;
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
+        gap: 6px;
         overflow: auto;
         .group-permission--item {
           transition: background-color 0.2s cubic-bezier(0.38, 0, 0.24, 1);

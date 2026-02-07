@@ -1,5 +1,5 @@
 <template>
-  <div class="position-manage need-full-section">
+  <div class="position-manage need-full-section" style="background: var(--td-bg-color-container)">
     <div class="toolbar">
       <t-button theme="primary" variant="outline" @click="openAdd">新增职位</t-button>
     </div>
@@ -55,6 +55,17 @@
         </t-form-item>
       </t-form>
     </t-dialog>
+
+    <!-- 权限分配对话框 -->
+    <t-dialog v-model:visible="permDialog.visible" header="分配职位权限" width="600px" @confirm="onSavePerm">
+      <t-transfer
+        v-model="permDialog.value"
+        class="transfer-horizontal transfer-item--width-fit-content transfer-custom"
+        :data="systemPermissions"
+        :operation="['移除', '添加']"
+        :title="['权限池', '职位现有权限']"
+      />
+    </t-dialog>
   </div>
 </template>
 
@@ -63,6 +74,7 @@ import { computed, onMounted, ref } from 'vue';
 import { FilterValue, NotifyPlugin, TableProps } from 'tdesign-vue-next';
 import useRequest from '@/hooks/useRequest';
 import { getToken } from '@/hooks/common';
+import { loadSystemPermissions } from '@/hooks/usePermission';
 
 type PositionItem = {
   id: number;
@@ -196,12 +208,15 @@ const tableColumns: TableProps['columns'] = [
   {
     colKey: 'operation',
     title: '操作',
-    width: 220,
+    width: 250,
     align: 'center',
     cell: (h, { row }) => (
       <t-space>
         <t-link theme="primary" hover="color" onClick={() => openEdit(row)}>
           编辑
+        </t-link>
+        <t-link theme="primary" hover="color" onClick={() => openPerm(row)}>
+          权限
         </t-link>
         <t-popconfirm theme="danger" content="确认删除该职位？" placement="left" onConfirm={() => onDelete(row)}>
           <t-link theme="danger" hover="color" disabled={row.notRemove === 1}>
@@ -218,6 +233,56 @@ function headers() {
     'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
     token: getToken(),
   };
+}
+
+const systemPermissions = ref([]);
+const permDialog = ref({ visible: false, id: 0, value: [] });
+
+function loadSystemPermissionsList() {
+  loadSystemPermissions().then((res: any) => {
+    systemPermissions.value = (res || []).map((it: any) => ({
+      label: it.object,
+      value: it.val,
+    }));
+  });
+}
+
+function openPerm(row: PositionItem) {
+  permDialog.value = { visible: true, id: row.id, value: [] };
+  useRequest({
+    url: '/permissions/get-position-list',
+    methods: 'GET',
+    data: { id: row.id },
+    success(res) {
+      const R = JSON.parse(res);
+      if (R.errcode === 0) {
+        permDialog.value.value = (R.data || []).map((it: any) => it.val);
+      }
+    },
+  });
+}
+
+function onSavePerm() {
+  useRequest({
+    url: '/permissions/positionEdit',
+    methods: 'POST',
+    data: {
+      pid: permDialog.value.id,
+      val: permDialog.value.value.join(','),
+    },
+    success(res) {
+      const R = JSON.parse(res);
+      if (R.errcode === 0) {
+        NotifyPlugin.success({ title: '权限分配成功' });
+        permDialog.value.visible = false;
+      } else {
+        NotifyPlugin.error({ title: '权限分配失败', content: R.errmsg });
+      }
+    },
+    error(err) {
+      NotifyPlugin.error({ title: '权限分配失败', content: String(err) });
+    },
+  });
 }
 
 function loadData() {
@@ -405,6 +470,7 @@ function onDelete(row: PositionItem) {
 onMounted(() => {
   loadGroups();
   loadData();
+  loadSystemPermissionsList();
 });
 </script>
 
@@ -412,7 +478,7 @@ onMounted(() => {
 export default { name: 'PositionManage' };
 </script>
 
-<style scoped>
+<style lang="less">
 .position-manage {
   padding: 16px;
 }
@@ -421,5 +487,39 @@ export default { name: 'PositionManage' };
   gap: 12px;
   margin-bottom: 12px;
   align-items: center;
+}
+.transfer-custom .t-button .t-icon {
+  display: none;
+  & + .t-button__text:not(:empty) {
+    margin-left: 0;
+  }
+}
+
+.transfer-horizontal {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  width: 100%;
+  gap: 16px;
+  .t-transfer__list {
+    width: 100%;
+    .t-transfer__list-header {
+      width: calc(100% - var(--td-comp-margin-s) * 2) !important;
+    }
+  }
+  .t-transfer__operations {
+    flex-direction: row !important;
+  }
+  &.transfer-item--width-fit-content {
+    .t-checkbox-group {
+      flex-direction: row !important;
+      gap: 8px 0px !important;
+      padding: 0px 8px;
+    }
+    .t-transfer__list-item {
+      width: fit-content !important;
+      margin-left: 0px !important;
+    }
+  }
 }
 </style>

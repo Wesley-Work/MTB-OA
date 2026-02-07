@@ -36,7 +36,7 @@
 
           <t-col flex="auto" style="display: inline-flex; justify-content: center">
             <t-button variant="text" shape="square" @click="showWhoInGroup(item)">
-              <ListIcon />
+              <ViewListIcon />
             </t-button>
           </t-col>
 
@@ -136,7 +136,7 @@
 </template>
 
 <script setup lang="tsx">
-import { Edit2Icon, ListIcon, DeleteIcon, AddRectangleIcon } from 'tdesign-icons-vue-next';
+import { Edit2Icon, ViewListIcon, DeleteIcon, AddRectangleIcon } from 'tdesign-icons-vue-next';
 import useRequest from '../../../hooks/useRequest';
 import { computed, onMounted, reactive, ref } from 'vue';
 import { NotifyPlugin } from 'tdesign-vue-next';
@@ -299,7 +299,7 @@ const getUserList = () => {
 
 const getSystemPermission = () => {
   useRequest({
-    url: '/permissions/systemlist',
+    url: '/permissions/system-list',
     methods: 'POST',
     success: function (res) {
       const result = JSON.parse(res);

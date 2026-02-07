@@ -36,7 +36,7 @@ export function loadUserPermissions(): Promise<Array<string> | string> {
 export function loadSystemPermissions() {
   return new Promise((resolve, reject) => {
     useRequest({
-      url: '/permissions/systemlist',
+      url: '/permissions/system-list',
       methods: 'POST',
       success: function (res) {
         const RES = JSON.parse(res);
