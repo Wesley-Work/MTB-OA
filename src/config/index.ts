@@ -237,10 +237,6 @@ const routerMap: RouteMaps = [
             label: '组织架构',
             component: () => import('@pages/management/wecom/orgStructure'),
           },
-          {
-            key: 'UserWeWorkManage',
-            label: '职位管理',
-          },
         ],
       },
       {
