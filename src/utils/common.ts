@@ -40,7 +40,7 @@ export const getLogin_URL = () => {
 
 export const isDevMode = () => {
   const route = useRoute();
-  if (route.query?.dev === 'true') {
+  if (route?.query?.dev === 'true') {
     return true;
   }
   if (import.meta.env.DEV) {
