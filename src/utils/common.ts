@@ -4,7 +4,7 @@ export const getAPI_URL = () => {
   if (import.meta.env.DEV) {
     return 'http://localhost:51001/v3';
   }
-  return 'https://oa-api.mtb.wesley.net.cn/v3';
+  return 'https://oa.api.sdzzmtb.cn/v3';
 };
 
 export const getWeCom_API = () => {
