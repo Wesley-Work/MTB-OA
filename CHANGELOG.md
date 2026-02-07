@@ -1,4 +1,21 @@
 
+## 🌈 3.6.0 `2026-02-07` 
+### 🚨 Breaking Changes
+- `Service`: 后端重构，接口使用`v3`前缀。优化系统架构 @Wesley-0808 ([#95](https://github.com/Wesley-Work/MTB-OA/pull/95))
+- `Menu`: ⚠️菜单展开变更为互斥型。 @Wesley-0808 ([#95](https://github.com/Wesley-Work/MTB-OA/pull/95))
+### 🚀 Features
+- `userPosition`: 新增 `用户职位` 功能。支持分配职位权限。@Copilot @Wesley-0808 ([#95](https://github.com/Wesley-Work/MTB-OA/pull/95))
+- `user`: 用户信息新增 `性别`、`电话号码` 等字段 @Wesley-0808 ([#95](https://github.com/Wesley-Work/MTB-OA/pull/95))
+- `Wecom`: 新增部分`企微互联`功能。用户、组别、年级均支持同步至企业微信。 @Wesley-0808 ([#95](https://github.com/Wesley-Work/MTB-OA/pull/95))
+- `Watermark`: 新增系统页面水印。 @Wesley-0808 ([#95](https://github.com/Wesley-Work/MTB-OA/pull/95))
+- `Devmode`: 支持判断是否开启了开发者工具，开启开发者工具后，部分页面将无法进入。 @Wesley-0808 ([#95](https://github.com/Wesley-Work/MTB-OA/pull/95))
+- `FaceAccess`: 对接海康门禁设备，新增 `人脸门禁` 管理功能，支持查看人员列表、通行记录等，支持从设备主动同步数据，支持用户自主上传人脸，支持根据用户列表下发用户（含人脸）至设备。暂不支持在 `用户列表` 中查看、编辑用户人脸，部分功能仍在开发中。 @Wesley-0808 ([#95](https://github.com/Wesley-Work/MTB-OA/pull/95))
+### 🐞 Bug Fixes
+- `SideManage`: 修复`官网导航栏管理`，树形结构节点首次选中无高亮、多次点击无高亮等问题 @Wesley-0808 ([#95](https://github.com/Wesley-Work/MTB-OA/pull/95))
+### 🚧 Others
+- `userManage`: 优化用户管理页面 @Wesley-0808 ([#95](https://github.com/Wesley-Work/MTB-OA/pull/95))
+- `Internal`: 更细化判断是否为学校内网环境。🚀 将向`local.sdzzmtb.cn`请求验签，验签通过则判定为内网。（优化后，理论上在顺德区教育网内，都会判定为内网） @Wesley-0808 ([#95](https://github.com/Wesley-Work/MTB-OA/pull/95))
+- `Audit`: ⚠️因审批功能需要优化，暂时关闭审批功能 @Wesley-0808 ([#95](https://github.com/Wesley-Work/MTB-OA/pull/95))
 ## 🌈 3.5.10 `2025-10-12` 
 ### 🚀 Features
 - `OnlineUser`: 支持查看在线用户，支持踢出用户 @Wesley-0808 ([#73](https://github.com/Wesley-Work/MTB-OA/pull/73))
