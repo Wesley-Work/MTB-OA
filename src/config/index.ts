@@ -211,7 +211,7 @@ const routerMap: RouteMaps = [
             key: 'AccountManage',
             label: '账号管理',
             permissions: ['account.manage.manage'],
-            component: () => import('@pages/management/account/UserManage.vue'),
+            component: () => import('@pages/management/account/UserManage.tsx'),
           },
           {
             key: 'PositionManage',
