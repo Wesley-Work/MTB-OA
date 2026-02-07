@@ -61,7 +61,7 @@ jobs:
           script: |
             const version = "${{ steps.get-current-version.outputs.version }}";
             console.log(`Looking for release PR for version: ${version}`);
-            
+
             // 查找以 'release/' 开头的分支的最近合并的PR
             const query = `is:pr is:merged head:release/${version} base:develop`;
             const searchResult = await github.rest.search.issuesAndPullRequests({
@@ -70,7 +70,7 @@ jobs:
               order: 'desc',
               per_page: 1
             });
-            
+
             if (searchResult.data.items.length === 0) {
               console.log('No matching PR found');
               return {
@@ -78,17 +78,17 @@ jobs:
                 changelog: null
               };
             }
-            
+
             const pr = searchResult.data.items[0];
             console.log(`Found PR #${pr.number}: ${pr.title}`);
-            
+
             // 获取PR评论，查找changelog
             const comments = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: pr.number
             });
-            
+
             let changelog = null;
             for (const comment of comments.data) {
               if (comment.body.startsWith('## 🌈 ')) {
@@ -96,7 +96,7 @@ jobs:
                 break;
               }
             }
-            
+
             return {
               pr_number: pr.number,
               changelog: changelog
@@ -109,27 +109,27 @@ jobs:
           script: |
             const fs = require('fs');
             const version = "${{ steps.get-current-version.outputs.version }}"
-            
+
             try {
               const changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
               const versionHeader = `## 🌈 ${version}`;
               const startIndex = changelog.indexOf(versionHeader);
-              
+
               if (startIndex === -1) {
                 console.log(`Version ${version} not found in CHANGELOG.md`);
                 console.log(changelog)
                 core.setOutput('content', null);
                 return;
               }
-              
+
               const nextVersionIndex = changelog.indexOf('## 🌈', startIndex + 2);
               const releaseNotes = nextVersionIndex === -1
                 ? changelog.slice(startIndex)
                 : changelog.slice(startIndex, nextVersionIndex);
-              
+
               core.info(`Release Notes for ${version}:`);
               core.info(releaseNotes);
-              
+
               core.setOutput('content', releaseNotes.trim());
               return;
             } catch (error) {
@@ -141,53 +141,37 @@ jobs:
       # 安装依赖
       - run: pnpm install --no-frozen-lockfile
 
-      - name: Build WESLEY version
-        run: pnpm run open:build
-
-      - name: Create WESLEY zip
-        run: |
-          VERSION=$(echo "${{ steps.get-current-version.outputs.version }}" | sed 's/\./_/g' | sed 's/-/_/g')
-          zip -r MTB-OA-WESLEY-BuildPackage-$VERSION.zip dist/*
-
-      - name: Build HMH version
-        run: pnpm run hmh:build
-
-      - name: Create HMH zip
-        run: |
-          VERSION=$(echo "${{ steps.get-current-version.outputs.version }}" | sed 's/\./_/g' | sed 's/-/_/g')
-          zip -r MTB-OA-HMH-BuildPackage-$VERSION.zip dist/*
-
-      - name: Build default version
+      - name: Build
         run: pnpm run build
 
-      - name: Create default zip
+      - name: Create oa zip
         run: |
           VERSION=$(echo "${{ steps.get-current-version.outputs.version }}" | sed 's/\./_/g' | sed 's/-/_/g')
-          zip -r MTB-OA-BuildPackage-${VERSION}.zip dist/*
+          zip -r MTB-OA-BuildPackage-$VERSION.zip dist/*
 
       - name: Create Release
         uses: actions/github-script@v6
         with:
           script: |
             const version = "${{ steps.get-current-version.outputs.version }}"
-            
+
             // 优先使用PR评论中的changelog，如果没有则使用CHANGELOG.md中的内容
             let releaseBody = ${{ toJSON(steps.get-pr.outputs.changelog) }};
             if (!releaseBody) {
               releaseBody = ${{ toJSON(steps.read-changelog.outputs.content) }};
               console.warn('use changelog from CHANGELOG.md')
             }
-            
+
             // 如果仍然没有changelog，使用默认消息
             if (!releaseBody) {
               releaseBody = `Release ${version}`;
               console.warn('use default release body')
             }
-            
+
             // 判断是否为预发布版本（alpha或beta）
             const isPrerelease = version.includes('-alpha.') || version.includes('-beta.');
             core.info(`Is pre-release: ${isPrerelease}`);
-            
+
             // 创建release
             const release = await github.rest.repos.createRelease({
               owner: context.repo.owner,
@@ -201,14 +185,12 @@ jobs:
 
             // 上传构建包
             const fs = require('fs');
-            
+
             const finalVersion = version.replace(/[.\-]/g, '_');
             const assets = [
-              `MTB-OA-WESLEY-BuildPackage-${finalVersion}.zip`,
-              `MTB-OA-HMH-BuildPackage-${finalVersion}.zip`,
               `MTB-OA-BuildPackage-${finalVersion}.zip`
             ];
-            
+
             for (const asset of assets) {
               if (fs.existsSync(asset)) {
                 await github.rest.repos.uploadReleaseAsset({
@@ -222,7 +204,7 @@ jobs:
                 core.warning(`📎 Asset not found: ${asset}`);
               }
             }
-            
+
             console.log(`Created release for ${version} with assets`);
 
       - name: Clean up
