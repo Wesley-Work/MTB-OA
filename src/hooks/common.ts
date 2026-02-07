@@ -95,23 +95,6 @@ export function getToken() {
   return localStorage.getItem('token') ?? null;
 }
 
-const getAPIURL = () => {
-  // return 'http://localhost:51001/v2';
-  return 'https://oa-api.mtb.wesley.net.cn/v2';
-};
-
-const getSSOURL = () => {
-  return import.meta.env.VITE_SSO_URL || '';
-};
-
-const getOAURL = () => {
-  return import.meta.env.VITE_OA_URL || '';
-};
-
-const getLoginURL = () => {
-  return import.meta.env.VITE_SSO_URL + `?backUrl=${getOAURL()}` || '';
-};
-
 export function Wesley() {
   return new Promise((resolve, reject) => {
     // 记录当前时间
@@ -204,7 +187,6 @@ export function taskTimeConvert(time: string | string[]): string | [string, stri
     return `${YY}年${MM}月${DD}日 ${HH}时${mm}分`;
   }
 
-  // 主逻辑开始
   if (typeof time === 'string') {
     return convertSingleTime(time);
   } else if (Array.isArray(time) && time.length >= 2) {
@@ -236,5 +218,3 @@ export function taskTimeConvert(time: string | string[]): string | [string, stri
     throw new Error('Invalid input type');
   }
 }
-
-export { getAPIURL, getSSOURL, getOAURL, getLoginURL };

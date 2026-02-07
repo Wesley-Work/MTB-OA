@@ -11,7 +11,7 @@
     <div class="htm">
       <div class="headerTree-Manage">
         <!---->
-        <div style="font: var(--td-font-title-large); padding: 16px 12px">内容管理</div>
+        <div class="card__title">内容管理</div>
         <!---->
         <div class="NodeManage">
           <div>
@@ -29,7 +29,7 @@
                   <t-form-item label="内容" name="text">
                     <t-input v-model:value="topicFormData.text"></t-input>
                   </t-form-item>
-                  <t-form-item label="后缀带链接" name="hasLink">
+                  <t-form-item label="带链接" name="hasLink">
                     <t-switch v-model:value="topicFormData.hasLink" />
                   </t-form-item>
                   <template v-if="topicFormData.hasLink">
@@ -49,7 +49,7 @@
             <!---->
           </div>
           <!---->
-          <div style="font: var(--td-font-title-large); padding: 16px 12px">推送管理</div>
+          <div class="card__title">推送管理</div>
           <t-space direction="vertical" style="width: 100%" size="small">
             <t-button block theme="danger" size="large" @click="cleanTopic"> 清空 </t-button>
             <t-button block theme="primary" size="large" @click="submitTopic"> 推送 </t-button>
@@ -67,6 +67,8 @@ import useRequest from '@hooks/useRequest';
 import { NotifyPlugin } from 'tdesign-vue-next';
 import { getInternetAPI } from '@utils/index';
 import Topic from './topic.tsx';
+
+import './common.less';
 
 interface TopicDataRes {
   id: number;
@@ -276,7 +278,6 @@ export default {
     gap: 6px;
     .headerTree-Manage {
       width: 100%;
-      padding: 12px;
       background-color: var(--td-bg-color-container);
       .rootNode-ManageButtonGroup {
         display: flex;

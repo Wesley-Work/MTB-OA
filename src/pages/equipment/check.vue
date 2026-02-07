@@ -24,7 +24,10 @@
           <t-row style="margin-top: 12px">
             <t-col :flex="6">
               <div>
-                <t-descriptions title="借出信息" bordered :colon="true" :column="2">
+                <t-descriptions bordered :colon="true" :column="2">
+                  <template #title>
+                    <div class="card-title-tag">借出信息</div>
+                  </template>
                   <t-descriptions-item label="借出记录id">{{ data?.id }}</t-descriptions-item>
                   <t-descriptions-item label="设备Code">{{ data?.eqcode }}</t-descriptions-item>
                   <t-descriptions-item label="设备名称">{{ data?.eqname }}</t-descriptions-item>

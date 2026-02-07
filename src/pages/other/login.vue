@@ -155,7 +155,7 @@
         </div>
       </main>
       <footer class="t-layout__footer tdesign-starter-footer-layout" style="display: none">
-        <div class="tdesign-starter-footer">Copyright © 2021-2024 SDZZ-MTB. All Rights Reserved.</div>
+        <div class="tdesign-starter-footer">Copyright © 2021-2026 SDZZ-MTB. All Rights Reserved.</div>
       </footer>
     </section>
   </main>

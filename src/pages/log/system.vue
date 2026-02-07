@@ -48,6 +48,7 @@ import { ref, reactive, computed, onMounted } from 'vue';
 import { NotifyPlugin } from 'tdesign-vue-next';
 import useRequest from '../../hooks/useRequest';
 import { getToken } from '../../hooks/common';
+import dayjs from 'dayjs';
 
 defineProps({
   handleChangeComponent: Function,
@@ -106,7 +107,7 @@ const table_Sort = reactive({ sortBy: 'time', descending: true });
 const table_Loading = ref(false);
 const Data = ref([]);
 const DateSelectData = ref([]);
-const DatePicker = ref(new Date().toLocaleDateString());
+const DatePicker = ref(dayjs(new Date()).format('YYYY-MM-DD'));
 const DayPicker = ref('1');
 
 const table_Pagination = computed(() => ({
@@ -118,10 +119,7 @@ const table_Pagination = computed(() => ({
 }));
 
 const getToday = (e = new Date()) => {
-  const y = e.getFullYear();
-  const m = e.getMonth() + 1;
-  const d = e.getDate();
-  return `${y}-${m < 10 ? '0' + m : m}-${d < 10 ? '0' + d : d}`;
+  return dayjs(e).format('YYYY-MM-DD');
 };
 
 const InitTableData = (date = getToday(), push = false) => {
@@ -189,8 +187,8 @@ const InitDatePickerData = () => {
 
 const PickerDate = (e) => {
   DatePicker.value = e;
-  DayPicker.value = e.toLocaleDateString() === new Date().toLocaleDateString() ? '1' : '0';
-  if (DateSelectData.value.includes(e.toLocaleDateString())) {
+  DayPicker.value = dayjs(e).format('YYYY-MM-DD') === new Date().toLocaleDateString() ? '1' : '0';
+  if (DateSelectData.value.includes(dayjs(e).format('YYYY-MM-DD'))) {
     InitTableData(getToday(e));
   } else {
     NotifyPlugin.error({ title: '日期选择错误', content: '请检查日期是否正确', duration: 5000 });

@@ -46,6 +46,7 @@
         cell-empty-content="-"
         stripe
         bordered
+        max-height="calc( 100vh - 326px )"
         @sort-change="sortChange"
         @select-change="handleTableSelectChange"
         @page-change="onPageChange"

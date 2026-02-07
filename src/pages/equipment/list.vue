@@ -3,7 +3,6 @@
   <div>
     <t-table
       row-key="id"
-      max-height="100%"
       :columns="tableColumns"
       :data="tableData"
       select-on-row-click
@@ -12,8 +11,8 @@
       :reserve-selected-row-on-paginate="false"
       :loading="TableLoading"
       :pagination="tablePagination"
+      max-height="calc( 100vh - 278px )"
       :filter-value="tableFilterValue"
-      class="need-full-section table-has-pagination"
       @select-change="handleTableSelectChange"
       @page-change="onPageChange"
       @filter-change="onFilterChange"
@@ -23,7 +22,7 @@
 </template>
 
 <script lang="tsx" setup>
-import { FilterValue, NotifyPlugin, TableProps } from 'tdesign-vue-next';
+import { FilterValue, NotifyPlugin, TableProps, Tag } from 'tdesign-vue-next';
 import useRequest from '../../hooks/useRequest';
 import { getToken } from '../../hooks/common';
 import { computed, onMounted, ref } from 'vue';
@@ -62,6 +61,21 @@ const tableColumns = [
         placeholder: '输入进行过滤',
       },
       showConfirmAndReset: true,
+    },
+    cell: (h, { row }) => {
+      const isGuest = row.user.startsWith('guest:');
+      if (isGuest) {
+        const user = row.user.replace('guest:', '');
+        return (
+          <div>
+            <Tag theme="primary" variant="light-outline" size="small" style="margin-right: 6px">
+              外部
+            </Tag>
+            {user}
+          </div>
+        );
+      }
+      return row.user ? row.user : '-';
     },
   },
   {

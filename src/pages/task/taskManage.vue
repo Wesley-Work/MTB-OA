@@ -6,7 +6,7 @@
         <span class="desc">（选择以进行编辑）</span>
       </div>
       <div class="cardBody">
-        <div class="taskList">
+        <div class="taskList narrow-scrollbar">
           <!-- <div class="taskList--item" style="display: flex; align-self: center; gap: 4px;">
                         <TaskAddIcon />
                         <span> 添加新任务</span>
@@ -25,7 +25,7 @@
       </div>
     </div>
     <!---->
-    <div class="TaskEditerCard">
+    <div class="TaskEditerCard narrow-scrollbar" style="overflow-y: auto">
       <div class="cardHeader">
         <span>
           {{ taskListActive ? '编辑任务' : '新增任务' }}
@@ -376,6 +376,8 @@ export default {
   flex-direction: column;
   width: 100%;
   gap: 4px;
+  height: 100%;
+
   > .TaskListCard,
   > .TaskEditerCard {
     display: flex;
@@ -407,14 +409,6 @@ export default {
       overflow-y: auto;
       padding-left: 4px;
       padding-bottom: 4px;
-      &::-webkit-scrollbar {
-        background-color: transparent;
-        width: 8px;
-      }
-      &::-webkit-scrollbar-thumb {
-        background-color: #777;
-        border-radius: 10px;
-      }
       .taskList--item {
         padding: 8px 12px;
         width: fit-content;

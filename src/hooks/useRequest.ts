@@ -1,8 +1,9 @@
 import { NotifyPlugin } from 'tdesign-vue-next';
-import { getAPIURL, getLoginURL, getToken } from './common';
+import { getToken } from './common';
 import { config } from '../config';
 import { RequestHooksOptions, RequestResponseData } from '@/types/type';
 import { merge, omit } from 'lodash-es';
+import { getAPI_URL, getLogin_URL } from '@/utils/common';
 function SpliceParameter(DATA: Object) {
   if (Object.prototype.toString.call(DATA) !== '[object Object]') return false;
   // PASS
@@ -64,13 +65,32 @@ export function useRequest(option: RequestHooksOptions) {
       headers['TOKEN'] = option?.token ?? option?.header?.['TOKEN'] ?? getToken() ?? null;
       // 合并两个object 排除contentType和token
       const headersMerge = merge(headers, omit(option?.header, ['Content-Type', 'TOKEN', 'token']));
-      // fetch 请求
-      await fetch(option?.useCustomURL ? option?.url : getAPIURL() + option?.url, {
-        method: option?.methods ? option?.methods.toUpperCase() : 'GET',
+      // fetch 请求，支持 timeout（毫秒）
+      const controller = new AbortController();
+      const signal = controller.signal;
+      let timeoutId: ReturnType<typeof setTimeout> | null = null;
+      if (typeof option?.timeout === 'number' && option.timeout > 0) {
+        timeoutId = setTimeout(() => {
+          controller.abort('timeout');
+        }, option.timeout);
+      }
+
+      const method = option?.methods ? option?.methods.toUpperCase() : 'GET';
+      const isGet = method === 'GET';
+      let url = option?.useCustomURL ? option?.url : getAPI_URL() + option?.url;
+      const params = SpliceParameter(option?.data);
+
+      if (isGet && params) {
+        url += (url.includes('?') ? '&' : '?') + params;
+      }
+
+      await fetch(url, {
+        method,
         headers: {
           ...headersMerge,
         },
-        body: SpliceParameter(option?.data) || null,
+        body: isGet ? null : params || null,
+        signal,
       })
         .then((response) => {
           if (response.ok) {
@@ -89,7 +109,7 @@ export function useRequest(option: RequestHooksOptions) {
                 duration: 0,
               });
               setTimeout(() => {
-                location.href = getLoginURL();
+                location.href = getLogin_URL();
               }, 2000);
             }
           } else if (data.errcode === -1005) {
@@ -102,9 +122,18 @@ export function useRequest(option: RequestHooksOptions) {
           }
         })
         .catch((err) => {
-          emitError('RequestError', err);
+          if (err && err.name === 'AbortError') {
+            emitError('Timeout', err);
+          } else {
+            emitError('RequestError', err);
+          }
         })
-        .finally(() => {});
+        .finally(() => {
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+            timeoutId = null;
+          }
+        });
     } catch (e) {
       console.error('XHR Module Error: ', e);
     }

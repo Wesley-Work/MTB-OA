@@ -3,7 +3,7 @@
     <t-card bordered :style="{ width: '340px' }" @click="showAddDrawer">
       <template #content>
         <div
-          style="display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 143px"
+          style="display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 172px"
         >
           <AddRectangleIcon style="font-size: 48px" />
           <div style="font: var(--td-font-body-medium); margin-top: 8px">添加新组</div>
@@ -12,10 +12,19 @@
     </t-card>
     <t-card v-for="item in groupList" :key="item.id" bordered :style="{ width: '340px' }">
       <template #header>
-        <div style="font: var(--td-font-title-medium)">『{{ item.id }}』 {{ item.name }} [{{ item.desc }}]</div>
+        <t-popup :content="`${item.name} [${item.desc}]`" :show-arrow="true">
+          <div
+            style="font: var(--td-font-title-medium); text-wrap-mode: nowrap; text-overflow: ellipsis; overflow: hidden"
+          >
+            『{{ item.id }}』 {{ item.name }} [{{ item.desc }}]
+          </div>
+        </t-popup>
       </template>
       <template #content>
         <div class="group-length">共 {{ userGroupList[item.id]?.length ?? 0 }} 人</div>
+        <div style="margin-top: 8px; font-size: 12px; color: var(--td-text-color-secondary)">
+          同步至企业微信：{{ item.syncWecom === 0 ? '开' : '关' }}
+        </div>
       </template>
       <template #footer>
         <t-row :align="'middle'" justify="center" style="gap: 24px">
@@ -27,7 +36,7 @@
 
           <t-col flex="auto" style="display: inline-flex; justify-content: center">
             <t-button variant="text" shape="square" @click="showWhoInGroup(item)">
-              <ListIcon />
+              <ViewListIcon />
             </t-button>
           </t-col>
 
@@ -90,6 +99,10 @@
         <t-input v-model="drawerData.desc" placeholder="请输入内容"></t-input>
       </t-form-item>
 
+      <t-form-item label="同步至企业微信" name="syncWecom">
+        <t-select v-model="drawerData.syncWecom" :options="syncWecomOptions" placeholder="请选择"></t-select>
+      </t-form-item>
+
       <t-form-item v-if="drawerData.mode === 'add'" label="更新到用户" name="updateToUser">
         <t-transfer
           :data="transferUserSource"
@@ -123,7 +136,7 @@
 </template>
 
 <script setup lang="tsx">
-import { Edit2Icon, ListIcon, DeleteIcon, AddRectangleIcon } from 'tdesign-icons-vue-next';
+import { Edit2Icon, ViewListIcon, DeleteIcon, AddRectangleIcon } from 'tdesign-icons-vue-next';
 import useRequest from '../../../hooks/useRequest';
 import { computed, onMounted, reactive, ref } from 'vue';
 import { NotifyPlugin } from 'tdesign-vue-next';
@@ -167,6 +180,16 @@ const groupType = [
     value: 'close',
   },
 ];
+const syncWecomOptions = [
+  {
+    label: '开',
+    value: 0,
+  },
+  {
+    label: '关',
+    value: 1,
+  },
+];
 const groupPermission = ref<GroupPermissionList>([]);
 const dialogVisible = ref(false);
 const dialogData = reactive({
@@ -180,6 +203,7 @@ const drawerData = ref({
   name: '',
   type: '',
   desc: '',
+  syncWecom: 0,
   updateToUser: [],
   permission: [],
 });
@@ -275,7 +299,7 @@ const getUserList = () => {
 
 const getSystemPermission = () => {
   useRequest({
-    url: '/permissions/systemlist',
+    url: '/permissions/system-list',
     methods: 'POST',
     success: function (res) {
       const result = JSON.parse(res);
@@ -340,7 +364,7 @@ const showAddDrawer = () => {
 };
 
 const showEditDrawer = (groupItem: GroupItem) => {
-  const { id, type, name, desc } = groupItem;
+  const { id, type, name, desc, syncWecom } = groupItem;
   const permission = groupPermission.value
     .filter((item) => {
       return item?.id === id;
@@ -352,6 +376,7 @@ const showEditDrawer = (groupItem: GroupItem) => {
     type,
     name,
     desc,
+    syncWecom: syncWecom ?? 0,
     permission,
     updateToUser: [],
   };
@@ -378,7 +403,7 @@ const handleSubmit = () => {
 
 // 添加提交
 const addGroupSubmit = () => {
-  const { name, desc, type, updateToUser, permission } = drawerData.value;
+  const { name, desc, type, syncWecom, updateToUser, permission } = drawerData.value;
   useRequest({
     url: '/group/add',
     methods: 'POST',
@@ -386,6 +411,7 @@ const addGroupSubmit = () => {
       name,
       desc,
       type,
+      syncWecom,
       push: updateToUser,
       permission,
     },
@@ -415,7 +441,7 @@ const addGroupSubmit = () => {
 
 // 编辑提交
 const editGroupSubmit = () => {
-  const { id, name, desc, type, permission } = drawerData.value;
+  const { id, name, desc, type, syncWecom, permission } = drawerData.value;
   useRequest({
     url: '/group/edit',
     methods: 'POST',
@@ -424,6 +450,7 @@ const editGroupSubmit = () => {
       name,
       type,
       desc,
+      syncWecom,
       permission,
     },
     success: function (res) {

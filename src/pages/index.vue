@@ -23,7 +23,12 @@
           <template #icon><t-icon name="bulletpoint" style="width: 25px; height: 25px" /></template>
         </t-button>
       </div>
-      <span style="font-size: 21px; font-weight: bold; margin-left: 18px; user-select: none">{{ TitleMenu.text }}</span>
+      <div style="display: flex; align-items: center">
+        <img :src="Logo" alt="Logo" style="width: 38px; height: 38px; border-radius: 8px" />
+        <span style="font-size: 21px; font-weight: bold; margin-left: 12px; user-select: none">
+          {{ TitleMenu.text }}
+        </span>
+      </div>
     </template>
     <template #operations>
       <t-popup trigger="click">
@@ -139,7 +144,7 @@
     />
     <section
       class="loading-change-components-animation narrow-scrollbar main-section"
-      style="margin: 0 24px; height: calc(-238px + 100vh); overflow-y: auto; border-radius: 4px"
+      style="margin: 0 24px; flex: 1; overflow-y: auto; border-radius: 4px; min-height: 0"
       :class="{
         'loading-change-components-in': MainContent.classIn,
         'loading-change-components-out': MainContent.classOut,
@@ -154,6 +159,8 @@
         :component-permissions="componentPermissions"
         :component="SideMenu.value"
         :user-code="login_info.code"
+        :user-name="login_info.name"
+        :show-watermark="login_info.showWatermark"
         :fullscreen="isFullscreen"
         :fullscreen-toggle="fullscreenToggle"
       ></router-view>
@@ -176,9 +183,9 @@
       <!-- <div>由 <a href="javaScript:void(0);" we-a-tag>DEBUG-SDZZ</a> 提供技术支持</div> -->
       <div></div>
       <div>
-        Copyright © 2025
+        Copyright © 2026
         <a href="https://www.wesley.net.cn/" we-a-tag target="_blank" @click.prevent="NotClick">Wesley.</a>
-        All Right Reserved. | Used in MTB with permission
+        All Right Reserved. | with permission
       </div>
     </div>
   </div>
@@ -202,7 +209,7 @@ import {
 } from '../config';
 import { PoweroffIcon, UserPasswordIcon } from 'tdesign-icons-vue-next';
 import { NotifyPlugin } from 'tdesign-vue-next';
-import { getCurrentPage, verifyPath, getSSOURL, getLoginURL, getRoutePathObj, VerifyToken } from '../hooks/common';
+import { getCurrentPage, verifyPath, getRoutePathObj, VerifyToken } from '../hooks/common';
 import { useRequest } from '../hooks/useRequest';
 import PageTooSmall from '../components/pages/PageSmall.vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -210,6 +217,8 @@ import type { LocationQueryRaw } from 'vue-router';
 import { useFullscreen } from '@vueuse/core';
 import { getParams, getURLAllParams } from '@hooks/useParams';
 import { isEmpty, isObject } from 'lodash-es';
+import Logo from '@/assets/mtb-logo.png';
+import { getLogin_URL, getSSO_URL } from '@/utils/common';
 
 const router = useRouter();
 const route = useRoute();
@@ -268,6 +277,7 @@ const login_info = reactive({
   code: '-',
   permissions: [],
   login_time: '',
+  showWatermark: true,
 });
 const timer = reactive({
   token: null,
@@ -376,6 +386,7 @@ const getUserInfoByToken = (TOKEN) => {
         login_info.code = RES.data.usercode;
         login_info.name = RES.data.name;
         login_info.login_time = RES.data.login_time;
+        login_info.showWatermark = RES.data.showWatermark;
       }
     },
     error: function (err) {
@@ -402,7 +413,7 @@ const checkToken = () => {
       if (result.errcode != 0 || !result.data.verify) {
         // loginState invalid
         cancelCheckToken();
-        location.href = getLoginURL();
+        location.href = getLogin_URL();
       }
     },
     error: function (err) {
@@ -521,11 +532,11 @@ const handleChangeComponent = (
 };
 
 const logout = () => {
-  location.href = getSSOURL() + '?actionType=logout';
+  location.href = getSSO_URL() + '?actionType=logout';
 };
 
 const goChangePws = () => {
-  location.href = getSSOURL() + '?actionType=change-Password';
+  location.href = getSSO_URL() + '?actionType=change-Password';
 };
 
 const PageReload = () => {
@@ -668,7 +679,7 @@ onBeforeMount(() => {
       // 没有登录数据，遣返登录页面
       console.warn('未登录，跳转统一认证');
       setTimeout(() => {
-        location.href = getLoginURL();
+        location.href = getLogin_URL();
       }, 1500);
     } else if (loginVerify == true) {
       // 验证登录
@@ -706,7 +717,7 @@ onBeforeMount(() => {
           getUserInfoByToken(VERIFY_TOKEN);
           init();
         } else {
-          location.href = getLoginURL();
+          location.href = getLogin_URL();
         }
       });
     } else {
@@ -918,12 +929,20 @@ a[we-a-tag]:hover {
   }
 }
 
-.MainContent:not([noshowmenu='true']) {
+.MainContent {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  box-sizing: border-box;
   transition: margin-left 0.28s var(--transition-default);
-  margin-top: 56px;
+  overflow: hidden;
 
-  &.fullscreen--no-margin-top {
-    margin-top: 0;
+  &:not([noshowmenu='true']) {
+    padding-top: 56px;
+
+    &.fullscreen--no-margin-top {
+      padding-top: 0;
+    }
   }
 }
 
@@ -971,7 +990,7 @@ a[we-a-tag]:hover {
   color: var(--td-text-color-secondary);
   text-align: center;
   font-family: var(--td-font-family);
-  padding: 36px;
+  padding: 24px 36px;
   user-select: none;
 }
 

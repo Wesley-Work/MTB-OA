@@ -119,6 +119,9 @@ export interface userListObject {
   share_device: number;
   group: number;
   grade: string | number;
+  phone?: string | null;
+  gender?: number | null;
+  syncWecom?: number | null;
   reg_time: string | Date;
   join_time: string | Date;
 }
@@ -134,6 +137,7 @@ export interface GroupItem {
   name: string;
   desc: string;
   type: 'normal' | 'display' | 'close';
+  syncWecom?: number;
 }
 
 export type GroupList = GroupItem[];

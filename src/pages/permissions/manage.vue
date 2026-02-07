@@ -3,7 +3,7 @@
     <t-tab-panel :value="1" :destroy-on-hide="false">
       <template #label> <t-icon name="system-2" style="margin-right: 4px" /> 权限设置管理 </template>
       <template #panel>
-        <div style="display: flex; justify-content: flex-end; margin-bottom: 16px">
+        <div style="margin: 16px">
           <t-space size="small">
             <t-button
               variant="outline"
@@ -27,7 +27,7 @@
           </t-space>
         </div>
         <!---->
-        <div>
+        <div style="margin: 0px 16px 16px 16px">
           <t-table
             ref="System_Permissions"
             row-key="id"
@@ -39,6 +39,7 @@
             cell-empty-content="-"
             resizable
             :editable-row-keys="editableRowKeys"
+            max-height="calc( 100vh - 350px )"
             @row-edit="onRowEdit"
             @row-validate="onRowValidate"
             @validate="onValidate"
@@ -72,6 +73,12 @@
 import { ref, computed, onMounted } from 'vue';
 import { Input, MessagePlugin, NotifyPlugin } from 'tdesign-vue-next';
 import useRequest from '../../hooks/useRequest';
+
+defineProps({
+  handleChangeComponent: {
+    type: Function,
+  },
+});
 
 const System_Permissions = ref();
 
@@ -280,14 +287,19 @@ const System_Permissions_List_Columns = computed(() => [
       return (
         <div class="table-operations">
           <t-space>
-            {!editable && (
+            {!editable && false && (
               <t-link theme="primary" hover="color" data-id={row.id} onClick={onEdit}>
                 编辑
               </t-link>
             )}
             {!editable && (
-              <t-popconfirm theme="danger" content="确认删除？删除后不可恢复！" placement="left" onConfirm={onSave}>
-                <t-link theme="primary" hover="color" data-id={row.id}>
+              <t-popconfirm
+                theme="danger"
+                content="确认删除？删除后不可恢复！"
+                placement="left"
+                onConfirm={() => removeSystemPermissionsItem(row.id)}
+              >
+                <t-link theme="danger" hover="color" data-id={row.id}>
                   删除
                 </t-link>
               </t-popconfirm>
@@ -314,7 +326,7 @@ const System_Permissions_List_Columns = computed(() => [
 const GetSystemPermissionsList = () => {
   try {
     useRequest({
-      url: '/permissions/systemlist',
+      url: '/permissions/system-list',
       methods: 'POST',
       header: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
       success(res) {
@@ -331,6 +343,35 @@ const GetSystemPermissionsList = () => {
   } catch (e) {
     console.info(e);
   }
+};
+
+const removeSystemPermissionsItem = (id: number) => {
+  MessagePlugin.loading({
+    content: '正在删除...',
+    duration: 0,
+  });
+  useRequest({
+    url: '/permissions/system-remove',
+    methods: 'POST',
+    data: { pid: id },
+    header: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+    success(res) {
+      const RES = JSON.parse(res);
+      if (RES.errcode === 0) {
+        NotifyPlugin.success({ title: '删除系统权限成功', duration: 5000 });
+        GetSystemPermissionsList();
+      } else {
+        NotifyPlugin.error({ title: '删除系统权限失败', content: RES.errmsg, duration: 5000 });
+      }
+    },
+    error(err) {
+      console.error(err);
+      NotifyPlugin.error({ title: '删除系统权限失败', content: err, duration: 5000 });
+    },
+    complete() {
+      MessagePlugin.closeAll();
+    },
+  });
 };
 
 onMounted(() => {
