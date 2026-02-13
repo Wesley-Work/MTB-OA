@@ -147,7 +147,7 @@ jobs:
       - name: Create zip
         run: |
           VERSION=$(echo "${{ steps.get-current-version.outputs.version }}" | sed 's/\./_/g' | sed 's/-/_/g')
-          cd dist && zip -r MTB-OA-BuildPackage-$VERSION.zip *
+          cd dist && zip -r ../MTB-OA-BuildPackage-$VERSION.zip *
 
       - name: Create Release
         uses: actions/github-script@v6
