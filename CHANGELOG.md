@@ -1,4 +1,7 @@
 
+## 🌈 3.6.2 `2026-02-13` 
+### 🐞 Bug Fixes
+- 修复页面权限值 @Wesley-0808 ([#100](https://github.com/Wesley-Work/MTB-OA/pull/100))
 ## 🌈 3.6.0 `2026-02-07` 
 ### 🚨 Breaking Changes
 - `Service`: 后端重构，接口使用`v3`前缀。优化系统架构 @Wesley-0808 ([#95](https://github.com/Wesley-Work/MTB-OA/pull/95))
@@ -164,4 +167,3 @@
 - `Return`: 使用`组合式API`重构 @Wesley-0808 ([#7](https://github.com/Wesley-Work/MTB-OA/pull/7))
 - `Component`: 部分组件已对齐`v3.3.0`在线版。 @Wesley-0808 ([#8](https://github.com/Wesley-Work/MTB-OA/pull/8))
 - 初始化标准 @Wesley-0808 ([#1](https://github.com/Wesley-Work/MTB-OA/pull/1))
-
