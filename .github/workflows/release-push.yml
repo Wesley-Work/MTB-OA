@@ -210,4 +210,4 @@ jobs:
       - name: Clean up
         if: always()
         run: |
-          rm -f MTB-OA-*-BuildPackage-*.zip
+          rm -f MTB-OA-BuildPackage-*.zip
