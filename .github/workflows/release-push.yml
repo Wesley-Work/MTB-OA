@@ -144,10 +144,10 @@ jobs:
       - name: Build
         run: pnpm run build
 
-      - name: Create oa zip
+      - name: Create zip
         run: |
           VERSION=$(echo "${{ steps.get-current-version.outputs.version }}" | sed 's/\./_/g' | sed 's/-/_/g')
-          zip -r MTB-OA-BuildPackage-$VERSION.zip dist/*
+          cd dist && zip -r MTB-OA-BuildPackage-$VERSION.zip *
 
       - name: Create Release
         uses: actions/github-script@v6
