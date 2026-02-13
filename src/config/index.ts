@@ -394,7 +394,7 @@ const routerMap: RouteMaps = [
 ];
 
 const config = {
-  version: '3.6.0',
+  version: '3.6.1',
   versionMode: 'Stable',
   packageVersion: packageVersion,
   systemName: '顺德中专团委媒体部 信息化管理平台',
