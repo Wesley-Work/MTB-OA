@@ -58,11 +58,11 @@ export const isInternal = async () => {
 };
 
 export const getInternetAPI = () => {
-  return isMTBInternet() ? 'http://192.168.67.14/api' : 'http://10.3.146.11/api';
+  return isMTBInternet() ? 'http://192.168.67.14/api' : 'https://i.sdzzmtb.cn/api';
 };
 
 export const getInternetWeb = () => {
-  return isMTBInternet() ? 'http://192.168.67.14' : 'http://10.3.146.11';
+  return isMTBInternet() ? 'http://192.168.67.14' : 'https://i.sdzzmtb.cn';
 };
 
 export const guessFileTypeByFileName = (fileName: string): string => {
