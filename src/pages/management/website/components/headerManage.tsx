@@ -124,7 +124,9 @@ export default defineComponent({
     });
 
     const refreshHeaderTree = () => {
+      // 强制刷新组件视图
       headerTreeRef.value.refresh();
+      // 在下个 tick 同步组件内部数据到本地 state
       setTimeout(() => {
         headerTreeList.value = headerTreeRef.value.getTreeData() as HeaderData;
       }, 0);
@@ -316,50 +318,14 @@ export default defineComponent({
 
     const onHandleDeleteHeaderNode = () => {
       // 删除选中节点
-      // headerTreeRef.value.remove(headerTreeActiveList.source.value);
-      // 因为TD TREE的刷新bug，需要用另一个办法删除。。
-
       const executeDelete = () => {
         const targetId = headerTreeActiveList.data.id;
-
-        // 广度优先搜索查找节点及其父级
-        const findNode = (nodes: HeaderItem[]) => {
-          const queue: { node: HeaderItem; parentArr?: HeaderItem[]; index?: number }[] = nodes.map((n, index) => ({
-            node: n,
-            parentArr: nodes,
-            index,
-          }));
-
-          while (queue.length > 0) {
-            const shifted = queue.shift();
-            if (!shifted) return null;
-            const { node, parentArr, index } = shifted;
-
-            // 找到目标节点
-            if (node.id === targetId) return { parentArr, index };
-
-            // 继续搜索子节点
-            if (node.children) {
-              node.children.forEach((child, childIndex) => {
-                queue.push({
-                  node: child as HeaderItem,
-                  parentArr: node.children as HeaderItem[],
-                  index: childIndex,
-                });
-              });
-            }
-          }
-          return null;
-        };
-
-        // 执行删除
-        const result = findNode(headerTreeList.value);
-        if (result?.parentArr && result.index !== undefined) {
-          result.parentArr.splice(result.index, 1);
+        if (targetId !== undefined && targetId !== null) {
+          headerTreeRef.value.remove(targetId);
           cleanHeaderActive();
           refreshHeaderTree();
         } else {
-          MessagePlugin.warning('未找到要删除的节点');
+          MessagePlugin.warning('未找到要删除的节点或节点无效');
         }
       };
 

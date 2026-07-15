@@ -18,7 +18,9 @@ export const majorMap: Record<number, MajorMapItem> = {
     minor: {
       1: '卡认证失败',
       2: '卡认证成功',
+      7: '无效通行时段',
       8: '通行权限到期',
+      9: '无此卡号',
       21: '门打开',
       22: '门关闭',
       23: '开门按钮按下',
@@ -40,4 +42,4 @@ export const majorMap: Record<number, MajorMapItem> = {
 };
 
 export const minorSuccessList = [2, 75, 156, 179, 181];
-export const minorFailList = [1, 8, 27, 76, 150, 157, 180];
+export const minorFailList = [1, 7, 8, 9, 27, 76, 150, 157, 180];
