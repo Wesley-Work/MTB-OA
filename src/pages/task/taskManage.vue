@@ -183,7 +183,7 @@ const requesting = ref(false);
 
 const loadUserList = () => {
   useRequest({
-    url: '/get/userList',
+    url: '/user/get/list',
     methods: 'POST',
     success: function (res) {
       const json = JSON.parse(res);

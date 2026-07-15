@@ -171,9 +171,7 @@
         Powered By
         <a href="https://www.wesley.net.cn/" we-a-tag target="_blank" @click.prevent="NotClick">Wesley</a>
         | Designed By
-        <a href="https://tdesign.tencent.com/" we-a-tag target="_blank" @click.prevent="NotClick"
-          >Tencent (TDesignOTeam)</a
-        >
+        <a href="https://tdesign.tencent.com/" we-a-tag target="_blank" @click.prevent="NotClick">Tencent</a>
         |
         <a href="https://github.com/Wesley-Work/MTB-OA" we-a-tag target="_blank" @click.prevent="NotClick"
           >Github·Repository</a
