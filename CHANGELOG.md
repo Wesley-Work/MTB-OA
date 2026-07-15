@@ -1,4 +1,11 @@
 
+## 🌈 3.6.3 `2026-07-15` 
+### 🐞 Bug Fixes
+- `WebManage`: 修复网站 `菜单管理` 无法删除的问题。 @Wesley-0808 ([#102](https://github.com/Wesley-Work/MTB-OA/pull/102))
+- `TaskManage`: 修复无法获取用户列表的问题。 @Wesley-0808 ([#102](https://github.com/Wesley-Work/MTB-OA/pull/102))
+- `UserManage`: 修复无法新增用户的问题。 @Wesley-0808 ([#102](https://github.com/Wesley-Work/MTB-OA/pull/102))
+### 🚧 Others
+- `FA`: 修正门禁状态描述 @Wesley-0808 ([#102](https://github.com/Wesley-Work/MTB-OA/pull/102))
 ## 🌈 3.6.2 `2026-02-13` 
 ### 🐞 Bug Fixes
 - 修复页面权限值 @Wesley-0808 ([#100](https://github.com/Wesley-Work/MTB-OA/pull/100))
