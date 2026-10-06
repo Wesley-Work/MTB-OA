@@ -18,7 +18,7 @@ import {
   Transfer,
   TransferProps,
 } from 'tdesign-vue-next';
-import { AddIcon, DeleteIcon, FileExportIcon } from 'tdesign-icons-vue-next';
+import { AddIcon, DeleteIcon, FileExportIcon, UploadIcon } from 'tdesign-icons-vue-next';
 import sha256 from 'crypto-js/sha256';
 import useRequest from '@/hooks/useRequest';
 import { loadSystemPermissions, loadUserPermissions } from '@/hooks/usePermission';
@@ -180,7 +180,14 @@ export default defineComponent({
               <Link theme="primary" onClick={(e) => handleEdit(e, row)}>
                 编辑
               </Link>
-              <Link theme="danger">删除</Link>
+              <Popconfirm
+                theme="danger"
+                content="确认删除？删除后不可恢复！"
+                placement="bottom"
+                onConfirm={(e) => handleDelete(e, row)}
+              >
+                <Link theme="danger">删除</Link>
+              </Popconfirm>
             </Space>
           );
         },
@@ -325,6 +332,336 @@ export default defineComponent({
       showEditDialog();
     };
 
+    // 批量导入模板列定义（顺序即模板列顺序）
+    const batchTemplateColumns = [
+      { key: 'name', label: '姓名*', width: 14 },
+      { key: 'code', label: 'Code*', width: 20 },
+      { key: 'password', label: '密码', width: 16 },
+      { key: 'class', label: '班级', width: 16 },
+      { key: 'grade', label: '年级', width: 10 },
+      { key: 'group', label: '组别', width: 14 },
+      { key: 'phone', label: '手机号码', width: 16 },
+      { key: 'gender', label: '性别', width: 8 },
+      { key: 'syncWecom', label: '同步企业微信', width: 14 },
+      { key: 'join_time', label: '加入时间', width: 14 },
+      { key: 'share_device', label: '共享设备数', width: 12 },
+    ];
+
+    const downloadBatchTemplate = async () => {
+      const workbook = new ExcelJS.Workbook();
+      const ws = workbook.addWorksheet('Sheet1');
+      ws.columns = batchTemplateColumns.map((c) => ({ header: c.label, key: c.key, width: c.width }));
+      ws.getRow(1).font = { bold: true };
+      ws.addRow({
+        name: '张三',
+        code: 'zhangsan',
+        password: '123456',
+        class: '高一1班',
+        grade: dayjs().year(),
+        group: groupOptions.value[0]?.label ?? '',
+        phone: '13800000000',
+        gender: '男',
+        syncWecom: '否',
+        join_time: dayjs().format('YYYY-MM-DD'),
+        share_device: 2,
+      });
+      const help = workbook.addWorksheet('填写说明');
+      [
+        ['带 * 为必填；Code 不可与已有账号重复'],
+        ['密码留空则使用默认密码 123456'],
+        ['年级留空则不设置；组别填写系统已有组别名称，留空为默认组'],
+        ['性别：男 / 女，可留空'],
+        ['同步企业微信：是 / 否，留空为否'],
+        ['加入时间格式：YYYY-MM-DD，留空为当前时间'],
+        ['共享设备数留空为 2；单次最多导入 500 条'],
+        ['示例行请删除或替换后再上传'],
+      ].forEach((r) => help.addRow(r));
+      help.getColumn(1).width = 70;
+      const buffer = await workbook.xlsx.writeBuffer();
+      const url = URL.createObjectURL(
+        new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
+      );
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = '媒体部管理系统-批量新增账号模板.xlsx';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 100);
+    };
+
+    const cellToText = (v: any): string => {
+      if (v === null || v === undefined) return '';
+      if (v instanceof Date) return dayjs(v).format('YYYY-MM-DD');
+      if (typeof v === 'object') {
+        if ('result' in v) return cellToText(v.result);
+        if ('richText' in v) return v.richText.map((t) => t.text).join('');
+        if ('text' in v) return String(v.text);
+        return '';
+      }
+      return String(v).trim();
+    };
+
+    const parseBatchRow = (cells: Record<string, string>, seenCodes: Set<string>) => {
+      const errors: string[] = [];
+      const name = cells.name;
+      const code = cells.code;
+      if (!name) errors.push('姓名必填');
+      if (!code) errors.push('Code必填');
+      else if (seenCodes.has(code)) errors.push('Code在表格中重复');
+      else if (tableBackData.value.some((u) => String(u.code) === code)) errors.push('Code已存在');
+      if (code) seenCodes.add(code);
+
+      let grade: number | null = null;
+      if (cells.grade) {
+        grade = Number(cells.grade);
+        if (!Number.isInteger(grade) || grade < 2021 || grade > 2099) errors.push('年级应为2021-2099');
+      }
+      let group: number | null = null;
+      if (cells.group) {
+        const g = groupOptions.value.find((item) => item.label === cells.group);
+        if (g) group = g.value;
+        else errors.push(`组别不存在：${cells.group}`);
+      }
+      let gender: number | null = null;
+      if (cells.gender) {
+        if (cells.gender === '男') gender = 0;
+        else if (cells.gender === '女') gender = 1;
+        else errors.push('性别应为男/女');
+      }
+      let syncWecom = 1;
+      if (cells.syncWecom) {
+        if (cells.syncWecom === '是') syncWecom = 0;
+        else if (cells.syncWecom !== '否') errors.push('同步企业微信应为是/否');
+      }
+      let joinTime = dayjs().format('YYYY-MM-DD HH:mm:ss');
+      if (cells.join_time) {
+        const d = dayjs(cells.join_time);
+        if (d.isValid()) joinTime = d.format('YYYY-MM-DD HH:mm:ss');
+        else errors.push('加入时间格式错误');
+      }
+      let shareDevice = 2;
+      if (cells.share_device) {
+        shareDevice = Number(cells.share_device);
+        if (!Number.isInteger(shareDevice) || shareDevice < 0 || shareDevice > 99) errors.push('共享设备数应为0-99');
+      }
+      if (cells.phone && !/^[0-9+\-\s]{5,20}$/.test(cells.phone)) errors.push('手机号码格式错误');
+
+      return {
+        name,
+        code,
+        password: cells.password || '123456',
+        class: cells.class || null,
+        grade,
+        group,
+        groupLabel: cells.group,
+        phone: cells.phone || null,
+        gender,
+        syncWecom,
+        join_time: joinTime,
+        share_device: shareDevice,
+        errors,
+      };
+    };
+
+    const parseBatchFile = async (file: File) => {
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(await file.arrayBuffer());
+      const ws = workbook.worksheets[0];
+      if (!ws) throw new Error('文件中没有工作表');
+
+      // 按表头名称定位列，兼容列顺序调整
+      const colIndex: Record<string, number> = {};
+      ws.getRow(1).eachCell((cell, col) => {
+        const text = cellToText(cell.value).replace('*', '');
+        const def = batchTemplateColumns.find((c) => c.label.replace('*', '') === text);
+        if (def) colIndex[def.key] = col;
+      });
+      if (!colIndex.name || !colIndex.code) throw new Error('表头不符合模板，请下载最新模板');
+
+      const seenCodes = new Set<string>();
+      const rows = [];
+      ws.eachRow((row, rowNumber) => {
+        if (rowNumber === 1) return;
+        const cells: Record<string, string> = {};
+        batchTemplateColumns.forEach((c) => {
+          cells[c.key] = colIndex[c.key] ? cellToText(row.getCell(colIndex[c.key]).value) : '';
+        });
+        if (Object.values(cells).every((v) => !v)) return;
+        rows.push({ row: rowNumber, ...parseBatchRow(cells, seenCodes) });
+      });
+      return rows;
+    };
+
+    const showBatchPreviewDialog = (rows: any[]) => {
+      const validRows = rows.filter((r) => r.errors.length === 0);
+      const invalidCount = rows.length - validRows.length;
+      const submitting = ref(false);
+
+      const columns: TableProps['columns'] = [
+        { colKey: 'row', title: '行号', width: 60 },
+        { colKey: 'name', title: '姓名', width: 90 },
+        { colKey: 'code', title: 'Code', width: 130, ellipsis: true },
+        { colKey: 'class', title: '班级', width: 100, cell: (_h, { row }) => row.class ?? '-' },
+        { colKey: 'grade', title: '年级', width: 70, cell: (_h, { row }) => row.grade ?? '-' },
+        { colKey: 'groupLabel', title: '组别', width: 90, cell: (_h, { row }) => row.groupLabel || '默认' },
+        { colKey: 'phone', title: '手机号码', width: 120, cell: (_h, { row }) => row.phone ?? '-' },
+        {
+          colKey: 'gender',
+          title: '性别',
+          width: 60,
+          cell: (_h, { row }) => ({ 0: '男', 1: '女' }[row.gender] ?? '-'),
+        },
+        {
+          colKey: 'syncWecom',
+          title: '同步企微',
+          width: 80,
+          cell: (_h, { row }) => (row.syncWecom === 0 ? '是' : '否'),
+        },
+        { colKey: 'join_time', title: '加入时间', width: 110, cell: (_h, { row }) => row.join_time.slice(0, 10) },
+        { colKey: 'share_device', title: '共享设备', width: 80 },
+        {
+          colKey: 'errors',
+          title: '校验结果',
+          width: 200,
+          fixed: 'right',
+          cell: (_h, { row }) =>
+            row.errors.length ? (
+              <Tag theme="danger" variant="light-outline">
+                {row.errors.join('；')}
+              </Tag>
+            ) : (
+              <Tag theme="success" variant="light-outline">
+                通过
+              </Tag>
+            ),
+        },
+      ];
+
+      const dialog = DialogPlugin({
+        header: '批量新增账号预览',
+        width: '85%',
+        closeBtn: false,
+        cancelBtn: '取消',
+        confirmBtn: { content: `确认新增 ${validRows.length} 条`, disabled: validRows.length === 0 },
+        closeOnEscKeydown: false,
+        closeOnOverlayClick: false,
+        onConfirm: () => {
+          if (submitting.value) return;
+          submitting.value = true;
+          dialog.update({ confirmBtn: { content: '提交中...', loading: true } });
+          useRequest({
+            url: '/user/batch-add',
+            methods: 'POST',
+            data: {
+              users: JSON.stringify(
+                validRows.map((r) => ({
+                  name: r.name,
+                  code: r.code,
+                  password: sha256(r.password).toString(),
+                  class: r.class,
+                  grade: r.grade,
+                  group: r.group,
+                  phone: r.phone,
+                  gender: r.gender,
+                  syncWecom: r.syncWecom,
+                  join_time: r.join_time,
+                  share_device: r.share_device,
+                })),
+              ),
+            },
+            success: function (res) {
+              const RES = typeof res === 'string' ? JSON.parse(res) : res;
+              if (RES.errcode === 0) {
+                const { success, failed } = RES.data;
+                NotifyPlugin(failed.length ? 'warning' : 'success', {
+                  title: '批量新增完成',
+                  content:
+                    `成功 ${success.length} 条` +
+                    (failed.length
+                      ? `，失败 ${failed.length} 条：` +
+                        failed.map((f) => `${f.code || '第' + f.row + '行'}(${f.reason})`).join('；')
+                      : ''),
+                  duration: 8000,
+                });
+                loadTableData();
+                dialog.destroy();
+              } else {
+                submitting.value = false;
+                dialog.update({ confirmBtn: { content: `确认新增 ${validRows.length} 条`, loading: false } });
+                NotifyPlugin('error', { title: '批量新增失败', content: RES?.errmsg, duration: 5000 });
+              }
+            },
+            error: function (err) {
+              submitting.value = false;
+              dialog.update({ confirmBtn: { content: `确认新增 ${validRows.length} 条`, loading: false } });
+              NotifyPlugin('error', { title: '批量新增失败', content: err, duration: 5000 });
+            },
+          });
+        },
+        body: () => (
+          <div>
+            <Space style="margin-bottom: 12px">
+              <Tag theme="primary" variant="light-outline">
+                共 {rows.length} 条
+              </Tag>
+              <Tag theme="success" variant="light-outline">
+                可新增 {validRows.length} 条
+              </Tag>
+              {invalidCount > 0 && (
+                <Tag theme="danger" variant="light-outline">
+                  校验未通过 {invalidCount} 条（将被跳过）
+                </Tag>
+              )}
+            </Space>
+            <Table rowKey="row" columns={columns} data={rows} size="small" bordered stripe maxHeight="50vh" />
+          </div>
+        ),
+      });
+    };
+
+    const handleBatchAdd = () => {
+      const dialog = DialogPlugin({
+        header: '批量新增账号',
+        width: '420px',
+        closeBtn: false,
+        cancelBtn: '取消',
+        confirmBtn: '选择文件',
+        body: () => (
+          <Space direction="vertical">
+            <div>1. 下载模板并按说明填写</div>
+            <Button variant="dashed" onClick={downloadBatchTemplate}>
+              下载 xlsx 模板
+            </Button>
+            <div>2. 选择填写好的 xlsx 文件，解析后可预览再确认新增</div>
+          </Space>
+        ),
+        onConfirm: () => {
+          dialog.destroy();
+          const input = document.createElement('input');
+          input.type = 'file';
+          input.accept = '.xlsx';
+          input.onchange = async () => {
+            const file = input.files?.[0];
+            if (!file) return;
+            try {
+              const rows = await parseBatchFile(file);
+              if (rows.length === 0) {
+                NotifyPlugin('warning', { title: '未解析到数据', content: '请确认表格中包含数据行', duration: 4000 });
+                return;
+              }
+              if (rows.length > 500) {
+                NotifyPlugin('warning', { title: '数据过多', content: '单次最多导入 500 条', duration: 4000 });
+                return;
+              }
+              showBatchPreviewDialog(rows);
+            } catch (e) {
+              NotifyPlugin('error', { title: '解析文件失败', content: String(e?.message ?? e), duration: 5000 });
+            }
+          };
+          input.click();
+        },
+      });
+    };
+
     const handleEdit = (e: Event, row) => {
       e.stopPropagation();
       actionMode.value = 'edit';
@@ -333,6 +670,39 @@ export default defineComponent({
       getUserPermissionsList(id);
       loadUserPositions(id); // 加载用户的职位信息
       showEditDialog();
+    };
+
+    const handleDelete = (e: Event, row) => {
+      e?.stopPropagation();
+      const { id } = row;
+      useRequest({
+        url: '/user/del',
+        methods: 'POST',
+        data: {
+          id: id,
+        },
+        success: function (res) {
+          const RES = typeof res === 'string' ? JSON.parse(res) : res;
+          if (RES.errcode === 0) {
+            const U_id = RES.data.id;
+            NotifyPlugin('success', {
+              title: '删除账号成功',
+              content: `成功删除了id为${U_id}的用户`,
+              duration: 5000,
+            });
+            loadTableData();
+            SelectData.value = [];
+          }
+        },
+        error: function (err) {
+          NotifyPlugin('error', {
+            title: '删除账号失败',
+            content: err,
+            duration: 5000,
+          });
+          console.error(err);
+        },
+      });
     };
 
     const initPermissionsTransfer = () => {
@@ -535,36 +905,7 @@ export default defineComponent({
     const DeleteAccount = () => {
       const list = SelectData.value;
       list.forEach((element, index) => {
-        useRequest({
-          url: '/user/del',
-          methods: 'POST',
-          data: {
-            id: element.id,
-          },
-          success: function (res) {
-            const RES = typeof res === 'string' ? JSON.parse(res) : res;
-            if (RES.errcode === 0) {
-              const U_id = RES.data.id;
-              NotifyPlugin('success', {
-                title: '删除账号成功',
-                content: `成功删除了id为${U_id}的用户`,
-                duration: 5000,
-              });
-              if (index === list.length - 1) {
-                SelectData.value = [];
-                loadTableData();
-              }
-            }
-          },
-          error: function (err) {
-            NotifyPlugin('error', {
-              title: '删除账号失败',
-              content: err,
-              duration: 5000,
-            });
-            console.error(err);
-          },
-        });
+        handleDelete(new Event('click'), element);
       });
     };
 
@@ -1120,11 +1461,18 @@ export default defineComponent({
       <div style="background-color: var(--td-bg-color-container); border-radius: 5px">
         <div style="display: flex; flex-direction: row; padding: 12px; justify-content: space-between">
           <Space size="small">
-            <Button variant="outline" theme="primary" onClick={handleAdd}>
-              {{
+            <Button
+              variant="outline"
+              theme="primary"
+              onClick={handleAdd}
+              v-slots={{
                 icon: () => <AddIcon />,
-                default: () => '添加账号',
               }}
+            >
+              添加账号
+            </Button>
+            <Button variant="outline" theme="primary" v-slots={{ icon: () => <UploadIcon /> }} onClick={handleBatchAdd}>
+              批量新增账号
             </Button>
             <Popconfirm
               theme="danger"
