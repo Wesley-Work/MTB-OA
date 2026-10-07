@@ -186,7 +186,9 @@ export default defineComponent({
                 placement="bottom"
                 onConfirm={(e) => handleDelete(e, row)}
               >
-                <Link theme="danger">删除</Link>
+                <Link theme="danger" onClick={(e) => e?.stopPropagation()}>
+                  删除
+                </Link>
               </Popconfirm>
             </Space>
           );
